@@ -422,8 +422,8 @@ const Game = (() => {
       // Disable roll button when it's a bot's turn or not in rolling phase
       rollBtn.disabled = state.phase !== 'rolling' || player.isBot;
       document.getElementById('roll-btn-text').textContent =
-        (state.phase === 'rolling' && !player.isBot) ? '🎲 Roll!' :
-        (player.isBot && state.phase === 'rolling') ? '🤖 Bot...' : '⏳';
+        (state.phase === 'rolling' && !player.isBot) ? '🎲 Roll Dice' :
+        (player.isBot && state.phase === 'rolling') ? '🤖 Bot thinking…' : '⏳';
     }
 
     updatePlayersStatus();

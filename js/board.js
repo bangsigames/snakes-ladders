@@ -1279,7 +1279,7 @@ const Board = (() => {
         this.pending = cell;
         this.mode = 'snake-tail';
         this.draw();
-        updatePlacementHint('Now click the TAIL square (must be a lower number)');
+        updatePlacementHint('Tap end square');
         Sounds.button();
       } else if (this.mode === 'snake-tail') {
         if (this.pending !== null && cell < this.pending && cell >= 1) {
@@ -1294,13 +1294,13 @@ const Board = (() => {
             showToast('That square is already used! Try another.');
           }
         } else {
-          showToast('Tail must be a LOWER number than the head!');
+          showToast('End square must be lower! Try again.');
         }
       } else if (this.mode === 'ladder-bottom') {
         this.pending = cell;
         this.mode = 'ladder-top';
         this.draw();
-        updatePlacementHint('Now click the TOP square (must be a higher number)');
+        updatePlacementHint('Tap top square');
         Sounds.button();
       } else if (this.mode === 'ladder-top') {
         if (this.pending !== null && cell > this.pending && cell <= this.config.total) {
@@ -1315,7 +1315,7 @@ const Board = (() => {
             showToast('That square is already used! Try another.');
           }
         } else {
-          showToast('Top must be a HIGHER number than the bottom!');
+          showToast('Top square must be higher! Try again.');
         }
       }
     },
@@ -1508,6 +1508,9 @@ const Board = (() => {
 
 // Helpers needed by Board.designer (defined outside module for cleanliness)
 function updatePlacementHint(text) {
-  const el = document.getElementById('placement-hint');
+  const mode = Board.designer.mode;
+  const isLadderMode = mode === 'ladder-bottom' || mode === 'ladder-top';
+  const id = isLadderMode ? 'ladder-hint' : 'placement-hint';
+  const el = document.getElementById(id);
   if (el) el.textContent = text;
 }

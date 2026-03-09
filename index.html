@@ -45,16 +45,16 @@
       </div>
       <div class="home-buttons">
         <button class="home-btn btn-play" id="btn-home-play">
-          <span class="home-btn-icon">🎮</span>
-          <span class="home-btn-label">Play!</span>
+          <span class="home-btn-icon">🎲</span>
+          <span class="home-btn-label">Play Game</span>
         </button>
         <button class="home-btn btn-design" id="btn-home-design">
           <span class="home-btn-icon">🎨</span>
-          <span class="home-btn-label">Design Board</span>
+          <span class="home-btn-label">Create Board</span>
         </button>
-        <button class="home-btn btn-scores" id="btn-home-scores">
-          <span class="home-btn-icon">🏆</span>
-          <span class="home-btn-label">High Scores</span>
+        <button class="home-btn btn-boards" id="btn-home-scores">
+          <span class="home-btn-icon">📋</span>
+          <span class="home-btn-label">My Boards</span>
         </button>
       </div>
     </div>
@@ -86,6 +86,7 @@
         <div class="step-dot" data-step="2"></div>
         <div class="step-dot" data-step="3"></div>
         <div class="step-dot" data-step="4"></div>
+        <div class="step-dot" data-step="5"></div>
       </div>
     </div>
 
@@ -119,86 +120,99 @@
 
     <!-- Step 2: Theme -->
     <div class="designer-step hidden" id="designer-step-2">
-      <h3 class="step-heading">Choose Your Theme</h3>
+      <h3 class="step-heading">Choose a Theme</h3>
       <div class="theme-options">
         <button class="theme-card" data-theme="jungle">
-          <div class="theme-preview theme-prev-jungle">🌿🐆🌴</div>
+          <div class="theme-illustration theme-prev-jungle">
+            <span class="theme-main-emoji">🌴</span>
+            <span class="theme-checkmark">✓</span>
+          </div>
           <div class="theme-label">Jungle</div>
         </button>
         <button class="theme-card" data-theme="space">
-          <div class="theme-preview theme-prev-space">🚀⭐🪐</div>
+          <div class="theme-illustration theme-prev-space">
+            <span class="theme-main-emoji">🚀</span>
+            <span class="theme-checkmark">✓</span>
+          </div>
           <div class="theme-label">Space</div>
         </button>
         <button class="theme-card" data-theme="ocean">
-          <div class="theme-preview theme-prev-ocean">🐠🐙🦈</div>
+          <div class="theme-illustration theme-prev-ocean">
+            <span class="theme-main-emoji">🌊</span>
+            <span class="theme-checkmark">✓</span>
+          </div>
           <div class="theme-label">Ocean</div>
         </button>
         <button class="theme-card" data-theme="fantasy">
-          <div class="theme-preview theme-prev-fantasy">🦄✨🏰</div>
+          <div class="theme-illustration theme-prev-fantasy">
+            <span class="theme-main-emoji">🦄</span>
+            <span class="theme-checkmark">✓</span>
+          </div>
           <div class="theme-label">Fantasy</div>
         </button>
         <button class="theme-card" data-theme="cartoon">
-          <div class="theme-preview theme-prev-cartoon">🎨🎉🌈</div>
+          <div class="theme-illustration theme-prev-cartoon">
+            <span class="theme-main-emoji">🎨</span>
+            <span class="theme-checkmark">✓</span>
+          </div>
           <div class="theme-label">Cartoon</div>
         </button>
       </div>
       <div class="step-nav">
         <button class="btn-back-step" id="btn-step2-back">← Back</button>
-        <button class="btn-next" id="btn-step2-next">Next: Add Snakes & Ladders →</button>
+        <button class="btn-next" id="btn-step2-next">Continue →</button>
       </div>
     </div>
 
-    <!-- Step 3: Snakes & Ladders Placement -->
-    <div class="designer-step hidden" id="designer-step-3">
-      <div class="designer-layout">
-        <div class="designer-controls">
-          <div class="control-section">
-            <h4>🐍 Snakes <span class="count-badge" id="snake-count-badge">0</span></h4>
-            <div class="count-row">
-              <button class="count-btn" id="snake-dec">−</button>
-              <span class="count-display" id="snake-count">3</span>
-              <button class="count-btn" id="snake-inc">+</button>
-            </div>
-            <button class="btn-place snake-btn" id="btn-add-snake">+ Add Snake</button>
-          </div>
-          <div class="control-section">
-            <h4>🪜 Ladders <span class="count-badge" id="ladder-count-badge">0</span></h4>
-            <div class="count-row">
-              <button class="count-btn" id="ladder-dec">−</button>
-              <span class="count-display" id="ladder-count">3</span>
-              <button class="count-btn" id="ladder-inc">+</button>
-            </div>
-            <button class="btn-place ladder-btn" id="btn-add-ladder">+ Add Ladder</button>
-          </div>
-          <div class="placement-hint" id="placement-hint">
-            Click "Add Snake" or "Add Ladder" then click squares on the board
-          </div>
-          <button class="btn-randomize" id="btn-randomize">🎲 Auto-Place All</button>
-          <div class="placements-list" id="placements-list">
-            <!-- Snake/Ladder list injected here -->
-          </div>
-        </div>
-        <div class="designer-board-wrap">
-          <canvas id="designer-canvas"></canvas>
-        </div>
+    <!-- Step 3: Add Snakes -->
+    <div class="designer-step hidden guided-step" id="designer-step-3">
+      <div class="guided-top">
+        <h3 class="guided-step-title">Add Snakes 🐍</h3>
+        <div class="guided-instruction" id="placement-hint">Tap start square</div>
       </div>
-      <div class="step-nav">
-        <button class="btn-back-step" id="btn-step3-back">← Back</button>
-        <button class="btn-next" id="btn-step3-next">Next: Save Board →</button>
+      <div class="guided-board-wrap" id="guided-board-wrap-3">
+        <canvas id="designer-canvas"></canvas>
+      </div>
+      <div class="guided-bottom">
+        <div class="guided-list" id="snake-list"><p class="guided-list-empty">No snakes yet</p></div>
+        <div class="step-nav">
+          <button class="btn-back-step" id="btn-step3-back">← Back</button>
+          <button class="btn-outline-action" id="btn-add-another-snake">🐍 Add Another Snake</button>
+          <button class="btn-next" id="btn-step3-next">Continue →</button>
+        </div>
       </div>
     </div>
 
-    <!-- Step 4: Name & Save -->
-    <div class="designer-step hidden" id="designer-step-4">
-      <h3 class="step-heading">Name Your Board!</h3>
+    <!-- Step 4: Add Ladders -->
+    <div class="designer-step hidden guided-step" id="designer-step-4">
+      <div class="guided-top">
+        <h3 class="guided-step-title">Add Ladders 🪜</h3>
+        <div class="guided-instruction" id="ladder-hint">Tap start square</div>
+      </div>
+      <div class="guided-board-wrap" id="guided-board-wrap-4">
+        <!-- canvas moved here by JS -->
+      </div>
+      <div class="guided-bottom">
+        <div class="guided-list" id="ladder-list"><p class="guided-list-empty">No ladders yet</p></div>
+        <div class="step-nav">
+          <button class="btn-back-step" id="btn-step4-back">← Back</button>
+          <button class="btn-outline-action" id="btn-add-another-ladder">🪜 Add Another Ladder</button>
+          <button class="btn-next" id="btn-step4-next">Continue →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Name & Save -->
+    <div class="designer-step hidden" id="designer-step-5">
+      <h3 class="step-heading">Name Your Board</h3>
+      <div class="name-suggestions" id="name-suggestions">
+        <!-- Chips injected by JS -->
+      </div>
       <div class="board-name-wrap">
-        <input type="text" id="board-name-input" class="board-name-input" placeholder="e.g. Super Snake Mountain" maxlength="30">
-      </div>
-      <div class="board-summary" id="board-summary">
-        <!-- Summary injected here -->
+        <input type="text" id="board-name-input" class="board-name-input" placeholder="Or type your own name…" maxlength="30">
       </div>
       <div class="step-nav save-nav">
-        <button class="btn-back-step" id="btn-step4-back">← Back</button>
+        <button class="btn-back-step" id="btn-step5-back">← Back</button>
         <button class="btn-save" id="btn-save-board">💾 Save Board</button>
         <button class="btn-play-now" id="btn-play-now">🎮 Play Now!</button>
       </div>
@@ -212,7 +226,7 @@
       <h2 class="screen-title">Who's Playing?</h2>
     </div>
     <div class="player-count-row">
-      <span class="player-count-label">Number of players:</span>
+      <span class="player-count-label">Players</span>
       <div class="player-count-btns">
         <button class="pcount-btn" data-count="1">1</button>
         <button class="pcount-btn active" data-count="2">2</button>
@@ -239,7 +253,7 @@
             <div class="cp-label">Your turn!</div>
           </div>
         </div>
-        <div class="game-turn-count" id="game-turn-count">Turn 1</div>
+        <div class="players-status" id="players-status"></div>
         <button class="btn-music-toggle" id="btn-music-toggle" title="Toggle music">🔊</button>
       </div>
 
@@ -248,19 +262,14 @@
       </div>
 
       <div class="game-bottom-bar">
-        <div class="players-status" id="players-status">
-          <!-- Player status chips injected here -->
-        </div>
-        <div class="dice-area">
-          <div class="dice-container" id="dice-container">
-            <div class="dice" id="dice">
-              <div class="dice-face dice-top"></div>
-            </div>
+        <div class="dice-container" id="dice-container">
+          <div class="dice" id="dice">
+            <div class="dice-face dice-top"></div>
           </div>
-          <button class="btn-roll" id="btn-roll">
-            <span id="roll-btn-text">🎲 Roll!</span>
-          </button>
         </div>
+        <button class="btn-roll" id="btn-roll">
+          <span id="roll-btn-text">🎲 Roll Dice</span>
+        </button>
       </div>
     </div>
 
