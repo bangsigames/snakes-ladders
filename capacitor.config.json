@@ -1,8 +1,7 @@
 {
   "appId": "com.mysnakesladders.app",
   "appName": "My Snakes & Ladders",
-  "webDir": ".",
-  "bundledWebRuntime": false,
+  "webDir": "www",
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2000,
