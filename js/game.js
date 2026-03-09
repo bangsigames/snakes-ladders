@@ -94,7 +94,7 @@ const Game = (() => {
     setTimeout(() => {
       dice.classList.remove('rolling');
       if (cb) cb();
-    }, 1000);
+    }, 800);
   }
 
   function renderDiceFace(el, value) {
@@ -133,7 +133,7 @@ const Game = (() => {
     setTimeout(() => {
       overlay.classList.add('hidden');
       if (cb) cb();
-    }, 1200);
+    }, 800);
   }
 
   // ---- Movement ----
@@ -234,7 +234,7 @@ const Game = (() => {
     if (path.length === 0) { onDone(); return; }
 
     let step = 0;
-    const STEP_DURATION = 180; // ms per cell
+    const STEP_DURATION = 120; // ms per cell
 
     function doStep() {
       if (step >= path.length) {
@@ -261,7 +261,7 @@ const Game = (() => {
     const w = canvas.width, h = canvas.height;
     const bp = Board.getSnakeBezierPath(snake.head, snake.tail, board.cols, board.rows, w, h);
 
-    const DURATION = 1500; // 1.5 seconds
+    const DURATION = 700; // ms
     const startTime = performance.now();
 
     function frame(now) {
@@ -294,7 +294,7 @@ const Game = (() => {
     const w = canvas.width, h = canvas.height;
     const bp = Board.getLadderBezierPath(ladder.bottom, ladder.top, board.cols, board.rows, w, h);
 
-    const DURATION = 1200; // 1.2 seconds
+    const DURATION = 600; // ms
     const startTime = performance.now();
 
     function frame(now) {
