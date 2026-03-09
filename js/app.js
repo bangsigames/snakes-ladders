@@ -295,13 +295,7 @@ const App = (() => {
                value="${escHtml(isBot ? (p.name.startsWith('Bot') ? p.name : `Bot ${i}`) : p.name)}"
                maxlength="15" placeholder="Name"
                ${isBot ? 'disabled' : ''}>
-        <div class="char-picker">
-          ${themeChars.map(c => `
-            <button class="char-btn ${p.character === c.emoji ? 'selected' : ''}"
-                    onclick="App.selectChar(${i}, '${c.emoji}', '${c.sound}')"
-                    title="${c.name}">${c.emoji}</button>
-          `).join('')}
-        </div>
+        ${Components.AvatarSelector(themeChars, p.character, i)}
       </div>
     `;
     }).join('');
@@ -712,13 +706,7 @@ function updateSnakeList() {
     list.innerHTML = '<p class="guided-list-empty">No snakes yet</p>';
     return;
   }
-  list.innerHTML = snakes.map((s, i) => `
-    <div class="guided-list-item">
-      <span class="guided-list-icon">🐍</span>
-      <span class="guided-list-label">Snake ${i + 1} &nbsp; ${s.head} → ${s.tail}</span>
-      <button class="btn-remove-item" onclick="Board.designer.removeSnake(${i}); updateDesignerUI()">✕</button>
-    </div>
-  `).join('');
+  list.innerHTML = snakes.map((s, i) => Components.SnakeListItem(s, i)).join('');
 }
 
 function updateLadderList() {
@@ -729,13 +717,7 @@ function updateLadderList() {
     list.innerHTML = '<p class="guided-list-empty">No ladders yet</p>';
     return;
   }
-  list.innerHTML = ladders.map((l, i) => `
-    <div class="guided-list-item">
-      <span class="guided-list-icon">🪜</span>
-      <span class="guided-list-label">Ladder ${i + 1} &nbsp; ${l.bottom} → ${l.top}</span>
-      <button class="btn-remove-item" onclick="Board.designer.removeLadder(${i}); updateDesignerUI()">✕</button>
-    </div>
-  `).join('');
+  list.innerHTML = ladders.map((l, i) => Components.LadderListItem(l, i)).join('');
 }
 
 // ---- showToast ----
