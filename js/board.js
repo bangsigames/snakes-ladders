@@ -1233,13 +1233,37 @@ const Board = (() => {
     resize() {
       const wrap = this.canvas.parentElement;
       if (!wrap) return;
-      const availW = wrap.clientWidth  - 16;
-      const availH = wrap.clientHeight - 16;
-      const maxSize = Math.min(availW, availH, 600);
-      if (maxSize <= 0) return;
-      const aspectRatio = this.config.cols / this.config.rows;
-      this.canvas.width  = Math.floor(maxSize);
-      this.canvas.height = Math.floor(maxSize / aspectRatio);
+      const pad = 16;
+      const availW = wrap.clientWidth  - pad;
+      const availH = wrap.clientHeight - pad;
+      if (availW <= 0 || availH <= 0) return;
+
+      const cols   = this.config.cols;
+      const rows   = this.config.rows;
+      const aspect = cols / rows;
+
+      let cw, ch;
+      if (availW / availH > aspect) {
+        ch = availH; cw = ch * aspect;
+      } else {
+        cw = availW; ch = cw / aspect;
+      }
+
+      // Enforce 48px minimum cell size (squares are tappable in designer)
+      const MIN_CELL = 48;
+      if (cw / cols < MIN_CELL) { cw = cols * MIN_CELL; ch = cw / aspect; }
+      if (ch / rows < MIN_CELL) { ch = rows * MIN_CELL; cw = ch * aspect; }
+
+      // Never exceed wrap width
+      if (cw > availW) { cw = availW; ch = cw / aspect; }
+
+      cw = Math.round(cw);
+      ch = Math.round(ch);
+
+      this.canvas.width        = cw;
+      this.canvas.height       = ch;
+      this.canvas.style.width  = cw + 'px';
+      this.canvas.style.height = ch + 'px';
     },
 
     setPreset(key) {
@@ -1465,30 +1489,50 @@ const Board = (() => {
   function resizeGameCanvas(boardConfig) {
     if (!gameCanvas) return;
 
-    // Calculate available space from viewport minus fixed UI bars
     const topBar    = document.querySelector('.game-top-bar');
     const bottomBar = document.querySelector('.game-bottom-bar');
-    const topH    = topBar    ? topBar.offsetHeight    : 60;
-    const bottomH = bottomBar ? bottomBar.offsetHeight : 72;
+    const topH    = topBar    ? topBar.offsetHeight    : 72;
+    const bottomH = bottomBar ? bottomBar.offsetHeight : 80;
     const pad = 16;
 
-    const availW = window.innerWidth  - pad * 2;
-    const availH = window.innerHeight - topH - bottomH - pad * 2;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
-    if (availW <= 0 || availH <= 0) return;
+    // Board must occupy 60–75% of screen height
+    const naturalH = vh - topH - bottomH - pad * 2;
+    const clampedH = Math.min(Math.max(naturalH, vh * 0.60), vh * 0.75);
+    const availW   = vw - pad * 2;
 
-    const aspectRatio = boardConfig.cols / boardConfig.rows;
+    if (availW <= 0 || clampedH <= 0) return;
+
+    const cols = boardConfig.cols;
+    const rows = boardConfig.rows;
+    const aspect = cols / rows;
+
     let cw, ch;
-    if (availW / availH > aspectRatio) {
-      ch = Math.floor(availH);
-      cw = Math.floor(ch * aspectRatio);
+    if (availW / clampedH > aspect) {
+      ch = clampedH;
+      cw = ch * aspect;
     } else {
-      cw = Math.floor(availW);
-      ch = Math.floor(cw / aspectRatio);
+      cw = availW;
+      ch = cw / aspect;
     }
-    gameCanvas.width  = Math.max(cw, 200);
-    gameCanvas.height = Math.max(ch, 100);
-    // No style.width/height override — let the canvas use its natural pixel size
+
+    // Enforce 48px minimum cell size
+    const MIN_CELL = 48;
+    if (cw / cols < MIN_CELL) { cw = cols * MIN_CELL; ch = cw / aspect; }
+    if (ch / rows < MIN_CELL) { ch = rows * MIN_CELL; cw = ch * aspect; }
+
+    // Never exceed device width
+    if (cw > availW) { cw = availW; ch = cw / aspect; }
+
+    cw = Math.round(cw);
+    ch = Math.round(ch);
+
+    gameCanvas.width        = cw;
+    gameCanvas.height       = ch;
+    gameCanvas.style.width  = cw + 'px';
+    gameCanvas.style.height = ch + 'px';
   }
 
   function redrawGame(boardConfig, players, animState) {
