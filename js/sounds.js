@@ -64,10 +64,16 @@ const Sounds = (() => {
     if (muted) return;
     const c = getCtx();
     const now = c.currentTime;
-    for (let i = 0; i < 6; i++) {
-      playNoise(now + i * 0.08, 0.05, 0.15, 500 + Math.random() * 1000);
-      playTone(200 + Math.random() * 400, 'square', now + i * 0.08, 0.04, 0.1);
+    // Rapid dice rattle — 8 impacts over 600ms, fading out
+    for (let i = 0; i < 8; i++) {
+      const t = now + i * 0.072 + Math.random() * 0.02;
+      const fadeGain = 0.22 - i * 0.015;
+      playNoise(t, 0.045, fadeGain, 350 + Math.random() * 700);
+      playTone(130 + Math.random() * 280, 'square', t, 0.03, 0.1);
     }
+    // Final clunk settling
+    playNoise(now + 0.62, 0.09, 0.28, 180);
+    playTone(110, 'sine', now + 0.62, 0.14, 0.18, 75);
   }
 
   function moveStep() {
@@ -95,31 +101,34 @@ const Sounds = (() => {
     if (muted) return;
     const c = getCtx();
     const now = c.currentTime;
-    // Exciting ascending arpeggio + high chime
+    // Ascending arpeggio timed to fit 600ms animation
     const notes = [261, 329, 392, 523, 659, 784, 1047];
     notes.forEach((freq, i) => {
-      playTone(freq, 'triangle', now + i * 0.08, 0.22, 0.28);
+      playTone(freq, 'triangle', now + i * 0.065, 0.18, 0.28);
     });
-    // Sparkle on top
-    playTone(1568, 'sine', now + 0.55, 0.3, 0.2, 2000);
-    playTone(2093, 'sine', now + 0.65, 0.25, 0.15);
+    // Sparkle chime at peak
+    playTone(1568, 'sine', now + 0.45, 0.2, 0.22, 2000);
+    playTone(2093, 'sine', now + 0.52, 0.15, 0.15);
   }
 
   function win() {
     if (muted) return;
     const c = getCtx();
     const now = c.currentTime;
-    // Fanfare!
-    const melody = [523,659,784,1047,784,1047];
-    const times =  [0,  0.15,0.3, 0.5, 0.65,0.8];
+    // Victory fanfare melody
+    const melody = [523, 659, 784, 1047, 784, 1047, 1319];
+    const times  = [0,   0.12,0.24,0.40, 0.55,0.68, 0.82];
     melody.forEach((freq, i) => {
-      playTone(freq, 'triangle', now + times[i], 0.25, 0.3);
-      playTone(freq * 0.5, 'sine', now + times[i], 0.25, 0.15);
+      playTone(freq, 'triangle', now + times[i], 0.22, 0.35);
+      playTone(freq * 0.5, 'sine', now + times[i], 0.22, 0.18);
     });
-    // Drum hits
-    playNoise(now, 0.1, 0.3, 100);
-    playNoise(now + 0.4, 0.1, 0.3, 100);
-    playNoise(now + 0.8, 0.15, 0.3, 100);
+    // Crowd cheer noise swell
+    playNoise(now + 0.3, 0.9, 0.18, 400);
+    playNoise(now + 0.55, 0.7, 0.14, 300);
+    // Punchy drum hits
+    playNoise(now, 0.1, 0.38, 80);
+    playNoise(now + 0.4, 0.1, 0.32, 80);
+    playNoise(now + 0.82, 0.18, 0.4, 80);
   }
 
   function playerMove(soundId) {
@@ -319,14 +328,17 @@ const Sounds = (() => {
     musicPattern = null;
   }
 
+  // Toggle ALL sound (SFX + music) with one button
+  function toggleMute() {
+    muted = !muted;
+    musicMuted = muted;
+    if (muted) stopMusic();
+    return muted;
+  }
+
   function toggleMusic() {
     musicMuted = !musicMuted;
-    if (musicMuted) {
-      stopMusic();
-    } else {
-      // Restart with current theme if there's a pattern reference
-      // We rely on the caller to restart with the correct theme
-    }
+    if (musicMuted) stopMusic();
     return musicMuted;
   }
 
@@ -341,7 +353,7 @@ const Sounds = (() => {
   return {
     rollDice, moveStep, landSnake, landLadder, win, playerMove, button,
     playThemedSound,
-    startMusic, stopMusic, toggleMusic,
+    startMusic, stopMusic, toggleMute, toggleMusic,
     setMuted, isMuted, isMusicMuted,
   };
 })();

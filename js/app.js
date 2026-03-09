@@ -401,7 +401,7 @@ const App = (() => {
   let lastTheme = 'cartoon';
 
   function toggleMusicMute() {
-    const muted = Sounds.toggleMusic();
+    const muted = Sounds.toggleMute();
     const btn = document.getElementById('btn-music-toggle');
     if (btn) btn.textContent = muted ? '🔇' : '🔊';
     if (!muted && currentBoard) {
