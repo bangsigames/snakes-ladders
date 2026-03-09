@@ -94,7 +94,7 @@ const Game = (() => {
     setTimeout(() => {
       dice.classList.remove('rolling');
       if (cb) cb();
-    }, 650);
+    }, 1000);
   }
 
   function renderDiceFace(el, value) {
@@ -128,7 +128,7 @@ const Game = (() => {
     const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
     diceEl.textContent = faces[value - 1];
     const player = state.players[state.currentIndex];
-    textEl.textContent = `${player.name} rolled a ${value}!`;
+    textEl.textContent = `You rolled ${value}`;
     overlay.classList.remove('hidden');
     setTimeout(() => {
       overlay.classList.add('hidden');
@@ -323,18 +323,33 @@ const Game = (() => {
   // Show event briefly (1s auto-dismiss) after animation
   function showEventBrief(type, player, data, cb) {
     const overlay = document.getElementById('event-overlay');
+    const card = document.getElementById('event-card');
     const emoji = document.getElementById('event-emoji');
     const title = document.getElementById('event-title');
     const desc = document.getElementById('event-desc');
+    const confettiCanvas = document.getElementById('event-confetti-canvas');
+
+    // Reset classes
+    overlay.classList.remove('snake-event', 'ladder-event');
+    card.classList.remove('snake-card', 'ladder-card');
 
     if (type === 'snake') {
       emoji.textContent = '🐍';
-      title.textContent = 'Oh no! A Snake!';
-      desc.textContent = `${player.name} slides from ${data.head} down to ${data.tail}!`;
+      title.textContent = 'Oh no!';
+      desc.textContent = 'Snake!';
+      overlay.classList.add('snake-event');
+      card.classList.add('snake-card');
+      Particles.stop();
     } else {
       emoji.textContent = '🪜';
-      title.textContent = 'Woohoo! A Ladder!';
-      desc.textContent = `${player.name} climbs from ${data.bottom} up to ${data.top}!`;
+      title.textContent = 'Woohoo!';
+      desc.textContent = 'Climb the ladder!';
+      overlay.classList.add('ladder-event');
+      card.classList.add('ladder-card');
+      // Confetti burst
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+      Particles.start(confettiCanvas, 70);
     }
 
     overlay.classList.remove('hidden');
@@ -343,12 +358,13 @@ const Game = (() => {
       if (dismissed) return;
       dismissed = true;
       clearTimeout(timer);
+      Particles.stop();
       overlay.classList.add('hidden');
       overlay.removeEventListener('click', dismiss);
       if (cb) cb();
     };
     overlay.addEventListener('click', dismiss);
-    const timer = setTimeout(dismiss, 1000); // 1s auto-dismiss
+    const timer = setTimeout(dismiss, 1800);
   }
 
   // Legacy showEvent for compatibility

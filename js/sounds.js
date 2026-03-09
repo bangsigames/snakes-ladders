@@ -81,21 +81,28 @@ const Sounds = (() => {
     if (muted) return;
     const c = getCtx();
     const now = c.currentTime;
-    // Descending slide + hiss
-    playTone(400, 'sawtooth', now, 0.5, 0.2, 80);
-    playNoise(now, 0.6, 0.15, 3000);
-    playTone(200, 'sine', now + 0.1, 0.4, 0.1, 50);
+    // Loud hiss burst
+    playNoise(now, 0.25, 0.35, 4000);
+    playNoise(now + 0.2, 0.25, 0.28, 3000);
+    playNoise(now + 0.4, 0.3, 0.2, 2000);
+    // Descending slide
+    playTone(350, 'sawtooth', now, 0.4, 0.25, 120);
+    playTone(180, 'sine', now + 0.2, 0.35, 0.15, 80);
+    playTone(80, 'sine', now + 0.4, 0.25, 0.1, 40);
   }
 
   function landLadder() {
     if (muted) return;
     const c = getCtx();
     const now = c.currentTime;
-    // Ascending arpeggio
-    const notes = [261, 329, 392, 523, 659];
+    // Exciting ascending arpeggio + high chime
+    const notes = [261, 329, 392, 523, 659, 784, 1047];
     notes.forEach((freq, i) => {
-      playTone(freq, 'triangle', now + i * 0.1, 0.2, 0.2);
+      playTone(freq, 'triangle', now + i * 0.08, 0.22, 0.28);
     });
+    // Sparkle on top
+    playTone(1568, 'sine', now + 0.55, 0.3, 0.2, 2000);
+    playTone(2093, 'sine', now + 0.65, 0.25, 0.15);
   }
 
   function win() {

@@ -1317,14 +1317,13 @@ body.theme-cartoon .home-bg {
   display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
 }
-.dice.rolling { animation: diceRoll 0.6s ease-out; }
+.dice.rolling { animation: diceRoll 1.0s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 @keyframes diceRoll {
-  0% { transform: rotate(0deg) scale(1); }
-  20% { transform: rotate(-18deg) scale(1.12); }
-  40% { transform: rotate(22deg) scale(1.16); }
-  60% { transform: rotate(-12deg) scale(1.1); }
-  80% { transform: rotate(8deg) scale(1.05); }
-  100% { transform: rotate(0deg) scale(1); }
+  0%   { transform: rotate(0deg) scale(1); }
+  15%  { transform: rotate(90deg) scale(1.2); }
+  40%  { transform: rotate(220deg) scale(1.18); }
+  70%  { transform: rotate(320deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
 }
 
 .dice-face {
@@ -1385,24 +1384,70 @@ body.theme-cartoon .home-bg {
   background: rgba(0,0,0,0.75); backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   display: flex; align-items: center; justify-content: center;
-  z-index: 101;
+  z-index: 101; transition: background 0.3s;
 }
 .event-overlay.hidden { opacity: 0; pointer-events: none; }
+.event-overlay.snake-event { background: rgba(120,0,0,0.82); }
+.event-overlay.ladder-event { background: rgba(0,80,20,0.78); }
+
+/* Confetti canvas sits behind the card */
+.event-confetti-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; z-index: 0;
+}
+
 .event-card {
+  position: relative; z-index: 1;
   background: var(--surface);
   border-radius: 36px; padding: 44px 52px;
   text-align: center;
   box-shadow: 0 32px 100px rgba(0,0,0,0.5);
-  animation: eventPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
   max-width: 380px;
 }
-@keyframes eventPop {
-  from { transform: scale(0.5) rotate(-6deg); opacity: 0; }
-  to { transform: scale(1) rotate(0deg); opacity: 1; }
+.event-card.snake-card { animation: snakePop 0.45s cubic-bezier(0.34,1.56,0.64,1) both; }
+.event-card.ladder-card { animation: ladderPop 0.45s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+@keyframes snakePop {
+  0%   { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(1.08) rotate(3deg); opacity: 1; }
+  80%  { transform: scale(0.96) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); }
 }
-.event-emoji { font-size: 6rem; line-height: 1; margin-bottom: 16px; }
-.event-title { font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
-.event-desc { font-size: 1.1rem; color: var(--text-light); font-weight: 700; }
+@keyframes ladderPop {
+  0%   { transform: scale(0.3) translateY(40px); opacity: 0; }
+  60%  { transform: scale(1.1) translateY(-8px); opacity: 1; }
+  80%  { transform: scale(0.97) translateY(2px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+.event-emoji {
+  font-size: 7rem; line-height: 1; margin-bottom: 12px;
+  display: block;
+}
+.event-card.snake-card .event-emoji { animation: snakeEmojiWiggle 0.6s 0.3s ease-in-out both; }
+.event-card.ladder-card .event-emoji { animation: ladderEmojiBounce 0.5s 0.3s cubic-bezier(0.34,1.8,0.64,1) both; }
+
+@keyframes snakeEmojiWiggle {
+  0%,100% { transform: rotate(0deg); }
+  20% { transform: rotate(-12deg) scale(1.1); }
+  40% { transform: rotate(10deg) scale(1.15); }
+  60% { transform: rotate(-8deg) scale(1.1); }
+  80% { transform: rotate(6deg); }
+}
+@keyframes ladderEmojiBounce {
+  0%   { transform: scale(0.5) translateY(20px); }
+  100% { transform: scale(1.15) translateY(0); }
+}
+
+.event-title {
+  font-family: var(--font-display); font-size: 2.8rem; font-weight: 800;
+  color: var(--text); margin-bottom: 6px; line-height: 1.1;
+}
+.event-desc {
+  font-family: var(--font-display); font-size: 2rem; font-weight: 800;
+  color: var(--text-light);
+}
 
 /* Game Menu overlay */
 .game-menu-overlay {
