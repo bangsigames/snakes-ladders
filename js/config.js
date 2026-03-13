@@ -115,7 +115,7 @@ const THEME_CHARACTERS = {
     { id: 'monkey',   emoji: '🐒', name: 'Monkey',   sound: 'monkey' },
     { id: 'parrot',   emoji: '🦜', name: 'Parrot',   sound: 'parrot' },
     { id: 'frog',     emoji: '🐸', name: 'Frog',     sound: 'frog_j' },
-    { id: 'croc',     emoji: '🐊', name: 'Croc',     sound: 'elephant' },
+    { id: 'croc',     emoji: '🐊', name: 'Croc',     sound: 'croc' },
   ],
   space: [
     { id: 'rocket',    emoji: '🚀', name: 'Rocket',    sound: 'rocket_s' },
@@ -143,10 +143,10 @@ const THEME_CHARACTERS = {
   ],
   cartoon: [
     { id: 'frog',    emoji: '🐸', name: 'Froggy',  sound: 'boing' },
-    { id: 'tiger',   emoji: '🐯', name: 'Tiger',   sound: 'spring' },
-    { id: 'panda',   emoji: '🐼', name: 'Panda',   sound: 'pop_c' },
-    { id: 'fox',     emoji: '🦊', name: 'Fox',     sound: 'honk' },
-    { id: 'penguin', emoji: '🐧', name: 'Penguin', sound: 'zap' },
+    { id: 'tiger',   emoji: '🐯', name: 'Tiger',   sound: 'roar_c' },
+    { id: 'panda',   emoji: '🐼', name: 'Panda',   sound: 'munch_c' },
+    { id: 'fox',     emoji: '🦊', name: 'Fox',     sound: 'yip_c' },
+    { id: 'penguin', emoji: '🐧', name: 'Penguin', sound: 'squeak_c' },
     { id: 'bunny',   emoji: '🐰', name: 'Bunny',   sound: 'boing' },
   ],
 };

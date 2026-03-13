@@ -160,99 +160,204 @@ const Sounds = (() => {
     const now = c.currentTime;
 
     const defs = {
-      // Jungle
-      lion: () => playTone(80, 'sawtooth', now, 0.5, 0.3, 60),
-      elephant: () => playTone(500, 'triangle', now, 0.4, 0.25, 150),
-      monkey: () => {
-        [400, 600, 800].forEach((f, i) => playTone(f, 'sine', now + i * 0.09, 0.08, 0.25));
+      // ---- JUNGLE ----
+      lion: () => {
+        // Deep rumbling roar: noise burst + low harmonics descending
+        playNoise(now, 0.65, 0.32, 55);
+        playNoise(now + 0.08, 0.5, 0.25, 110);
+        playTone(75, 'sawtooth', now, 0.6, 0.35, 45);
+        playTone(150, 'sawtooth', now, 0.5, 0.18, 70);
+        playTone(38, 'sine', now + 0.25, 0.45, 0.22, 28);
       },
-      parrot: () => playTone(1200, 'square', now, 0.15, 0.2, 900),
-      frog_j: () => playTone(200, 'sine', now, 0.1, 0.25),
+      elephant: () => {
+        // Classic trumpet: starts low, sweeps UP fast
+        playTone(270, 'sawtooth', now, 0.55, 0.38, 900);
+        playTone(135, 'triangle', now, 0.55, 0.18, 450);
+        playNoise(now + 0.08, 0.3, 0.1, 700);
+      },
+      monkey: () => {
+        // "Ooh ooh aah aah" chattering sequence
+        [320, 480, 640, 480, 320, 520, 720, 520, 380].forEach((f, i) =>
+          playTone(f, 'triangle', now + i * 0.062, 0.055, 0.22)
+        );
+        playNoise(now, 0.55, 0.04, 900);
+      },
+      parrot: () => {
+        // Loud squawk — two sharp raspy bursts
+        playTone(880, 'square', now, 0.07, 0.28, 680);
+        playNoise(now, 0.08, 0.12, 1400);
+        playTone(1250, 'square', now + 0.1, 0.07, 0.22, 950);
+        playTone(820, 'sawtooth', now + 0.19, 0.1, 0.2, 1150);
+        playNoise(now + 0.1, 0.15, 0.08, 1600);
+      },
+      frog_j: () => {
+        // Ribbit croak: two-phase low trill
+        playTone(155, 'sine', now, 0.05, 0.3, 105);
+        playTone(195, 'sine', now + 0.07, 0.06, 0.28, 135);
+        playTone(155, 'sine', now + 0.15, 0.09, 0.3, 95);
+        playNoise(now, 0.22, 0.07, 280);
+      },
+      croc: () => {
+        // Jaw snap: sharp crack + low thud resonance
+        playNoise(now, 0.025, 0.5, 120);
+        playTone(95, 'sine', now, 0.09, 0.32, 45);
+        playNoise(now + 0.025, 0.08, 0.18, 380);
+      },
 
-      // Space
-      laser: () => playTone(2000, 'square', now, 0.2, 0.25, 100),
+      // ---- SPACE ----
+      laser: () => {
+        // Pew! Sharp descending zap
+        playTone(2600, 'square', now, 0.14, 0.26, 140);
+        playNoise(now, 0.04, 0.14, 4500);
+      },
       rocket_s: () => {
-        playNoise(now, 0.3, 0.2, 200);
-        playTone(200, 'sine', now, 0.3, 0.2, 800);
+        // Ignition whoosh + sustained thrust
+        playNoise(now, 0.55, 0.3, 70);
+        playTone(110, 'sawtooth', now, 0.5, 0.22, 240);
+        playTone(55, 'sine', now, 0.55, 0.15, 95);
       },
       alien: () => {
+        // Wobbling transmission
         const osc = c.createOscillator();
         const g = c.createGain();
         const lfo = c.createOscillator();
         const lfoGain = c.createGain();
-        lfo.frequency.value = 8;
-        lfoGain.gain.value = 50;
+        lfo.frequency.value = 10;
+        lfoGain.gain.value = 70;
         lfo.connect(lfoGain);
         lfoGain.connect(osc.frequency);
-        osc.frequency.value = 400;
+        osc.frequency.value = 380;
         osc.type = 'sine';
-        g.gain.setValueAtTime(0.25, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        g.gain.setValueAtTime(0.28, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
         osc.connect(g);
         g.connect(c.destination);
         lfo.start(now); osc.start(now);
-        lfo.stop(now + 0.41); osc.stop(now + 0.41);
+        lfo.stop(now + 0.46); osc.stop(now + 0.46);
       },
       warp: () => {
-        playTone(100, 'sine', now, 0.5, 0.15);
-        playTone(400, 'sine', now, 0.5, 0.15, 2000);
+        // Hyperdrive sweep
+        playTone(80, 'sine', now, 0.5, 0.18);
+        playTone(320, 'sine', now, 0.5, 0.18, 2400);
+        playNoise(now + 0.1, 0.3, 0.08, 600);
       },
       computer: () => {
-        [880, 660, 440].forEach((f, i) => playTone(f, 'square', now + i * 0.07, 0.06, 0.2));
+        // R2D2-style beep-boop sequence
+        [1100, 660, 1320, 550, 990, 1210].forEach((f, i) =>
+          playTone(f, 'square', now + i * 0.055, 0.045, 0.2)
+        );
       },
 
-      // Ocean
-      whale: () => playTone(300, 'sine', now, 1.0, 0.2, 80),
+      // ---- OCEAN ----
+      whale: () => {
+        // Haunting moan: sweeps up then back down
+        playTone(115, 'sine', now, 0.45, 0.24, 330);
+        playTone(330, 'sine', now + 0.4, 0.55, 0.22, 155);
+        playTone(58, 'sine', now, 0.9, 0.1);
+      },
       dolphin: () => {
-        for (let i = 0; i < 5; i++) {
-          playTone(2000 + Math.random() * 1000, 'sine', now + i * 0.05, 0.04, 0.2);
+        // Echolocation clicks then rising whistle
+        for (let i = 0; i < 4; i++) {
+          playNoise(now + i * 0.032, 0.016, 0.22, 4200);
         }
+        playTone(2900, 'sine', now + 0.18, 0.22, 0.16, 3600);
+        playTone(3600, 'sine', now + 0.36, 0.18, 0.12, 2600);
       },
-      splash: () => playNoise(now, 0.2, 0.25, 200),
+      splash: () => {
+        playNoise(now, 0.05, 0.38, 150);
+        playNoise(now + 0.04, 0.2, 0.2, 300);
+      },
       bubble: () => {
-        [400, 600, 800].forEach((f, i) => playTone(f, 'sine', now + i * 0.08, 0.07, 0.2, f * 1.5));
+        [380, 560, 760, 980].forEach((f, i) =>
+          playTone(f, 'sine', now + i * 0.09, 0.065, 0.2, f * 1.6)
+        );
       },
-      sonar: () => playTone(1000, 'sine', now, 0.6, 0.2),
+      sonar: () => {
+        playTone(980, 'sine', now, 0.65, 0.22);
+        playTone(1960, 'sine', now + 0.05, 0.2, 0.08);
+      },
 
-      // Fantasy
+      // ---- FANTASY ----
       magic: () => {
         [523, 659, 784, 1047, 1319, 1568].forEach((f, i) =>
           playTone(f, 'triangle', now + i * 0.07, 0.15, 0.2)
         );
       },
       dragon: () => {
-        playTone(100, 'sawtooth', now, 0.6, 0.25);
-        playNoise(now, 0.6, 0.15, 80);
+        // Roar + fire breath crackle
+        playTone(85, 'sawtooth', now, 0.7, 0.3, 55);
+        playNoise(now, 0.7, 0.22, 70);
+        playNoise(now + 0.12, 0.55, 0.2, 350);
+        playTone(190, 'sawtooth', now + 0.08, 0.55, 0.14, 95);
       },
       fairy: () => {
-        [2093, 2349, 2637].forEach((f, i) => playTone(f, 'sine', now + i * 0.11, 0.1, 0.18));
+        [2093, 2349, 2637, 3136].forEach((f, i) =>
+          playTone(f, 'sine', now + i * 0.1, 0.09, 0.18)
+        );
       },
       horn: () => {
-        [440, 494, 523].forEach((f, i) => playTone(f, 'triangle', now + i * 0.2, 0.2, 0.25));
+        [440, 494, 523, 587].forEach((f, i) =>
+          playTone(f, 'triangle', now + i * 0.18, 0.2, 0.25)
+        );
       },
-      crystal: () => playTone(1047, 'sine', now, 0.8, 0.2),
+      crystal: () => {
+        playTone(1047, 'sine', now, 0.9, 0.22);
+        playTone(2093, 'sine', now + 0.04, 0.5, 0.1);
+      },
 
-      // Cartoon
+      // ---- CARTOON ----
       boing: () => {
+        // Classic spring boing
         const osc = c.createOscillator();
         const g = c.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(300, now);
-        osc.frequency.linearRampToValueAtTime(800, now + 0.2);
-        osc.frequency.linearRampToValueAtTime(300, now + 0.4);
+        osc.frequency.setValueAtTime(280, now);
+        osc.frequency.linearRampToValueAtTime(820, now + 0.18);
+        osc.frequency.linearRampToValueAtTime(280, now + 0.38);
         g.gain.setValueAtTime(0.3, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-        osc.connect(g);
-        g.connect(c.destination);
-        osc.start(now); osc.stop(now + 0.41);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        osc.connect(g); g.connect(c.destination);
+        osc.start(now); osc.stop(now + 0.4);
+      },
+      roar_c: () => {
+        // Cartoon tiger roar — exaggerated short growl
+        playNoise(now, 0.25, 0.25, 90);
+        playTone(130, 'sawtooth', now, 0.25, 0.3, 80);
+        playTone(260, 'sawtooth', now, 0.2, 0.15, 100);
+        playNoise(now + 0.1, 0.15, 0.15, 200);
+      },
+      munch_c: () => {
+        // Panda munching bamboo — crunchy chomps
+        [0, 0.12, 0.24].forEach(t => {
+          playNoise(now + t, 0.04, 0.28, 250);
+          playTone(200, 'square', now + t, 0.04, 0.18, 150);
+        });
+      },
+      yip_c: () => {
+        // Fox yip — quick high bark
+        playTone(900, 'triangle', now, 0.04, 0.28, 600);
+        playNoise(now, 0.04, 0.12, 900);
+        playTone(700, 'triangle', now + 0.06, 0.06, 0.18, 400);
+      },
+      squeak_c: () => {
+        // Penguin squawk — nasal short burst
+        playTone(750, 'square', now, 0.06, 0.22, 550);
+        playNoise(now, 0.06, 0.1, 1200);
+        playTone(620, 'square', now + 0.07, 0.07, 0.18, 480);
       },
       pop_c: () => {
         playNoise(now, 0.03, 0.3, 500);
         playTone(880, 'sine', now + 0.03, 0.1, 0.25, 200);
       },
-      honk: () => playTone(300, 'sawtooth', now, 0.2, 0.25, 200),
+      honk: () => {
+        playTone(340, 'sawtooth', now, 0.08, 0.25);
+        playTone(280, 'sawtooth', now + 0.07, 0.12, 0.22, 240);
+        playTone(340, 'sawtooth', now + 0.17, 0.06, 0.18);
+      },
       spring: () => {
-        [200, 300, 400, 500, 600].forEach((f, i) => playTone(f, 'square', now + i * 0.05, 0.05, 0.2));
+        [200, 300, 400, 500, 600].forEach((f, i) =>
+          playTone(f, 'square', now + i * 0.05, 0.05, 0.2)
+        );
       },
       zap: () => {
         playTone(2000, 'square', now, 0.15, 0.25, 200);
