@@ -542,7 +542,7 @@ const App = (() => {
     // Home buttons
     document.getElementById('btn-home-play').addEventListener('click', () => showBoardSelect());
     document.getElementById('btn-home-design').addEventListener('click', () => showDesigner());
-    document.getElementById('btn-home-scores').addEventListener('click', () => showBoardSelect());
+    document.getElementById('btn-home-scores')?.addEventListener('click', () => showBoardSelect());
 
     // Saved boards
     document.getElementById('btn-saved-back').addEventListener('click', () => { Sounds.button(); showHome(); });
