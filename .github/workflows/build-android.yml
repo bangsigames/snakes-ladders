@@ -31,7 +31,10 @@ jobs:
         run: npm install
 
       - name: Prepare web assets
-        run: mkdir -p www && cp -r index.html css js assets www/
+        run: |
+          mkdir -p www
+          cp -r index.html css js www/
+          [ -d assets ] && cp -r assets www/ || true
 
       - name: Add Android platform
         run: npx cap add android
