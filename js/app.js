@@ -626,27 +626,8 @@ const App = (() => {
     const sizeNextBtn = document.getElementById('btn-step1-next');
     document.querySelectorAll('.size-card').forEach(card => {
       card.addEventListener('click', () => {
-        document.querySelectorAll('.size-card').forEach(c => {
-          c.classList.remove('selected');
-          // Reset sparkle so it can re-trigger
-          const sp = c.querySelector('.sc-sparkle');
-          if (sp) { sp.style.animation = 'none'; void sp.offsetWidth; sp.style.animation = ''; }
-          // Reset preview wiggle
-          const pv = c.querySelector('.size-preview');
-          if (pv) { pv.classList.remove('preview-wiggle'); }
-        });
+        document.querySelectorAll('.size-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
-        // Trigger sparkle restart
-        const sparkle = card.querySelector('.sc-sparkle');
-        if (sparkle) { sparkle.style.animation = 'none'; void sparkle.offsetWidth; sparkle.style.animation = ''; }
-        // Trigger preview wiggle
-        const preview = card.querySelector('.size-preview');
-        if (preview) {
-          preview.classList.remove('preview-wiggle');
-          void preview.offsetWidth;
-          preview.classList.add('preview-wiggle');
-        }
-        // Reveal Next button on first deliberate tap
         if (sizeNextBtn) sizeNextBtn.classList.add('size-next-visible');
         Sounds.button();
       });

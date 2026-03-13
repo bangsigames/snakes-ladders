@@ -663,6 +663,7 @@ body.theme-cartoon .home-bg {
   border-radius: 24px;
   padding: 18px 14px 14px;
   cursor: pointer; text-align: center;
+  touch-action: manipulation;
   transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1),
               box-shadow 0.2s ease, border-color 0.2s ease;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -822,6 +823,7 @@ body.theme-cartoon .home-bg {
 .size-next-btn {
   min-height: 62px;
   font-size: clamp(1.1rem, 4vw, 1.4rem) !important;
+  touch-action: manipulation;
   border-radius: 28px !important;
   display: flex; align-items: center; justify-content: center; gap: 10px;
   opacity: 0.35;
