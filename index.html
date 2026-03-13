@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <title>My Snakes & Ladders</title>
@@ -109,15 +109,28 @@
 
   <!-- ===== BOARD DESIGNER SCREEN ===== -->
   <div id="screen-designer" class="screen">
-    <div class="screen-header">
-      <button class="btn-back" id="btn-designer-back">← Back</button>
-      <h2 class="screen-title" id="designer-title">Design Your Board</h2>
-      <div class="designer-steps">
-        <div class="step-dot active" data-step="1"></div>
-        <div class="step-dot" data-step="2"></div>
-        <div class="step-dot" data-step="3"></div>
-        <div class="step-dot" data-step="4"></div>
-        <div class="step-dot" data-step="5"></div>
+    <div class="screen-header designer-header">
+      <button class="btn-back btn-back-sm" id="btn-designer-back">← Back</button>
+      <div class="designer-step-track">
+        <div class="step-dot active" data-step="1">
+          <div class="step-num">1</div>
+          <div class="step-lbl">Size</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-dot" data-step="2">
+          <div class="step-num">2</div>
+          <div class="step-lbl">Theme</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-dot" data-step="3">
+          <div class="step-num">3</div>
+          <div class="step-lbl">Snakes</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-dot" data-step="4">
+          <div class="step-num">4</div>
+          <div class="step-lbl">Ladders</div>
+        </div>
       </div>
     </div>
 
@@ -688,38 +701,37 @@
   <div id="screen-game" class="screen">
     <div class="theme-bg-art" id="theme-bg-art"></div>
     <div class="game-layout">
+
+      <!-- Compact transparent top bar -->
       <div class="game-top-bar">
         <button class="btn-menu" id="btn-game-menu"><span id="icon-menu-btn"></span></button>
-        <div class="current-player-indicator" id="current-player-indicator">
+        <div class="game-turn-info">
           <div class="cp-avatar" id="cp-avatar"></div>
-          <div class="cp-info">
-            <div class="cp-name" id="cp-name">Player 1</div>
-            <div class="cp-label">Your turn!</div>
-          </div>
+          <div class="cp-name" id="cp-name"></div>
         </div>
         <div class="players-status" id="players-status"></div>
-        <button class="btn-music-toggle" id="btn-music-toggle" title="Toggle music">🔊</button>
+        <button class="btn-music-toggle" id="btn-music-toggle"></button>
       </div>
 
+      <!-- Board fills remaining space -->
       <div class="game-board-wrap">
         <canvas id="game-canvas"></canvas>
       </div>
 
-      <div class="game-bottom-bar">
-        <div class="dice-container" id="dice-container">
-          <div class="dice" id="dice">
-            <div class="dice-face dice-top"></div>
-          </div>
+      <!-- Floating tappable dice — no panel, no button -->
+      <div class="game-dice-float">
+        <div class="dice" id="dice">
+          <div class="dice-face dice-top"></div>
         </div>
-        <button class="btn-roll" id="btn-roll">
-          <span id="roll-btn-text"></span>
-        </button>
+        <div class="dice-tap-label" id="dice-tap-label">Tap to roll</div>
       </div>
+
     </div>
 
     <!-- Dice result overlay -->
     <div class="dice-overlay hidden" id="dice-overlay">
       <div class="dice-overlay-inner">
+        <div class="dice-result-avatar" id="dice-result-avatar"></div>
         <div class="dice-big" id="dice-big"></div>
         <div class="dice-result-text" id="dice-result-text"></div>
       </div>
@@ -729,7 +741,7 @@
     <div class="event-overlay hidden" id="event-overlay">
       <canvas id="event-confetti-canvas" class="event-confetti-canvas"></canvas>
       <div class="event-card" id="event-card">
-        <div class="event-emoji" id="event-emoji"></div>
+        <div class="event-icon" id="event-emoji"></div>
         <div class="event-title" id="event-title"></div>
         <div class="event-desc" id="event-desc"></div>
       </div>
@@ -739,9 +751,9 @@
     <div class="game-menu-overlay hidden" id="game-menu-overlay">
       <div class="game-menu-card">
         <h3>Game Menu</h3>
-        <button class="menu-btn" id="btn-resume">▶ Resume</button>
-        <button class="menu-btn" id="btn-restart">🔄 Restart</button>
-        <button class="menu-btn btn-quit" id="btn-quit">🏠 Quit to Home</button>
+        <button class="menu-btn" id="btn-resume">Resume</button>
+        <button class="menu-btn" id="btn-restart">Restart</button>
+        <button class="menu-btn btn-quit" id="btn-quit">Quit to Home</button>
       </div>
     </div>
   </div>
@@ -750,15 +762,22 @@
   <div id="screen-winner" class="screen">
     <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
     <div class="winner-content">
-      <div class="winner-crown">👑</div>
+      <div class="winner-crown">
+        <svg viewBox="0 0 64 40" width="80" height="50" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 36 L12 8 L24 22 L32 4 L40 22 L52 8 L60 36 Z" fill="#FFBE0B" stroke="#D4A200" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="12" cy="8" r="4" fill="#FFBE0B" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="32" cy="4" r="4" fill="#FFBE0B" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="52" cy="8" r="4" fill="#FFBE0B" stroke="#fff" stroke-width="1.5"/>
+        </svg>
+      </div>
       <div class="winner-avatar" id="winner-avatar"></div>
       <h1 class="winner-name" id="winner-name"></h1>
       <p class="winner-subtitle">WINS THE GAME!</p>
       <div class="winner-stats" id="winner-stats"></div>
       <div class="final-scoreboard" id="final-scoreboard"></div>
       <div class="winner-buttons">
-        <button class="btn-play-again" id="btn-play-again">🎮 Play Again</button>
-        <button class="btn-home-from-win" id="btn-home-from-win">🏠 Home</button>
+        <button class="btn-play-again" id="btn-play-again">Play Again</button>
+        <button class="btn-home-from-win" id="btn-home-from-win">Home</button>
       </div>
     </div>
   </div>

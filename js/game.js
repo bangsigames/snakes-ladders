@@ -122,18 +122,27 @@ const Game = (() => {
   }
 
   function showDiceResult(value, cb) {
-    const overlay = document.getElementById('dice-overlay');
-    const diceEl = document.getElementById('dice-big');
-    const textEl = document.getElementById('dice-result-text');
-    const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+    const overlay  = document.getElementById('dice-overlay');
+    const diceEl   = document.getElementById('dice-big');
+    const textEl   = document.getElementById('dice-result-text');
+    const avatarEl = document.getElementById('dice-result-avatar');
+    const faces    = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+    const player   = state.players[state.currentIndex];
+
     diceEl.textContent = faces[value - 1];
-    const player = state.players[state.currentIndex];
-    textEl.textContent = `You rolled ${value}`;
+    textEl.textContent = `${player.name} rolled ${value}!`;
+
+    if (avatarEl) {
+      avatarEl.textContent = player.character;
+      avatarEl.style.background = player.color + '44';
+      avatarEl.style.border = `2px solid ${player.color}`;
+    }
+
     overlay.classList.remove('hidden');
     setTimeout(() => {
       overlay.classList.add('hidden');
       if (cb) cb();
-    }, 800);
+    }, 900);
   }
 
   // ---- Movement ----
@@ -334,19 +343,41 @@ const Game = (() => {
     card.classList.remove('snake-card', 'ladder-card');
 
     if (type === 'snake') {
-      emoji.textContent = '🐍';
+      emoji.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 88 Q14 60 28 44 Q44 28 42 12" fill="none" stroke="#1e6b2a" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M20 88 Q14 60 28 44 Q44 28 42 12" fill="none" stroke="#4CD964" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="45" cy="9" r="13" fill="#1e6b2a"/>
+        <circle cx="45" cy="8" r="12" fill="#4CD964"/>
+        <circle cx="40" cy="5" r="4" fill="white"/><circle cx="50" cy="5" r="4" fill="white"/>
+        <circle cx="41" cy="5.5" r="2.2" fill="#111"/><circle cx="51" cy="5.5" r="2.2" fill="#111"/>
+        <line x1="45" y1="19" x2="45" y2="28" stroke="#FF4444" stroke-width="3" stroke-linecap="round"/>
+        <line x1="45" y1="28" x2="39" y2="36" stroke="#FF4444" stroke-width="3" stroke-linecap="round"/>
+        <line x1="45" y1="28" x2="51" y2="36" stroke="#FF4444" stroke-width="3" stroke-linecap="round"/>
+      </svg>`;
       title.textContent = 'Oh no!';
-      desc.textContent = 'Snake!';
+      desc.textContent = `${player.name} hit a snake!`;
       overlay.classList.add('snake-event');
       card.classList.add('snake-card');
       Particles.stop();
     } else {
-      emoji.textContent = '🪜';
+      emoji.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <line x1="22" y1="6" x2="22" y2="94" stroke="#8d4e00" stroke-width="10" stroke-linecap="round"/>
+        <line x1="78" y1="6" x2="78" y2="94" stroke="#8d4e00" stroke-width="10" stroke-linecap="round"/>
+        <line x1="22" y1="6"  x2="22" y2="94" stroke="#FFB700" stroke-width="7" stroke-linecap="round"/>
+        <line x1="78" y1="6"  x2="78" y2="94" stroke="#FFB700" stroke-width="7" stroke-linecap="round"/>
+        <line x1="22" y1="22" x2="78" y2="22" stroke="#8d4e00" stroke-width="9" stroke-linecap="round"/>
+        <line x1="22" y1="42" x2="78" y2="42" stroke="#8d4e00" stroke-width="9" stroke-linecap="round"/>
+        <line x1="22" y1="62" x2="78" y2="62" stroke="#8d4e00" stroke-width="9" stroke-linecap="round"/>
+        <line x1="22" y1="82" x2="78" y2="82" stroke="#8d4e00" stroke-width="9" stroke-linecap="round"/>
+        <line x1="22" y1="22" x2="78" y2="22" stroke="#FFE066" stroke-width="6" stroke-linecap="round"/>
+        <line x1="22" y1="42" x2="78" y2="42" stroke="#FFE066" stroke-width="6" stroke-linecap="round"/>
+        <line x1="22" y1="62" x2="78" y2="62" stroke="#FFE066" stroke-width="6" stroke-linecap="round"/>
+        <line x1="22" y1="82" x2="78" y2="82" stroke="#FFE066" stroke-width="6" stroke-linecap="round"/>
+      </svg>`;
       title.textContent = 'Woohoo!';
-      desc.textContent = 'Climb the ladder!';
+      desc.textContent = `${player.name} climbs the ladder!`;
       overlay.classList.add('ladder-event');
       card.classList.add('ladder-card');
-      // Confetti burst
       confettiCanvas.width = window.innerWidth;
       confettiCanvas.height = window.innerHeight;
       Particles.start(confettiCanvas, 70);
@@ -428,18 +459,21 @@ const Game = (() => {
 
     if (avatar) {
       avatar.textContent = player.character;
-      avatar.style.background = player.color;
+      avatar.style.background = player.color + '55';
+      avatar.style.boxShadow = `0 0 0 2px ${player.color}`;
     }
     if (name) {
-      name.textContent = player.isBot ? ('🤖 ' + player.name) : player.name;
+      name.textContent = `${player.name}'s turn`;
     }
-    if (turnCount) turnCount.textContent = `Turn ${state.turn}`;
-    if (rollBtn) {
-      // Disable roll button when it's a bot's turn or not in rolling phase
-      rollBtn.disabled = state.phase !== 'rolling' || player.isBot;
-      document.getElementById('roll-btn-text').textContent =
-        (state.phase === 'rolling' && !player.isBot) ? '🎲 Roll Dice' :
-        (player.isBot && state.phase === 'rolling') ? '🤖 Bot thinking…' : '⏳';
+
+    // Floating dice state
+    const diceEl   = document.getElementById('dice');
+    const tapLabel = document.getElementById('dice-tap-label');
+    const canRoll  = state.phase === 'rolling' && !player.isBot;
+    if (diceEl) diceEl.classList.toggle('dice-disabled', !canRoll);
+    if (tapLabel) {
+      tapLabel.textContent = canRoll ? 'Tap to roll!' :
+        (player.isBot && state.phase === 'rolling') ? 'Bot thinking...' : '';
     }
 
     updatePlayersStatus();

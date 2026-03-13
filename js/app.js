@@ -458,9 +458,14 @@ const App = (() => {
     document.getElementById('winner-name').textContent = winner.name;
 
     document.getElementById('winner-stats').innerHTML = `
-      <div class="stat-box"><div class="stat-value">${winner.turns}</div><div class="stat-label">Turns</div></div>
-      <div class="stat-box"><div class="stat-value">${winner.laddersClimbed}</div><div class="stat-label">Ladders 🪜</div></div>
-      <div class="stat-box"><div class="stat-value">${winner.snakeBites}</div><div class="stat-label">Snake Bites 🐍</div></div>
+      <div class="stat-box">
+        <div class="stat-value">${winner.snakeBites}</div>
+        <div class="stat-label">Snake Bites</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">${winner.laddersClimbed}</div>
+        <div class="stat-label">Ladders Climbed</div>
+      </div>
     `;
 
     const medals = ['🥇','🥈','🥉','4️⃣'];
@@ -468,8 +473,8 @@ const App = (() => {
       <div class="score-row">
         <div class="score-rank ${i===0?'gold':''}">${medals[i]||i+1}</div>
         <div class="score-avatar">${p.character}</div>
-        <div class="score-name">${escHtml(p.name)}${p.isBot ? ' 🤖' : ''}</div>
-        <div class="score-moves">${p.turns} turns</div>
+        <div class="score-name">${escHtml(p.name)}${p.isBot ? ' (Bot)' : ''}</div>
+        <div class="score-moves">${p.finished ? 'Finished!' : `Sq. ${p.position}`}</div>
       </div>
     `).join('');
 
@@ -529,8 +534,7 @@ const App = (() => {
     if (iconBoards) iconBoards.innerHTML = Icons.get('ladder', 28);
     const iconMenuBtn = document.getElementById('icon-menu-btn');
     if (iconMenuBtn) iconMenuBtn.innerHTML = Icons.get('menu', 26);
-    const rollBtnText = document.getElementById('roll-btn-text');
-    if (rollBtnText) rollBtnText.innerHTML = Icons.get('dice', 28) + ' Roll Dice';
+    // Dice is tappable directly — no roll button
     // Music button — icon injected here, listener wired below
     const _musicBtnInit = document.getElementById('btn-music-toggle');
     if (_musicBtnInit) _musicBtnInit.innerHTML = Icons.get('sound', 26);
@@ -666,9 +670,8 @@ const App = (() => {
     // Player count buttons are rendered dynamically in renderPlayerCountBtns()
     document.getElementById('btn-lets-play').addEventListener('click', () => startGame());
 
-    // Game screen
-    document.getElementById('btn-roll').addEventListener('click', () => {
-      Sounds.button();
+    // Tappable dice
+    document.getElementById('dice').addEventListener('click', () => {
       Game.rollDice();
     });
 

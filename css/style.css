@@ -14,6 +14,8 @@ html, body {
   background: #0f0520;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  /* iOS safe area support */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* ---- CSS Variables — default (Cartoon theme) ---- */
@@ -540,23 +542,51 @@ body.theme-cartoon .home-bg {
     var(--bg-deep);
 }
 
-.designer-steps {
-  display: flex; gap: 8px; margin-left: auto;
+/* ---- Designer step track (labeled pills replace dots) ---- */
+.designer-header {
+  padding: 8px 12px !important;
+  gap: 10px;
+}
+.btn-back-sm {
+  font-size: 0.85rem !important;
+  padding: 0 10px !important;
+  min-height: 36px !important;
+  flex-shrink: 0;
+}
+.designer-step-track {
+  display: flex; align-items: center; flex: 1; justify-content: center;
+  gap: 0;
+}
+.step-connector {
+  height: 2px; width: 16px; flex-shrink: 0;
+  background: rgba(255,255,255,0.2);
+  margin-bottom: 16px;
 }
 .step-dot {
-  width: 10px; height: 10px; border-radius: 50%;
-  background: rgba(255,255,255,0.3);
-  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  opacity: 0.38;
+  transition: opacity 0.25s, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
 }
-.step-dot.active {
-  background: white;
-  transform: scale(1.4);
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+.step-dot.active { opacity: 1; transform: scale(1.08); }
+.step-dot.done   { opacity: 0.7; }
+.step-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 0.78rem; font-weight: 900;
+  color: rgba(255,255,255,0.5);
+  transition: background 0.25s, color 0.25s;
 }
-.step-dot.done {
-  background: #22C55E;
-  box-shadow: 0 0 0 2px rgba(34,197,94,0.35);
+.step-dot.active .step-num { background: white; color: #1a0040; }
+.step-dot.done   .step-num { background: #22C55E; color: white; }
+.step-lbl {
+  font-size: 0.58rem; font-weight: 800;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  transition: color 0.25s;
 }
+.step-dot.active .step-lbl { color: white; }
+.step-dot.done   .step-lbl { color: rgba(255,255,255,0.55); }
 
 .designer-step {
   flex: 1; overflow-y: auto;
@@ -1802,59 +1832,52 @@ body.theme-cartoon .home-bg {
 }
 
 .game-top-bar {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 12px;
-  background: var(--surface);
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px;
+  padding-top: calc(6px + env(safe-area-inset-top, 0px));
+  background: rgba(0,0,0,0.42);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  min-height: 72px;
+  min-height: 52px;
+  max-height: 64px;
 }
 
 .btn-menu {
-  background: rgba(0,0,0,0.06); border: none;
-  width: 56px; height: 56px; border-radius: 50%;
-  font-size: 1.4rem; cursor: pointer;
+  background: rgba(255,255,255,0.12); border: none;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
   transition: all 0.2s; flex-shrink: 0;
+  color: white;
 }
-.btn-menu:active { transform: scale(0.88); background: rgba(0,0,0,0.12); }
-.btn-menu:hover { background: rgba(0,0,0,0.09); }
+.btn-menu:active { transform: scale(0.88); background: rgba(255,255,255,0.22); }
 
 .btn-music-toggle {
-  background: rgba(0,0,0,0.06); border: none;
-  width: 56px; height: 56px; border-radius: 50%;
-  font-size: 1.4rem; cursor: pointer;
+  background: rgba(255,255,255,0.12); border: none;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
   transition: all 0.2s; flex-shrink: 0;
+  color: white;
 }
 .btn-music-toggle:active { transform: scale(0.88); }
-.btn-music-toggle:hover { transform: scale(1.1); background: rgba(0,0,0,0.09); }
 
-.current-player-indicator {
-  display: flex; align-items: center; gap: 10px; flex: 1;
+/* Turn info: avatar + name in top bar */
+.game-turn-info {
+  display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;
 }
 .cp-avatar {
-  width: 48px; height: 48px; border-radius: 16px;
-  background: rgba(0,0,0,0.06);
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.15);
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.8rem;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  font-size: 1.5rem; flex-shrink: 0;
   transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
 }
-.cp-info { flex: 1; }
 .cp-name {
-  font-family: var(--font-display); font-size: 1.15rem; font-weight: 800;
-  color: var(--text); line-height: 1;
-}
-.cp-label {
-  font-size: 0.7rem; font-weight: 700;
-  color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px;
-}
-.game-turn-count {
-  font-family: var(--font-display); font-size: 0.95rem; font-weight: 700;
-  color: var(--text-light); flex-shrink: 0;
-  background: rgba(0,0,0,0.05);
-  padding: 5px 14px; border-radius: 30px;
-  border: 1px solid rgba(0,0,0,0.07);
+  font-family: var(--font-display); font-size: 0.95rem; font-weight: 800;
+  color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 .game-board-wrap {
@@ -1869,13 +1892,12 @@ body.theme-cartoon .home-bg {
   /* JS sets explicit width/height px — no stretching */
 }
 
-.game-bottom-bar {
-  background: var(--surface);
-  border-top: 1px solid rgba(0,0,0,0.06);
-  padding: 12px 18px 16px;
+/* Floating dice below the board — no panel */
+.game-dice-float {
   flex-shrink: 0;
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.07);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 10px 0 calc(14px + env(safe-area-inset-bottom, 0px));
+  gap: 6px;
 }
 
 /* Player chips — compact avatars in top bar */
@@ -1888,31 +1910,52 @@ body.theme-cartoon .home-bg {
 
 .player-chip {
   display: flex; align-items: center; justify-content: center;
-  width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(0,0,0,0.05);
-  border: 2.5px solid transparent;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 2px solid transparent;
   transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
   flex-shrink: 0;
+  opacity: 0.5;
 }
 .player-chip.active-chip {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(255,77,109,0.2);
-  transform: scale(1.15);
+  border-color: white;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.25), 0 0 12px rgba(255,255,255,0.3);
+  transform: scale(1.2);
+  opacity: 1;
+  background: rgba(255,255,255,0.18);
 }
-.chip-avatar { font-size: 1.35rem; }
+.chip-avatar { font-size: 1.25rem; }
 .chip-name, .chip-pos { display: none; }
 
-.dice-container { flex-shrink: 0; }
-
 .dice {
-  width: 80px; height: 80px;
+  width: 88px; height: 88px;
   background: white;
-  border-radius: 20px;
-  box-shadow: 0 6px 0 #d1d5db, 0 8px 24px rgba(0,0,0,0.14);
+  border-radius: 22px;
+  box-shadow: 0 7px 0 #b0b7c3, 0 10px 32px rgba(0,0,0,0.35);
   display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.12s cubic-bezier(0.34,1.56,0.64,1),
+              box-shadow 0.12s, opacity 0.2s;
+}
+.dice:active:not(.dice-disabled) {
+  transform: scale(0.90) translateY(4px);
+  box-shadow: 0 2px 0 #b0b7c3, 0 4px 12px rgba(0,0,0,0.25);
+}
+.dice.dice-disabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
 }
 .dice.rolling { animation: diceRoll 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+
+.dice-tap-label {
+  font-family: var(--font-display); font-size: 0.8rem; font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  min-height: 1.2em;
+}
 @keyframes diceRoll {
   0%   { transform: rotate(0deg) scale(1); }
   15%  { transform: rotate(90deg) scale(1.2); }
@@ -1931,21 +1974,6 @@ body.theme-cartoon .home-bg {
   place-self: center;
 }
 
-.btn-roll {
-  background: #3B82F6;
-  color: white; border: none;
-  width: 100%; min-height: 80px; border-radius: 24px;
-  font-family: var(--font-display); font-size: 1.4rem; font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 6px 0 #1D4ED8, 0 8px 24px rgba(59,130,246,0.4);
-  transition: all 0.12s cubic-bezier(0.34,1.56,0.64,1);
-}
-.btn-roll:active:not(:disabled) {
-  transform: translateY(5px);
-  box-shadow: 0 1px 0 #1D4ED8;
-}
-.btn-roll:disabled { opacity: 0.45; cursor: not-allowed; }
-
 /* Dice overlay */
 .dice-overlay {
   position: fixed; inset: 0;
@@ -1955,7 +1983,13 @@ body.theme-cartoon .home-bg {
   z-index: 100; transition: opacity 0.25s;
 }
 .dice-overlay.hidden { opacity: 0; pointer-events: none; }
-.dice-overlay-inner { text-align: center; }
+.dice-overlay-inner { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.dice-result-avatar {
+  width: 64px; height: 64px; border-radius: 18px;
+  font-size: 2.8rem;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadein 0.25s both;
+}
 .dice-big {
   font-size: 9rem; line-height: 1;
   animation: diceBig 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
@@ -2016,12 +2050,13 @@ body.theme-cartoon .home-bg {
   100% { transform: scale(1) translateY(0); }
 }
 
-.event-emoji {
-  font-size: 7rem; line-height: 1; margin-bottom: 12px;
-  display: block;
+.event-icon {
+  width: 100px; height: 100px; margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: center;
 }
-.event-card.snake-card .event-emoji { animation: snakeEmojiWiggle 0.6s 0.3s ease-in-out both; }
-.event-card.ladder-card .event-emoji { animation: ladderEmojiBounce 0.5s 0.3s cubic-bezier(0.34,1.8,0.64,1) both; }
+.event-icon svg { width: 100%; height: 100%; }
+.event-card.snake-card .event-icon { animation: snakeEmojiWiggle 0.6s 0.3s ease-in-out both; }
+.event-card.ladder-card .event-icon { animation: ladderEmojiBounce 0.5s 0.3s cubic-bezier(0.34,1.8,0.64,1) both; }
 
 @keyframes snakeEmojiWiggle {
   0%,100% { transform: rotate(0deg); }
