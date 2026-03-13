@@ -42,6 +42,9 @@ jobs:
       - name: Add Android platform
         run: npx cap add android
 
+      - name: Enable immersive fullscreen
+        run: python3 scripts/patch-immersive.py
+
       - name: Sync web assets
         run: npx cap sync android
 
