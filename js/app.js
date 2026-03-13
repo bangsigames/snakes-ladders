@@ -75,8 +75,9 @@ const App = (() => {
   }
 
   function deleteBoard(id) {
-    if (!confirm('Delete this board?')) return;
+    Sounds.button();
     Storage.deleteBoard(id);
+    showToast('Board deleted 🗑️');
     showBoardSelect();
   }
 
@@ -85,9 +86,13 @@ const App = (() => {
   // ============================================================
 
   let designerStep = 1;
+  let _designerInitPreset = null;
+  let _designerInitTheme  = null;
 
   function showDesigner(existingBoard) {
     Sounds.button();
+    _designerInitPreset = null;
+    _designerInitTheme  = null;
     designerStep = 1;
     updateDesignerStep(1);
     showScreen('screen-designer');
@@ -113,10 +118,19 @@ const App = (() => {
     const wrap = document.getElementById('guided-board-wrap-3');
     if (wrap && canvas.parentElement !== wrap) wrap.appendChild(canvas);
     Board.designer.init(canvas);
-    Board.designer.setPreset(getSelectedPreset());
-    Board.designer.setTheme(getSelectedTheme());
+    const preset = getSelectedPreset();
+    const theme  = getSelectedTheme();
+    // Only reset snakes/ladders when preset or theme actually changes
+    if (preset !== _designerInitPreset || theme !== _designerInitTheme) {
+      Board.designer.setPreset(preset);
+      Board.designer.setTheme(theme);
+      _designerInitPreset = preset;
+      _designerInitTheme  = theme;
+    } else {
+      Board.designer.setTheme(theme);
+    }
     Board.designer.setMode('snake-head');
-    updatePlacementHint('Tap start square');
+    setSnakeGuideStep(1);
     updateSnakeList();
   }
 
@@ -125,48 +139,57 @@ const App = (() => {
     const wrap = document.getElementById('guided-board-wrap-4');
     if (wrap && canvas.parentElement !== wrap) wrap.appendChild(canvas);
     Board.designer.setMode('ladder-bottom');
-    const hint = document.getElementById('ladder-hint');
-    if (hint) hint.textContent = 'Tap bottom square';
+    setLadderGuideStep(1);
     updateLadderList();
+  }
+
+  function generateBoardName(config) {
+    const adventureWords = {
+      jungle:  'Jungle Adventure',
+      space:   'Cosmic Quest',
+      ocean:   'Deep Sea Escape',
+      fantasy: 'Mystic Kingdom',
+      cartoon: 'Cartoon Chaos',
+    };
+    const score = (config.snakes || []).length - (config.ladders || []).length;
+    const difficulty = score <= 0 ? 'Easy' : score <= 2 ? 'Normal' : score <= 4 ? 'Tricky' : 'Hard';
+    const word = adventureWords[config.theme] || 'Epic Adventure';
+    return { name: word, difficulty };
   }
 
   function goToStep5() {
     const config = Board.designer.getBoardConfig();
-    const suggestions = generateNameSuggestions(config.theme);
-    const suggestionsEl = document.getElementById('name-suggestions');
-    if (suggestionsEl) {
-      suggestionsEl.innerHTML = suggestions.map(name => `
-        <button class="name-chip" onclick="App.selectBoardName('${escHtml(name)}')">${escHtml(name)}</button>
-      `).join('');
-    }
-    const nameInput = document.getElementById('board-name-input');
-    if (nameInput) {
-      nameInput.value = suggestions[0];
-      setTimeout(() => {
-        const firstChip = suggestionsEl?.querySelector('.name-chip');
-        if (firstChip) firstChip.classList.add('selected');
-      }, 0);
-    }
-  }
+    const { name, difficulty } = generateBoardName(config);
 
-  function generateNameSuggestions(theme) {
-    const names = {
-      jungle:  ['Jungle Escape', 'Wild Climb',      'Safari Slide',  'Jungle Jam'],
-      space:   ['Space Race',    'Cosmic Climb',     'Galaxy Slide',  'Star Quest'],
-      ocean:   ['Ocean Adventure','Deep Sea Dash',   'Wave Rider',    'Coral Climb'],
-      fantasy: ['Rainbow Climb', 'Magic Quest',      'Dragon Chase',  'Wizard Race'],
-      cartoon: ['Rainbow Climb', 'Crazy Climb',      'Epic Adventure','Fun Slide'],
-    };
-    return names[theme] || names.cartoon;
-  }
+    const display = document.getElementById('board-name-display');
+    if (display) display.textContent = name;
 
-  function selectBoardName(name) {
-    const nameInput = document.getElementById('board-name-input');
-    if (nameInput) nameInput.value = name;
-    document.querySelectorAll('.name-chip').forEach(c =>
-      c.classList.toggle('selected', c.textContent.trim() === name)
-    );
-    Sounds.button();
+    const badge = document.getElementById('board-diff-badge');
+    if (badge) {
+      badge.textContent = difficulty;
+      badge.className = 'board-diff-badge diff-' + difficulty.toLowerCase();
+    }
+
+    const stats = document.getElementById('board-ready-stats');
+    if (stats) {
+      const preset = GRID_PRESETS[config.preset] || {};
+      stats.innerHTML = `
+        <div class="ready-stat">
+          <div class="ready-stat-val">${config.cols}×${config.rows}</div>
+          <div class="ready-stat-lbl">Grid</div>
+        </div>
+        <div class="ready-stat">
+          <svg viewBox="0 0 16 16" width="14" height="14"><path d="M3 13 Q2 8 6 6 Q10 4 9 2" fill="none" stroke="#4CD964" stroke-width="2.5" stroke-linecap="round"/><circle cx="9" cy="1.5" r="2" fill="#4CD964"/></svg>
+          <div class="ready-stat-val">${config.snakes.length}</div>
+          <div class="ready-stat-lbl">Snakes</div>
+        </div>
+        <div class="ready-stat">
+          <svg viewBox="0 0 16 16" width="14" height="14"><line x1="5" y1="2" x2="5" y2="14" stroke="#FFB700" stroke-width="2" stroke-linecap="round"/><line x1="11" y1="2" x2="11" y2="14" stroke="#FFB700" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="5" x2="11" y2="5" stroke="#FFE066" stroke-width="1.8" stroke-linecap="round"/><line x1="5" y1="9" x2="11" y2="9" stroke="#FFE066" stroke-width="1.8" stroke-linecap="round"/><line x1="5" y1="13" x2="11" y2="13" stroke="#FFE066" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <div class="ready-stat-val">${config.ladders.length}</div>
+          <div class="ready-stat-lbl">Ladders</div>
+        </div>
+      `;
+    }
   }
 
   function getSelectedPreset() {
@@ -181,21 +204,22 @@ const App = (() => {
 
   function saveBoard() {
     const config = Board.designer.getBoardConfig();
-    const name = document.getElementById('board-name-input').value.trim() || generateBoardName();
+    const { name, difficulty } = generateBoardName(config);
+    const fullName = `${name} (${difficulty})`;
 
     if (config.snakes.length === 0 && config.ladders.length === 0) {
-      showToast('Add at least one snake and one ladder!');
+      showToast('Add at least one snake and ladder first!');
       return null;
     }
 
     const board = {
       ...config,
       id: Storage.generateId(),
-      name,
+      name: fullName,
       createdAt: Date.now(),
     };
     Storage.saveBoard(board);
-    showToast(`"${name}" saved! 🎉`);
+    showToast(`"${fullName}" saved!`);
     return board;
   }
 
@@ -206,19 +230,27 @@ const App = (() => {
   let playerCount = 2;
   let playerSetups = [];
 
+  const PLAYER_NAME_SETS = [
+    ['Star', 'Ace', 'Hero', 'Blaze', 'Dash', 'Zippy'],
+    ['Luna', 'Nova', 'Flash', 'Sunny', 'Sparky', 'Bolt'],
+    ['Rex', 'Robo', 'Buzz', 'Dino', 'Turbo', 'Zap'],
+    ['Poppy', 'Rocky', 'Pixie', 'Breezy', 'Fizz', 'Glow'],
+  ];
+
   function getThemeCharacters() {
     const theme = currentBoard ? (currentBoard.theme || 'cartoon') : 'cartoon';
     return THEME_CHARACTERS[theme] || THEME_CHARACTERS.cartoon;
   }
 
-  // Sync any names the user typed in the DOM back into playerSetups before re-rendering
-  function syncNamesFromDOM() {
-    for (let i = 0; i < playerSetups.length; i++) {
-      const inp = document.getElementById(`pname-${i}`);
-      if (inp && !playerSetups[i].isBot) {
-        playerSetups[i].name = inp.value.trim() || playerSetups[i].name;
-      }
-    }
+  // Names are stored directly in playerSetups — no DOM sync needed
+  function syncNamesFromDOM() {}
+
+  function selectPlayerName(playerIndex, name) {
+    if (!playerSetups[playerIndex] || playerSetups[playerIndex].isBot) return;
+    playerSetups[playerIndex].name = name;
+    Sounds.button();
+    const chips = document.querySelectorAll(`#pname-chips-${playerIndex} .player-name-chip`);
+    chips.forEach(c => c.classList.toggle('selected', c.textContent.trim() === name));
   }
 
   function showPlayerSetup() {
@@ -258,12 +290,13 @@ const App = (() => {
       const existing = playerSetups[i];
       const forceBot = (playerCount === 1 && i === 1);
       const defaultChar = themeChars[i % themeChars.length];
+      const defaultName = forceBot ? `Bot ${i}` : (PLAYER_NAME_SETS[i] || PLAYER_NAME_SETS[0])[0];
       return existing ? {
         ...existing,
         isBot: forceBot ? true : (existing.isBot || false),
         sound: existing.sound || defaultChar.sound,
       } : {
-        name: i === 0 ? `Player 1` : forceBot ? `Bot 1` : `Player ${i + 1}`,
+        name: defaultName,
         character: defaultChar.emoji,
         color: PLAYER_COLORS[i],
         sound: defaultChar.sound,
@@ -275,6 +308,7 @@ const App = (() => {
       const isPlayer1 = i === 0;
       const forceBot = (playerCount === 1 && i === 1);
       const isBot = p.isBot;
+      const nameSet = PLAYER_NAME_SETS[i] || PLAYER_NAME_SETS[0];
 
       return `
       <div class="player-card" style="animation-delay: ${i * 0.1}s">
@@ -286,15 +320,18 @@ const App = (() => {
               <button class="ptype-btn ${!isBot ? 'active' : ''}"
                       onclick="App.setPlayerType(${i}, false)" ${forceBot ? 'disabled' : ''}>👤 Human</button>
               <button class="ptype-btn ${isBot ? 'active' : ''}"
-                      onclick="App.setPlayerType(${i}, true)" ${forceBot ? 'disabled' : ''}>🤖 AI</button>
+                      onclick="App.setPlayerType(${i}, true)" ${forceBot ? 'disabled' : ''}>🤖 Bot</button>
             </div>
           ` : '<span class="ptype-static">👤 Human</span>'}
         </div>
-        <input type="text" class="player-name-input ${isBot ? 'input-disabled' : ''}"
-               id="pname-${i}"
-               value="${escHtml(isBot ? (p.name.startsWith('Bot') ? p.name : `Bot ${i}`) : p.name)}"
-               maxlength="15" placeholder="Name"
-               ${isBot ? 'disabled' : ''}>
+        ${isBot ? '' : `
+          <div class="player-name-chips" id="pname-chips-${i}">
+            ${nameSet.map(name => `
+              <button class="player-name-chip ${p.name === name ? 'selected' : ''}"
+                      onclick="App.selectPlayerName(${i}, '${escHtml(name)}')">${escHtml(name)}</button>
+            `).join('')}
+          </div>
+        `}
         ${Components.AvatarSelector(themeChars, p.character, i)}
       </div>
     `;
@@ -312,7 +349,9 @@ const App = (() => {
     syncNamesFromDOM();
     Sounds.button();
     playerSetups[playerIndex].isBot = isBot;
-    playerSetups[playerIndex].name = isBot ? `Bot ${playerIndex}` : `Player ${playerIndex + 1}`;
+    playerSetups[playerIndex].name = isBot
+      ? `Bot ${playerIndex}`
+      : (PLAYER_NAME_SETS[playerIndex] || PLAYER_NAME_SETS[0])[0];
     renderPlayerCards();
   }
 
@@ -359,17 +398,13 @@ const App = (() => {
     const displayCount = playerCount === 1 ? 2 : playerCount;
 
     // Collect player data
-    const players = playerSetups.slice(0, displayCount).map((p, i) => {
-      const nameInput = document.getElementById(`pname-${i}`);
-      const rawName = (nameInput ? nameInput.value.trim() : '') || (p.isBot ? `Bot ${i}` : `Player ${i+1}`);
-      return {
-        name: rawName,
-        character: p.character,
-        color: p.color,
-        sound: p.sound,
-        isBot: p.isBot || false,
-      };
-    });
+    const players = playerSetups.slice(0, displayCount).map((p, i) => ({
+      name: p.name || (p.isBot ? `Bot ${i}` : `Player ${i+1}`),
+      character: p.character,
+      color: p.color,
+      sound: p.sound,
+      isBot: p.isBot || false,
+    }));
 
     applyTheme(currentBoard.theme);
     showScreen('screen-game');
@@ -397,7 +432,7 @@ const App = (() => {
   function toggleMusicMute() {
     const muted = Sounds.toggleMute();
     const btn = document.getElementById('btn-music-toggle');
-    if (btn) btn.textContent = muted ? '🔇' : '🔊';
+    if (btn) btn.innerHTML = muted ? Icons.get('sound', 26).replace(/#FFD93D/g, '#888') : Icons.get('sound', 26);
     if (!muted && currentBoard) {
       Sounds.startMusic(currentBoard.theme || 'cartoon');
     }
@@ -453,7 +488,7 @@ const App = (() => {
     const medals = ['🥇','🥈','🥉'];
 
     if (scores.length === 0) {
-      list.innerHTML = '<div style="text-align:center;color:white;padding:40px;font-size:1.2rem;font-weight:700;opacity:0.8">No scores yet! Play a game first 🎮</div>';
+      list.innerHTML = '<div style="text-align:center;color:white;padding:40px;font-size:1.2rem;font-weight:700;opacity:0.8">No scores yet! Play first 🎮</div>';
     } else {
       list.innerHTML = scores.map((s, i) => `
         <div class="score-entry">
@@ -485,56 +520,89 @@ const App = (() => {
   // ============================================================
 
   function init() {
+    // Inject SVG icons
+    const iconPlay = document.querySelector('#btn-home-play .home-btn-icon');
+    if (iconPlay) iconPlay.innerHTML = Icons.get('play', 36);
+    const iconPalette = document.querySelector('#btn-home-design .home-btn-icon');
+    if (iconPalette) iconPalette.innerHTML = Icons.get('palette', 28);
+    const iconBoards = document.querySelector('#btn-home-scores .home-btn-icon');
+    if (iconBoards) iconBoards.innerHTML = Icons.get('ladder', 28);
+    const iconMenuBtn = document.getElementById('icon-menu-btn');
+    if (iconMenuBtn) iconMenuBtn.innerHTML = Icons.get('menu', 26);
+    const rollBtnText = document.getElementById('roll-btn-text');
+    if (rollBtnText) rollBtnText.innerHTML = Icons.get('dice', 28) + ' Roll Dice';
+    // Music button — icon injected here, listener wired below
+    const _musicBtnInit = document.getElementById('btn-music-toggle');
+    if (_musicBtnInit) _musicBtnInit.innerHTML = Icons.get('sound', 26);
+
     // Home buttons
     document.getElementById('btn-home-play').addEventListener('click', () => showBoardSelect());
     document.getElementById('btn-home-design').addEventListener('click', () => showDesigner());
     document.getElementById('btn-home-scores').addEventListener('click', () => showBoardSelect());
 
     // Saved boards
-    document.getElementById('btn-saved-back').addEventListener('click', () => { showHome(); });
+    document.getElementById('btn-saved-back').addEventListener('click', () => { Sounds.button(); showHome(); });
     document.getElementById('btn-go-design').addEventListener('click', () => showDesigner());
 
     // Board designer navigation
     document.getElementById('btn-designer-back').addEventListener('click', () => {
+      Sounds.button();
       if (designerStep === 1) showHome();
       else updateDesignerStep(designerStep - 1);
     });
     document.getElementById('btn-step1-next').addEventListener('click', () => { Sounds.button(); updateDesignerStep(2); });
-    document.getElementById('btn-step2-back').addEventListener('click', () => updateDesignerStep(1));
+    document.getElementById('btn-step2-back').addEventListener('click', () => { Sounds.button(); updateDesignerStep(1); });
     document.getElementById('btn-step2-next').addEventListener('click', () => { Sounds.button(); updateDesignerStep(3); });
 
-    document.getElementById('btn-step3-back').addEventListener('click', () => updateDesignerStep(2));
+    document.getElementById('btn-step3-back').addEventListener('click', () => { Sounds.button(); updateDesignerStep(2); });
     document.getElementById('btn-step3-next').addEventListener('click', () => {
       if (Board.designer.getBoardConfig().snakes.length === 0) {
-        showToast('Add at least one snake!');
+        showToast('Add at least one snake first!');
         return;
       }
       Sounds.button();
       updateDesignerStep(4);
     });
-    document.getElementById('btn-add-another-snake').addEventListener('click', () => {
+    document.getElementById('btn-undo-snake').addEventListener('click', () => {
+      const snakes = Board.designer.getBoardConfig().snakes;
+      if (snakes.length === 0) { showToast('No snakes to undo'); return; }
       Sounds.button();
+      Board.designer.removeSnake(snakes.length - 1);
       Board.designer.setMode('snake-head');
-      updatePlacementHint('Tap start square');
+      setSnakeGuideStep(1);
+    });
+    document.getElementById('btn-auto-snakes').addEventListener('click', () => {
+      Sounds.button();
+      Board.designer.autoPlaceSnakes();
+      Board.designer.setMode('idle');
+      setSnakeGuideStep(1);
     });
 
-    document.getElementById('btn-step4-back').addEventListener('click', () => updateDesignerStep(3));
+    document.getElementById('btn-step4-back').addEventListener('click', () => { Sounds.button(); updateDesignerStep(3); });
     document.getElementById('btn-step4-next').addEventListener('click', () => {
       if (Board.designer.getBoardConfig().ladders.length === 0) {
-        showToast('Add at least one ladder!');
+        showToast('Add at least one ladder first!');
         return;
       }
       Sounds.button();
       updateDesignerStep(5);
     });
-    document.getElementById('btn-add-another-ladder').addEventListener('click', () => {
+    document.getElementById('btn-undo-ladder').addEventListener('click', () => {
+      const ladders = Board.designer.getBoardConfig().ladders;
+      if (ladders.length === 0) { showToast('No ladders to undo'); return; }
       Sounds.button();
+      Board.designer.removeLadder(ladders.length - 1);
       Board.designer.setMode('ladder-bottom');
-      const hint = document.getElementById('ladder-hint');
-      if (hint) hint.textContent = 'Tap bottom square';
+      setLadderGuideStep(1);
+    });
+    document.getElementById('btn-auto-ladders').addEventListener('click', () => {
+      Sounds.button();
+      Board.designer.autoPlaceLadders();
+      Board.designer.setMode('idle');
+      setLadderGuideStep(1);
     });
 
-    document.getElementById('btn-step5-back').addEventListener('click', () => updateDesignerStep(4));
+    document.getElementById('btn-step5-back').addEventListener('click', () => { Sounds.button(); updateDesignerStep(4); });
 
     document.getElementById('btn-save-board').addEventListener('click', () => {
       Sounds.button();
@@ -551,20 +619,43 @@ const App = (() => {
     });
 
     // Grid size picker
+    const sizeNextBtn = document.getElementById('btn-step1-next');
     document.querySelectorAll('.size-card').forEach(card => {
       card.addEventListener('click', () => {
-        document.querySelectorAll('.size-card').forEach(c => c.classList.remove('selected'));
+        document.querySelectorAll('.size-card').forEach(c => {
+          c.classList.remove('selected');
+          // Reset sparkle so it can re-trigger
+          const sp = c.querySelector('.sc-sparkle');
+          if (sp) { sp.style.animation = 'none'; void sp.offsetWidth; sp.style.animation = ''; }
+          // Reset preview wiggle
+          const pv = c.querySelector('.size-preview');
+          if (pv) { pv.classList.remove('preview-wiggle'); }
+        });
         card.classList.add('selected');
+        // Trigger sparkle restart
+        const sparkle = card.querySelector('.sc-sparkle');
+        if (sparkle) { sparkle.style.animation = 'none'; void sparkle.offsetWidth; sparkle.style.animation = ''; }
+        // Trigger preview wiggle
+        const preview = card.querySelector('.size-preview');
+        if (preview) {
+          preview.classList.remove('preview-wiggle');
+          void preview.offsetWidth;
+          preview.classList.add('preview-wiggle');
+        }
+        // Reveal Next button on first deliberate tap
+        if (sizeNextBtn) sizeNextBtn.classList.add('size-next-visible');
         Sounds.button();
       });
     });
 
     // Theme picker
+    const themeContinueBtn = document.getElementById('btn-step2-next');
     document.querySelectorAll('.theme-card').forEach(card => {
       card.addEventListener('click', () => {
         document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
         applyTheme(card.dataset.theme);
+        if (themeContinueBtn) themeContinueBtn.disabled = false;
         Sounds.button();
       });
     });
@@ -582,6 +673,7 @@ const App = (() => {
     });
 
     document.getElementById('btn-game-menu').addEventListener('click', () => {
+      Sounds.button();
       document.getElementById('game-menu-overlay').classList.remove('hidden');
     });
 
@@ -592,14 +684,17 @@ const App = (() => {
     }
 
     document.getElementById('btn-resume').addEventListener('click', () => {
+      Sounds.button();
       document.getElementById('game-menu-overlay').classList.add('hidden');
     });
     document.getElementById('btn-restart').addEventListener('click', () => {
+      Sounds.button();
       document.getElementById('game-menu-overlay').classList.add('hidden');
       Game.cleanup();
       showPlayerSetup();
     });
     document.getElementById('btn-quit').addEventListener('click', () => {
+      Sounds.button();
       document.getElementById('game-menu-overlay').classList.add('hidden');
       Game.cleanup();
       Particles.stop();
@@ -608,19 +703,22 @@ const App = (() => {
 
     // Winner screen
     document.getElementById('btn-play-again').addEventListener('click', () => {
+      Sounds.button();
       Particles.stop();
       Game.cleanup();
       showPlayerSetup();
     });
     document.getElementById('btn-home-from-win').addEventListener('click', () => {
+      Sounds.button();
       Particles.stop();
       Game.cleanup();
       showHome();
     });
 
     // Scores
-    document.getElementById('btn-scores-back').addEventListener('click', () => showHome());
+    document.getElementById('btn-scores-back').addEventListener('click', () => { Sounds.button(); showHome(); });
     document.getElementById('btn-clear-scores').addEventListener('click', () => {
+      Sounds.button();
       Storage.clearScores();
       showScores();
     });
@@ -662,9 +760,24 @@ const App = (() => {
     selectBoard, deleteBoard,
     selectChar, selectColor,
     toggleBot, setPlayerType, toggleMusicMute,
-    selectBoardName,
+    selectPlayerName,
   };
 })();
+
+// ---- Guide step helpers (global so board.js can call them) ----
+function setSnakeGuideStep(step) {
+  const s1 = document.getElementById('sg-step-1');
+  const s2 = document.getElementById('sg-step-2');
+  if (s1) s1.classList.toggle('sg-active', step === 1);
+  if (s2) s2.classList.toggle('sg-active', step === 2);
+}
+
+function setLadderGuideStep(step) {
+  const l1 = document.getElementById('lg-step-1');
+  const l2 = document.getElementById('lg-step-2');
+  if (l1) l1.classList.toggle('sg-active', step === 1);
+  if (l2) l2.classList.toggle('sg-active', step === 2);
+}
 
 // ---- updateDesignerUI (called from board.js on each placement) ----
 let _prevSnakeCount = 0;
@@ -673,35 +786,32 @@ let _prevLadderCount = 0;
 function updateDesignerUI() {
   const config = Board.designer.getBoardConfig();
 
-  if (config.snakes.length > _prevSnakeCount) {
-    updateSnakeList();
-    updatePlacementHint('✓ Snake added!');
-    setTimeout(() => {
-      if (Board.designer.mode === 'idle') updatePlacementHint('Tap "Add Another Snake" or continue');
-    }, 1500);
-  }
-  _prevSnakeCount = config.snakes.length;
+  const snakeAdded  = config.snakes.length  > _prevSnakeCount;
+  const ladderAdded = config.ladders.length > _prevLadderCount;
 
-  if (config.ladders.length > _prevLadderCount) {
-    updateLadderList();
-    const hint = document.getElementById('ladder-hint');
-    if (hint) {
-      hint.textContent = '✓ Ladder added!';
-      setTimeout(() => {
-        if (Board.designer.mode === 'idle') hint.textContent = 'Tap "Add Another Ladder" or continue';
-      }, 1500);
-    }
-  }
+  _prevSnakeCount  = config.snakes.length;
   _prevLadderCount = config.ladders.length;
 
   updateSnakeList();
   updateLadderList();
+
+  // After a successful placement, auto-restart the same mode
+  if (snakeAdded) {
+    Board.designer.setMode('snake-head');
+    setSnakeGuideStep(1);
+  }
+  if (ladderAdded) {
+    Board.designer.setMode('ladder-bottom');
+    setLadderGuideStep(1);
+  }
 }
 
 function updateSnakeList() {
-  const list = document.getElementById('snake-list');
-  if (!list) return;
+  const list  = document.getElementById('snake-list');
+  const count = document.getElementById('snake-count');
   const snakes = Board.designer.getBoardConfig().snakes;
+  if (count) count.textContent = snakes.length;
+  if (!list) return;
   if (snakes.length === 0) {
     list.innerHTML = '<p class="guided-list-empty">No snakes yet</p>';
     return;
@@ -710,9 +820,11 @@ function updateSnakeList() {
 }
 
 function updateLadderList() {
-  const list = document.getElementById('ladder-list');
-  if (!list) return;
+  const list  = document.getElementById('ladder-list');
+  const count = document.getElementById('ladder-count');
   const ladders = Board.designer.getBoardConfig().ladders;
+  if (count) count.textContent = ladders.length;
+  if (!list) return;
   if (ladders.length === 0) {
     list.innerHTML = '<p class="guided-list-empty">No ladders yet</p>';
     return;

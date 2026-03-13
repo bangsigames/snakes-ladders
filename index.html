@@ -16,46 +16,77 @@
   <!-- ===== HOME SCREEN ===== -->
   <div id="screen-home" class="screen active">
     <div class="home-bg">
-      <div class="bg-bubble b1"></div>
-      <div class="bg-bubble b2"></div>
-      <div class="bg-bubble b3"></div>
-      <div class="bg-bubble b4"></div>
-      <div class="bg-bubble b5"></div>
+      <div class="home-hills"></div>
+      <div class="home-cloud hc1"></div>
+      <div class="home-cloud hc2"></div>
+      <div class="home-cloud hc3"></div>
     </div>
     <div class="home-floaters">
-      <span class="floater f1">🐍</span>
-      <span class="floater f2">🪜</span>
-      <span class="floater f3">🎲</span>
-      <span class="floater f4">⭐</span>
-      <span class="floater f5">🏆</span>
-      <span class="floater f6">🎉</span>
+      <div class="floater flt-star4 f1"></div>
+      <div class="floater flt-star4 f2"></div>
+      <div class="floater flt-gem   f3"></div>
+      <div class="floater flt-star4 f4"></div>
+      <div class="floater flt-gem   f5"></div>
+      <div class="floater flt-star4 f6"></div>
     </div>
     <div class="home-content">
       <div class="home-logo">
         <div class="logo-badge">
-          <span class="logo-snake-emoji">🐍</span>
+          <!-- Cartoon SVG snake -->
+          <svg class="logo-char logo-snake-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 100" width="56" height="70">
+            <path d="M40 92 Q14 76 20 54 Q26 34 46 34 Q66 34 61 14 Q56 4 46 4" fill="none" stroke="#1e6b2a" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M40 92 Q14 76 20 54 Q26 34 46 34 Q66 34 61 14 Q56 4 46 4" fill="none" stroke="#4CD964" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M40 92 Q14 76 20 54 Q26 34 46 34 Q66 34 61 14 Q56 4 46 4" fill="none" stroke="#88E89A" stroke-width="4" stroke-linecap="round" stroke-dasharray="7 11" stroke-dashoffset="2"/>
+            <ellipse cx="44" cy="6" rx="11" ry="10" fill="#1e6b2a"/>
+            <ellipse cx="44" cy="5" rx="10" ry="9" fill="#4CD964"/>
+            <circle cx="39.5" cy="3" r="2.8" fill="white"/>
+            <circle cx="48.5" cy="3" r="2.8" fill="white"/>
+            <circle cx="40.3" cy="3.2" r="1.5" fill="#111"/>
+            <circle cx="49.3" cy="3.2" r="1.5" fill="#111"/>
+            <path d="M39.5 9 Q44 12.5 48.5 9" fill="none" stroke="#1e6b2a" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="44" y1="14" x2="44" y2="19" stroke="#FF4444" stroke-width="2" stroke-linecap="round"/>
+            <line x1="44" y1="19" x2="41" y2="22" stroke="#FF4444" stroke-width="2" stroke-linecap="round"/>
+            <line x1="44" y1="19" x2="47" y2="22" stroke="#FF4444" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+
           <div class="logo-text">
             <h1 class="logo-title">My Snakes</h1>
             <div class="logo-amp">&amp;</div>
             <h1 class="logo-title">Ladders</h1>
           </div>
-          <span class="logo-ladder-emoji">🪜</span>
+
+          <!-- Cartoon SVG ladder with rainbow rungs -->
+          <svg class="logo-char logo-ladder-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" width="42" height="70">
+            <line x1="16" y1="5" x2="16" y2="95" stroke="#6B3F0E" stroke-width="8" stroke-linecap="round"/>
+            <line x1="44" y1="5" x2="44" y2="95" stroke="#6B3F0E" stroke-width="8" stroke-linecap="round"/>
+            <line x1="16" y1="8"  x2="16" y2="92" stroke="rgba(255,255,255,0.18)" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="44" y1="8"  x2="44" y2="92" stroke="rgba(255,255,255,0.18)" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="16" y1="17" x2="44" y2="17" stroke="#EF4444" stroke-width="5.5" stroke-linecap="round"/>
+            <line x1="16" y1="33" x2="44" y2="33" stroke="#F59E0B" stroke-width="5.5" stroke-linecap="round"/>
+            <line x1="16" y1="50" x2="44" y2="50" stroke="#22C55E" stroke-width="5.5" stroke-linecap="round"/>
+            <line x1="16" y1="67" x2="44" y2="67" stroke="#3B82F6" stroke-width="5.5" stroke-linecap="round"/>
+            <line x1="16" y1="83" x2="44" y2="83" stroke="#A855F7" stroke-width="5.5" stroke-linecap="round"/>
+          </svg>
         </div>
         <p class="logo-tagline">The ultimate fun board game!</p>
       </div>
       <div class="home-buttons">
         <button class="home-btn btn-play" id="btn-home-play">
-          <span class="home-btn-icon">🎲</span>
+          <span class="btn-play-glow"></span>
+          <span class="home-btn-icon" id="icon-play"></span>
           <span class="home-btn-label">Play Game</span>
+          <span class="btn-play-chevron">›</span>
         </button>
-        <button class="home-btn btn-design" id="btn-home-design">
-          <span class="home-btn-icon">🎨</span>
-          <span class="home-btn-label">Create Board</span>
-        </button>
-        <button class="home-btn btn-boards" id="btn-home-scores">
-          <span class="home-btn-icon">📋</span>
-          <span class="home-btn-label">My Boards</span>
-        </button>
+        <div class="home-secondary-row">
+          <button class="home-btn btn-design" id="btn-home-design">
+            <span class="home-btn-icon" id="icon-palette"></span>
+            <span class="home-btn-label">Create Board</span>
+          </button>
+          <button class="home-btn btn-boards" id="btn-home-scores">
+            <span class="home-btn-icon" id="icon-boards"></span>
+            <span class="home-btn-label">My Boards</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -72,7 +103,7 @@
     <div class="saved-boards-empty" id="saved-boards-empty" style="display:none;">
       <div class="empty-icon">🎨</div>
       <p>No saved boards yet!</p>
-      <button class="btn-primary" id="btn-go-design">Design your first board</button>
+      <button class="btn-primary" id="btn-go-design">🎨 Design a board</button>
     </div>
   </div>
 
@@ -92,92 +123,438 @@
 
     <!-- Step 1: Grid Size -->
     <div class="designer-step" id="designer-step-1">
-      <h3 class="step-heading">Choose Board Size</h3>
-      <div class="grid-size-options">
-        <button class="size-card" data-size="small">
-          <div class="size-preview size-small"></div>
-          <div class="size-label">Small</div>
-          <div class="size-desc">5×10 = 50 squares</div>
-        </button>
-        <button class="size-card" data-size="medium">
-          <div class="size-preview size-medium"></div>
-          <div class="size-label">Medium</div>
-          <div class="size-desc">8×8 = 64 squares</div>
-        </button>
-        <button class="size-card" data-size="large">
-          <div class="size-preview size-large"></div>
-          <div class="size-label">Large</div>
-          <div class="size-desc">8×10 = 80 squares</div>
-        </button>
-        <button class="size-card selected" data-size="classic">
-          <div class="size-preview size-classic"></div>
-          <div class="size-label">Classic ⭐</div>
-          <div class="size-desc">10×10 = 100 squares</div>
-        </button>
+
+      <!-- Progress journey indicator -->
+      <div class="size-journey">
+        <div class="jstep jactive">
+          <div class="jnum">1</div>
+          <div class="jlabel">Board Size</div>
+        </div>
+        <div class="jline"></div>
+        <div class="jstep">
+          <div class="jnum">2</div>
+          <div class="jlabel">Theme</div>
+        </div>
+        <div class="jline"></div>
+        <div class="jstep">
+          <div class="jnum">3</div>
+          <div class="jlabel">Customize</div>
+        </div>
       </div>
-      <button class="btn-next" id="btn-step1-next">Next: Pick a Theme →</button>
+
+      <h3 class="step-heading">Pick Your Board!</h3>
+
+      <div class="grid-size-options">
+
+        <!-- Small -->
+        <button class="size-card" data-size="small">
+          <div class="sc-deco sc-deco-ladder">
+            <svg viewBox="0 0 24 36" width="20" height="30"><line x1="6" y1="2" x2="6" y2="34" stroke="#8B5E14" stroke-width="3" stroke-linecap="round"/><line x1="18" y1="2" x2="18" y2="34" stroke="#8B5E14" stroke-width="3" stroke-linecap="round"/><line x1="6" y1="8"  x2="18" y2="8"  stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"/><line x1="6" y1="16" x2="18" y2="16" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round"/><line x1="6" y1="24" x2="18" y2="24" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round"/><line x1="6" y1="32" x2="18" y2="32" stroke="#A855F7" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </div>
+          <div class="size-preview size-small"></div>
+          <div class="size-label">Small Board</div>
+          <div class="size-sublabel">Quick Game!</div>
+          <div class="size-desc">50 squares</div>
+          <div class="sc-sparkle"></div>
+        </button>
+
+        <!-- Medium -->
+        <button class="size-card" data-size="medium">
+          <div class="sc-deco sc-deco-dice">
+            <svg viewBox="0 0 28 28" width="26" height="26"><rect x="1" y="1" width="26" height="26" rx="5" fill="white" stroke="#3B82F6" stroke-width="2"/><circle cx="8"  cy="8"  r="3" fill="#3B82F6"/><circle cx="20" cy="8"  r="3" fill="#3B82F6"/><circle cx="14" cy="14" r="3" fill="#60A5FA"/><circle cx="8"  cy="20" r="3" fill="#3B82F6"/><circle cx="20" cy="20" r="3" fill="#3B82F6"/></svg>
+          </div>
+          <div class="size-preview size-medium"></div>
+          <div class="size-label">Medium Board</div>
+          <div class="size-sublabel">Normal Game</div>
+          <div class="size-desc">64 squares</div>
+          <div class="sc-sparkle"></div>
+        </button>
+
+        <!-- Large -->
+        <button class="size-card" data-size="large">
+          <div class="sc-deco sc-deco-snake">
+            <svg viewBox="0 0 28 36" width="22" height="28"><path d="M14 34 Q4 26 8 18 Q12 10 20 10 Q26 10 24 4" fill="none" stroke="#1e6b2a" stroke-width="5" stroke-linecap="round"/><path d="M14 34 Q4 26 8 18 Q12 10 20 10 Q26 10 24 4" fill="none" stroke="#4CD964" stroke-width="3.5" stroke-linecap="round"/><circle cx="24" cy="3.5" r="4" fill="#1e6b2a"/><circle cx="24" cy="3" r="3.5" fill="#4CD964"/><circle cx="22.5" cy="2" r="1.2" fill="white"/><circle cx="25.5" cy="2" r="1.2" fill="white"/><circle cx="23" cy="2" r="0.7" fill="#111"/><circle cx="26" cy="2" r="0.7" fill="#111"/></svg>
+          </div>
+          <div class="size-preview size-large"></div>
+          <div class="size-label">Big Board</div>
+          <div class="size-sublabel">Long Game</div>
+          <div class="size-desc">80 squares</div>
+          <div class="sc-sparkle"></div>
+        </button>
+
+        <!-- Classic -->
+        <button class="size-card selected" data-size="classic">
+          <div class="sc-deco sc-deco-star">
+            <svg viewBox="0 0 28 28" width="26" height="26"><polygon points="14,1 17.5,10.5 28,10.5 19.5,16.5 22.5,27 14,21 5.5,27 8.5,16.5 0,10.5 10.5,10.5" fill="#FFB700" stroke="#FF9F00" stroke-width="1"/></svg>
+          </div>
+          <div class="size-preview size-classic"></div>
+          <div class="size-label">Classic Board</div>
+          <div class="size-sublabel">Big Adventure!</div>
+          <div class="size-desc">100 squares</div>
+          <div class="sc-sparkle"></div>
+        </button>
+
+      </div>
+
+      <button class="btn-next size-next-btn size-next-visible" id="btn-step1-next">
+        <span>Next: Pick Your Theme</span>
+        <span class="size-next-arrow">→</span>
+      </button>
     </div>
 
     <!-- Step 2: Theme -->
     <div class="designer-step hidden" id="designer-step-2">
-      <h3 class="step-heading">Choose a Theme</h3>
+      <h3 class="step-heading">Choose Your World</h3>
+
       <div class="theme-options">
+
+        <!-- JUNGLE -->
         <button class="theme-card" data-theme="jungle">
-          <div class="theme-illustration theme-prev-jungle">
-            <span class="theme-main-emoji">🌴</span>
-            <span class="theme-checkmark">✓</span>
+          <div class="theme-scene">
+            <svg viewBox="0 0 320 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <rect width="320" height="110" fill="#052e16"/>
+              <rect y="82" width="320" height="28" fill="#14532d"/>
+              <!-- vine left -->
+              <path d="M0 0 Q18 30 8 60 Q0 85 14 110" fill="none" stroke="#166534" stroke-width="4" stroke-linecap="round"/>
+              <!-- vine right -->
+              <path d="M320 10 Q300 40 312 70 Q320 90 308 110" fill="none" stroke="#166534" stroke-width="4" stroke-linecap="round"/>
+              <!-- big palm left -->
+              <rect x="38" y="30" width="9" height="52" rx="4" fill="#422006"/>
+              <ellipse cx="42" cy="34" rx="34" ry="18" fill="#15803d" transform="rotate(-18,42,34)"/>
+              <ellipse cx="42" cy="26" rx="26" ry="13" fill="#22c55e" transform="rotate(14,42,26)"/>
+              <ellipse cx="42" cy="38" rx="20" ry="10" fill="#4ade80" transform="rotate(-30,42,38)"/>
+              <!-- palm center -->
+              <rect x="155" y="18" width="8" height="64" rx="4" fill="#422006"/>
+              <ellipse cx="159" cy="22" rx="36" ry="17" fill="#16a34a" transform="rotate(-12,159,22)"/>
+              <ellipse cx="159" cy="15" rx="28" ry="13" fill="#22c55e" transform="rotate(16,159,15)"/>
+              <ellipse cx="159" cy="28" rx="22" ry="10" fill="#4ade80" transform="rotate(-26,159,28)"/>
+              <!-- palm right -->
+              <rect x="268" y="24" width="9" height="58" rx="4" fill="#422006"/>
+              <ellipse cx="272" cy="27" rx="34" ry="17" fill="#15803d" transform="rotate(20,272,27)"/>
+              <ellipse cx="272" cy="20" rx="26" ry="12" fill="#22c55e" transform="rotate(-14,272,20)"/>
+              <!-- large hanging leaves -->
+              <path d="M0 15 Q22 35 10 65" fill="#166534" opacity="0.8"/>
+              <path d="M320 5 Q298 28 312 60" fill="#166534" opacity="0.8"/>
+              <!-- sun glow top right -->
+              <circle cx="288" cy="18" r="20" fill="#fbbf24" opacity="0.15"/>
+              <circle cx="288" cy="18" r="12" fill="#fbbf24" opacity="0.2"/>
+              <!-- fireflies -->
+              <circle cx="90"  cy="55" r="3"   fill="#d9f99d" opacity="0.85"/>
+              <circle cx="220" cy="42" r="2.5" fill="#d9f99d" opacity="0.75"/>
+              <circle cx="260" cy="68" r="2"   fill="#d9f99d" opacity="0.7"/>
+              <circle cx="120" cy="72" r="2"   fill="#bbf7d0" opacity="0.65"/>
+              <!-- flowers on ground -->
+              <circle cx="60"  cy="88" r="5" fill="#f43f5e" opacity="0.8"/>
+              <circle cx="55"  cy="85" r="3" fill="#fb923c" opacity="0.7"/>
+              <circle cx="200" cy="90" r="4" fill="#fbbf24" opacity="0.7"/>
+            </svg>
+            <div class="theme-overlay">
+              <div class="theme-name">Jungle</div>
+              <div class="theme-tagline">Wild adventure in the trees</div>
+            </div>
+            <div class="theme-check-badge"></div>
           </div>
-          <div class="theme-label">Jungle</div>
         </button>
+
+        <!-- SPACE -->
         <button class="theme-card" data-theme="space">
-          <div class="theme-illustration theme-prev-space">
-            <span class="theme-main-emoji">🚀</span>
-            <span class="theme-checkmark">✓</span>
+          <div class="theme-scene">
+            <svg viewBox="0 0 320 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="gPlanet" cx="35%" cy="30%">
+                  <stop offset="0%" stop-color="#818cf8"/>
+                  <stop offset="100%" stop-color="#1e1b4b"/>
+                </radialGradient>
+              </defs>
+              <rect width="320" height="110" fill="#020010"/>
+              <!-- stars -->
+              <circle cx="12"  cy="8"  r="1.5" fill="white" opacity="0.9"/>
+              <circle cx="48"  cy="22" r="1"   fill="white" opacity="0.7"/>
+              <circle cx="82"  cy="6"  r="2"   fill="white" opacity="0.8"/>
+              <circle cx="118" cy="32" r="1.5" fill="white" opacity="0.6"/>
+              <circle cx="160" cy="10" r="1"   fill="white" opacity="0.9"/>
+              <circle cx="198" cy="45" r="1.5" fill="white" opacity="0.75"/>
+              <circle cx="244" cy="16" r="2"   fill="white" opacity="0.8"/>
+              <circle cx="305" cy="30" r="1"   fill="white" opacity="0.6"/>
+              <circle cx="315" cy="8"  r="1.5" fill="white" opacity="0.9"/>
+              <circle cx="35"  cy="68" r="1"   fill="white" opacity="0.5"/>
+              <circle cx="140" cy="75" r="1.5" fill="white" opacity="0.6"/>
+              <circle cx="275" cy="80" r="1"   fill="white" opacity="0.7"/>
+              <circle cx="68"  cy="90" r="2"   fill="white" opacity="0.4"/>
+              <circle cx="180" cy="92" r="1"   fill="#c7d2fe" opacity="0.6"/>
+              <circle cx="310" cy="88" r="1.5" fill="#c7d2fe" opacity="0.5"/>
+              <!-- large planet -->
+              <circle cx="218" cy="60" r="44" fill="url(#gPlanet)"/>
+              <!-- planet bands -->
+              <path d="M174 60 Q218 54 262 60" fill="none" stroke="#4338ca" stroke-width="5" opacity="0.4"/>
+              <path d="M176 68 Q218 72 260 68" fill="none" stroke="#4f46e5" stroke-width="3" opacity="0.3"/>
+              <!-- planet rings -->
+              <ellipse cx="218" cy="60" rx="64" ry="13" fill="none" stroke="#a5b4fc" stroke-width="5" opacity="0.45"/>
+              <!-- craters -->
+              <circle cx="208" cy="52" r="7"  fill="#1e1b4b" opacity="0.5"/>
+              <circle cx="228" cy="67" r="4.5" fill="#1e1b4b" opacity="0.4"/>
+              <!-- moon left -->
+              <circle cx="58"  cy="50" r="22" fill="#cbd5e1"/>
+              <circle cx="50"  cy="44" r="6"  fill="#94a3b8" opacity="0.55"/>
+              <circle cx="64"  cy="58" r="4"  fill="#94a3b8" opacity="0.45"/>
+              <circle cx="72"  cy="44" r="3"  fill="#94a3b8" opacity="0.4"/>
+              <!-- shooting star -->
+              <line x1="100" y1="90" x2="138" y2="102" stroke="white" stroke-width="1.5" opacity="0.5"/>
+              <circle cx="100" cy="90" r="2.5" fill="white" opacity="0.8"/>
+              <!-- nebula glow -->
+              <ellipse cx="310" cy="55" rx="30" ry="20" fill="#7c3aed" opacity="0.08"/>
+            </svg>
+            <div class="theme-overlay">
+              <div class="theme-name">Space</div>
+              <div class="theme-tagline">Blast off into the galaxy</div>
+            </div>
+            <div class="theme-check-badge"></div>
           </div>
-          <div class="theme-label">Space</div>
         </button>
+
+        <!-- OCEAN -->
         <button class="theme-card" data-theme="ocean">
-          <div class="theme-illustration theme-prev-ocean">
-            <span class="theme-main-emoji">🌊</span>
-            <span class="theme-checkmark">✓</span>
+          <div class="theme-scene">
+            <svg viewBox="0 0 320 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <!-- sky -->
+              <rect width="320" height="32" fill="#0ea5e9"/>
+              <!-- sun in sky -->
+              <circle cx="280" cy="14" r="14" fill="#fde68a" opacity="0.85"/>
+              <!-- deep water -->
+              <rect y="32" width="320" height="78" fill="#0c4a6e"/>
+              <!-- surface wave -->
+              <path d="M0 32 Q40 25 80 32 Q120 39 160 32 Q200 25 240 32 Q280 39 320 32 L320 45 L0 45Z" fill="#0284c7" opacity="0.65"/>
+              <!-- mid water layer -->
+              <rect y="45" width="320" height="65" fill="#083344" opacity="0.6"/>
+              <!-- sea floor -->
+              <rect y="95" width="320" height="15" fill="#042f3e"/>
+              <path d="M0 95 Q60 90 120 95 Q180 100 240 95 Q280 90 320 95" fill="#065f46" opacity="0.5"/>
+              <!-- coral left cluster -->
+              <rect x="18" y="70" width="7" height="26" rx="3.5" fill="#f43f5e"/>
+              <circle cx="21" cy="70" r="9"  fill="#fb7185"/>
+              <rect x="30" y="76" width="5" height="20" rx="2.5" fill="#fb923c"/>
+              <circle cx="32" cy="76" r="6"  fill="#fdba74"/>
+              <rect x="10" y="78" width="5" height="18" rx="2.5" fill="#e11d48"/>
+              <circle cx="12" cy="78" r="5.5" fill="#f43f5e"/>
+              <!-- coral right cluster -->
+              <rect x="272" y="68" width="8" height="28" rx="4" fill="#06b6d4"/>
+              <circle cx="276" cy="68" r="10" fill="#22d3ee"/>
+              <rect x="284" y="74" width="5" height="22" rx="2.5" fill="#0891b2"/>
+              <circle cx="286" cy="74" r="6.5" fill="#67e8f9"/>
+              <rect x="265" y="76" width="5" height="20" rx="2.5" fill="#0e7490"/>
+              <!-- seaweed -->
+              <path d="M148 110 Q138 92 148 76 Q158 60 148 44" fill="none" stroke="#16a34a" stroke-width="5.5" stroke-linecap="round"/>
+              <path d="M164 110 Q174 94 164 80 Q154 66 164 52" fill="none" stroke="#15803d" stroke-width="4.5" stroke-linecap="round"/>
+              <path d="M178 110 Q170 95 178 82 Q186 70 178 58" fill="none" stroke="#166534" stroke-width="4" stroke-linecap="round"/>
+              <!-- fish 1 (yellow, going right) -->
+              <ellipse cx="95"  cy="60" rx="15" ry="9" fill="#fbbf24"/>
+              <polygon points="110,60 120,54 120,66"  fill="#f59e0b"/>
+              <circle cx="88"  cy="57" r="2.5" fill="#1c1917"/>
+              <ellipse cx="95" cy="60" rx="8"  ry="4"  fill="#fde68a" opacity="0.5"/>
+              <!-- fish 2 (pink, going left) -->
+              <ellipse cx="242" cy="52" rx="12" ry="7" fill="#f43f5e"/>
+              <polygon points="230,52 222,47 222,57"  fill="#e11d48"/>
+              <circle cx="249" cy="50" r="2" fill="#1c1917"/>
+              <!-- bubbles -->
+              <circle cx="60"  cy="42" r="4.5" fill="none" stroke="#bae6fd" stroke-width="1.8" opacity="0.8"/>
+              <circle cx="72"  cy="26" r="3"   fill="none" stroke="#bae6fd" stroke-width="1.5" opacity="0.7"/>
+              <circle cx="200" cy="38" r="5"   fill="none" stroke="#bae6fd" stroke-width="1.8" opacity="0.75"/>
+              <circle cx="214" cy="20" r="3.5" fill="none" stroke="#bae6fd" stroke-width="1.5" opacity="0.65"/>
+              <circle cx="110" cy="70" r="3"   fill="none" stroke="#bae6fd" stroke-width="1.5" opacity="0.6"/>
+              <!-- light rays from surface -->
+              <path d="M100 32 L88 75"  stroke="#bae6fd" stroke-width="1.5" opacity="0.15"/>
+              <path d="M130 32 L118 80" stroke="#bae6fd" stroke-width="1.5" opacity="0.12"/>
+            </svg>
+            <div class="theme-overlay">
+              <div class="theme-name">Ocean</div>
+              <div class="theme-tagline">Dive into the deep blue sea</div>
+            </div>
+            <div class="theme-check-badge"></div>
           </div>
-          <div class="theme-label">Ocean</div>
         </button>
+
+        <!-- FANTASY -->
         <button class="theme-card" data-theme="fantasy">
-          <div class="theme-illustration theme-prev-fantasy">
-            <span class="theme-main-emoji">🦄</span>
-            <span class="theme-checkmark">✓</span>
+          <div class="theme-scene">
+            <svg viewBox="0 0 320 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <!-- magical night sky -->
+              <rect width="320" height="110" fill="#150530"/>
+              <!-- aurora bands -->
+              <ellipse cx="160" cy="30" rx="200" ry="40" fill="#7c3aed" opacity="0.12"/>
+              <ellipse cx="160" cy="20" rx="180" ry="28" fill="#a855f7" opacity="0.1"/>
+              <!-- moon halo -->
+              <circle cx="262" cy="26" r="32" fill="#7c3aed" opacity="0.2"/>
+              <circle cx="262" cy="26" r="22" fill="#a78bfa" opacity="0.3"/>
+              <!-- moon -->
+              <circle cx="262" cy="26" r="16" fill="#ede9fe"/>
+              <!-- crescent shadow -->
+              <circle cx="269" cy="22" r="13" fill="#150530" opacity="0.75"/>
+              <!-- ground -->
+              <rect y="90" width="320" height="20" fill="#1e0550"/>
+              <path d="M0 90 Q80 85 160 90 Q240 95 320 90" fill="none" stroke="#7c3aed" stroke-width="2" opacity="0.5"/>
+              <!-- castle body -->
+              <rect x="85"  y="62" width="90" height="48" fill="#2e1065"/>
+              <!-- castle gate -->
+              <path d="M118 110 Q130 94 142 110Z" fill="#150530"/>
+              <!-- castle window glow -->
+              <rect x="122" y="72" width="10" height="13" rx="5" fill="#fde68a" opacity="0.9"/>
+              <circle cx="127" cy="72" r="5" fill="#fde68a" opacity="0.45"/>
+              <!-- left tower -->
+              <rect x="64"  y="50" width="24" height="60" fill="#3b0764"/>
+              <polygon points="64,50 76,28 88,50" fill="#5b21b6"/>
+              <!-- left battlements -->
+              <rect x="63"  y="46" width="7" height="7" fill="#3b0764"/>
+              <rect x="71"  y="46" width="7" height="7" fill="#3b0764"/>
+              <rect x="79"  y="46" width="7" height="7" fill="#3b0764"/>
+              <!-- center tower -->
+              <rect x="122" y="38" width="30" height="72" fill="#4c1d95"/>
+              <polygon points="122,38 137,14 152,38" fill="#6d28d9"/>
+              <!-- center battlements -->
+              <rect x="121" y="34" width="7" height="7" fill="#4c1d95"/>
+              <rect x="129" y="34" width="7" height="7" fill="#4c1d95"/>
+              <rect x="137" y="34" width="7" height="7" fill="#4c1d95"/>
+              <rect x="145" y="34" width="7" height="7" fill="#4c1d95"/>
+              <!-- right tower -->
+              <rect x="168" y="52" width="24" height="58" fill="#3b0764"/>
+              <polygon points="168,52 180,30 192,52" fill="#5b21b6"/>
+              <!-- flag on center tower -->
+              <line x1="137" y1="14" x2="137" y2="4" stroke="#c4b5fd" stroke-width="2"/>
+              <polygon points="137,4 152,9 137,14" fill="#f43f5e"/>
+              <!-- sparkle stars -->
+              <path d="M28  28  L30  22  L32  28  L38  30  L32  32  L30  38  L28  32  L22  30Z"  fill="#fbbf24" opacity="0.95"/>
+              <path d="M198 16  L199.5 12 L201 16  L205 17.5 L201 19  L199.5 23 L198 19  L194 17.5Z" fill="#f9a8d4" opacity="0.9"/>
+              <path d="M248 74  L249.5 70 L251 74  L255 75.5 L251 77  L249.5 81 L248 77  L244 75.5Z" fill="#a5f3fc" opacity="0.85"/>
+              <path d="M18  72  L19  69  L20  72  L23  73  L20  74  L19  77  L18  74  L15  73Z"  fill="#c4b5fd" opacity="0.8"/>
+              <path d="M298 48  L300 43  L302 48  L307 50  L302 52  L300 57  L298 52  L293 50Z"  fill="#fde68a" opacity="0.9"/>
+              <path d="M310 20  L311.5 17 L313 20  L316 21  L313 22  L311.5 25 L310 22  L307 21Z" fill="#c4b5fd" opacity="0.7"/>
+              <!-- crystal gems on ground -->
+              <polygon points="50,110 55,95 60,110" fill="#a855f7" opacity="0.6"/>
+              <polygon points="56,110 62,92 68,110" fill="#c084fc" opacity="0.5"/>
+              <polygon points="255,110 260,96 265,110" fill="#7c3aed" opacity="0.6"/>
+            </svg>
+            <div class="theme-overlay">
+              <div class="theme-name">Fantasy</div>
+              <div class="theme-tagline">Enter a magical enchanted world</div>
+            </div>
+            <div class="theme-check-badge"></div>
           </div>
-          <div class="theme-label">Fantasy</div>
         </button>
+
+        <!-- CARTOON -->
         <button class="theme-card" data-theme="cartoon">
-          <div class="theme-illustration theme-prev-cartoon">
-            <span class="theme-main-emoji">🎨</span>
-            <span class="theme-checkmark">✓</span>
+          <div class="theme-scene">
+            <svg viewBox="0 0 320 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <!-- bright sky -->
+              <rect width="320" height="110" fill="#fef9c3"/>
+              <!-- rainbow arc -->
+              <path d="M-10 100 Q160 -20 330 100" fill="none" stroke="#f43f5e" stroke-width="5" opacity="0.25"/>
+              <path d="M-10 100 Q160 -10 330 100" fill="none" stroke="#f97316" stroke-width="4" opacity="0.25"/>
+              <path d="M-10 100 Q160 0   330 100" fill="none" stroke="#fbbf24" stroke-width="4" opacity="0.25"/>
+              <path d="M-10 100 Q160 8   330 100" fill="none" stroke="#22c55e" stroke-width="4" opacity="0.22"/>
+              <path d="M-10 100 Q160 16  330 100" fill="none" stroke="#3b82f6" stroke-width="4" opacity="0.22"/>
+              <!-- rolling hills back -->
+              <ellipse cx="80"  cy="130" rx="120" ry="65" fill="#86efac"/>
+              <ellipse cx="250" cy="125" rx="130" ry="60" fill="#4ade80"/>
+              <!-- big cloud left -->
+              <ellipse cx="72"  cy="22" rx="36" ry="20" fill="white"/>
+              <ellipse cx="50"  cy="28" rx="22" ry="15" fill="white"/>
+              <ellipse cx="94"  cy="28" rx="20" ry="14" fill="white"/>
+              <ellipse cx="72"  cy="32" rx="30" ry="14" fill="white"/>
+              <!-- big cloud right -->
+              <ellipse cx="230" cy="16" rx="32" ry="18" fill="white"/>
+              <ellipse cx="210" cy="22" rx="20" ry="13" fill="white"/>
+              <ellipse cx="252" cy="22" rx="18" ry="12" fill="white"/>
+              <!-- happy sun -->
+              <circle cx="292" cy="24" r="20" fill="#fbbf24"/>
+              <line x1="292" y1="0"   x2="292" y2="6"  stroke="#fcd34d" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="312" y1="4"   x2="307" y2="9"  stroke="#fcd34d" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="318" y1="24"  x2="312" y2="24" stroke="#fcd34d" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="312" y1="44"  x2="307" y2="39" stroke="#fcd34d" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="272" y1="4"   x2="277" y2="9"  stroke="#fcd34d" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="266" y1="24"  x2="272" y2="24" stroke="#fcd34d" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="272" y1="44"  x2="277" y2="39" stroke="#fcd34d" stroke-width="3.5" stroke-linecap="round"/>
+              <!-- sun face -->
+              <circle cx="286" cy="20" r="3" fill="#92400e"/>
+              <circle cx="298" cy="20" r="3" fill="#92400e"/>
+              <path d="M284 28 Q292 33 300 28" fill="none" stroke="#92400e" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- bouncy colored stars -->
+              <path d="M148 38 L151 28 L154 38 L164 41 L154 44 L151 54 L148 44 L138 41Z" fill="#ef4444"/>
+              <path d="M172 22 L174.5 15 L177 22 L184 24.5 L177 27 L174.5 34 L172 27 L165 24.5Z" fill="#3b82f6"/>
+              <path d="M118 50 L120 44 L122 50 L128 52.5 L122 55 L120 61 L118 55 L112 52.5Z" fill="#a855f7"/>
+              <!-- flowers -->
+              <circle cx="30"  cy="86" r="7"   fill="#f43f5e"/>
+              <circle cx="20"  cy="80" r="5"   fill="#fb923c"/>
+              <circle cx="40"  cy="80" r="5"   fill="#a855f7"/>
+              <circle cx="30"  cy="86" r="4.5" fill="#fef3c7"/>
+              <rect x="28" y="87" width="4" height="18" rx="2" fill="#16a34a"/>
+              <!-- doodle dots -->
+              <circle cx="108" cy="62" r="6" fill="#f43f5e" opacity="0.7"/>
+              <circle cx="196" cy="58" r="5" fill="#fbbf24" opacity="0.8"/>
+              <circle cx="260" cy="66" r="6" fill="#3b82f6" opacity="0.7"/>
+              <!-- ground line -->
+              <path d="M0 92 Q40 88 80 92 Q120 96 160 92 Q200 88 240 92 Q280 96 320 92" fill="none" stroke="#16a34a" stroke-width="2.5" opacity="0.5"/>
+            </svg>
+            <div class="theme-overlay">
+              <div class="theme-name">Cartoon</div>
+              <div class="theme-tagline">Bright colors and bouncy fun</div>
+            </div>
+            <div class="theme-check-badge"></div>
           </div>
-          <div class="theme-label">Cartoon</div>
         </button>
+
       </div>
-      <div class="step-nav">
+
+      <div class="theme-sticky-nav">
         <button class="btn-back-step" id="btn-step2-back">← Back</button>
-        <button class="btn-next" id="btn-step2-next">Continue →</button>
+        <button class="btn-next theme-continue-btn" id="btn-step2-next" disabled>Continue →</button>
       </div>
     </div>
 
     <!-- Step 3: Add Snakes -->
     <div class="designer-step hidden guided-step" id="designer-step-3">
       <div class="guided-top">
-        <h3 class="guided-step-title">Add Snakes 🐍</h3>
-        <div class="guided-instruction" id="placement-hint">Tap start square</div>
+        <div class="guided-step-header">
+          <svg viewBox="0 0 28 28" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 24 Q4 16 10 13 Q16 10 15 5 Q14 2 18 2" fill="none" stroke="#1e6b2a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 24 Q4 16 10 13 Q16 10 15 5 Q14 2 18 2" fill="none" stroke="#4CD964" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="19.5" cy="2.5" r="4" fill="#1e6b2a"/>
+            <circle cx="19.5" cy="2"   r="3.5" fill="#4CD964"/>
+            <circle cx="18" cy="1" r="1.2" fill="white"/><circle cx="21" cy="1" r="1.2" fill="white"/>
+            <circle cx="18.4" cy="1.1" r="0.65" fill="#111"/><circle cx="21.4" cy="1.1" r="0.65" fill="#111"/>
+            <line x1="19.5" y1="5.8" x2="19.5" y2="8.5" stroke="#FF4444" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="19.5" y1="8.5" x2="18" y2="10.5" stroke="#FF4444" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="19.5" y1="8.5" x2="21" y2="10.5" stroke="#FF4444" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <h3 class="guided-step-title">Add Snakes</h3>
+        </div>
+        <div class="snake-guide">
+          <div class="sg-step sg-active" id="sg-step-1">
+            <div class="sg-num">1</div>
+            <div class="sg-text">Tap where the snake <strong>starts</strong> (the head)</div>
+          </div>
+          <div class="sg-arrow">→</div>
+          <div class="sg-step" id="sg-step-2">
+            <div class="sg-num">2</div>
+            <div class="sg-text">Tap a square <strong>below</strong> where it ends</div>
+          </div>
+        </div>
+        <!-- hidden text node kept for backward-compat with board.js calls -->
+        <div id="placement-hint" style="display:none">Tap a square to start</div>
       </div>
       <div class="guided-board-wrap" id="guided-board-wrap-3">
         <canvas id="designer-canvas"></canvas>
       </div>
       <div class="guided-bottom">
+        <div class="snake-counter">
+          <svg viewBox="0 0 18 18" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M3 15 Q2 10 6 8 Q10 6 9 3" fill="none" stroke="#4CD964" stroke-width="2.5" stroke-linecap="round"/><circle cx="9.5" cy="2.5" r="2.5" fill="#4CD964"/></svg>
+          <span>Snakes:</span>
+          <span class="snake-counter-value" id="snake-count">0</span>
+        </div>
         <div class="guided-list" id="snake-list"><p class="guided-list-empty">No snakes yet</p></div>
-        <div class="step-nav">
+        <div class="step-nav snake-step-nav">
           <button class="btn-back-step" id="btn-step3-back">← Back</button>
-          <button class="btn-outline-action" id="btn-add-another-snake">🐍 Add Another Snake</button>
+          <button class="btn-outline-action" id="btn-undo-snake">↩ Undo</button>
+          <button class="btn-outline-action" id="btn-auto-snakes">Auto Add</button>
           <button class="btn-next" id="btn-step3-next">Continue →</button>
         </div>
       </div>
@@ -186,35 +563,102 @@
     <!-- Step 4: Add Ladders -->
     <div class="designer-step hidden guided-step" id="designer-step-4">
       <div class="guided-top">
-        <h3 class="guided-step-title">Add Ladders 🪜</h3>
-        <div class="guided-instruction" id="ladder-hint">Tap start square</div>
+        <div class="guided-step-header">
+          <svg viewBox="0 0 28 28" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
+            <line x1="7" y1="4" x2="7" y2="24" stroke="#8d4e00" stroke-width="4" stroke-linecap="round"/>
+            <line x1="21" y1="4" x2="21" y2="24" stroke="#8d4e00" stroke-width="4" stroke-linecap="round"/>
+            <line x1="7" y1="4" x2="7" y2="24" stroke="#FFB700" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="21" y1="4" x2="21" y2="24" stroke="#FFB700" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="7" y1="9"  x2="21" y2="9"  stroke="#8d4e00" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="7" y1="15" x2="21" y2="15" stroke="#8d4e00" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="7" y1="21" x2="21" y2="21" stroke="#8d4e00" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="7" y1="9"  x2="21" y2="9"  stroke="#FFE066" stroke-width="2" stroke-linecap="round"/>
+            <line x1="7" y1="15" x2="21" y2="15" stroke="#FFE066" stroke-width="2" stroke-linecap="round"/>
+            <line x1="7" y1="21" x2="21" y2="21" stroke="#FFE066" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <h3 class="guided-step-title">Add Ladders</h3>
+        </div>
+        <div class="snake-guide">
+          <div class="sg-step sg-active" id="lg-step-1">
+            <div class="sg-num">1</div>
+            <div class="sg-text">Tap where the ladder <strong>starts</strong> (the bottom)</div>
+          </div>
+          <div class="sg-arrow">→</div>
+          <div class="sg-step" id="lg-step-2">
+            <div class="sg-num">2</div>
+            <div class="sg-text">Tap a square <strong>above</strong> where it reaches</div>
+          </div>
+        </div>
+        <div id="ladder-hint" style="display:none">Tap a square to start</div>
       </div>
       <div class="guided-board-wrap" id="guided-board-wrap-4">
         <!-- canvas moved here by JS -->
       </div>
       <div class="guided-bottom">
+        <div class="snake-counter">
+          <svg viewBox="0 0 18 18" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+            <line x1="5" y1="3" x2="5" y2="15" stroke="#8d4e00" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="13" y1="3" x2="13" y2="15" stroke="#8d4e00" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="5" y1="3" x2="5" y2="15" stroke="#FFB700" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="13" y1="3" x2="13" y2="15" stroke="#FFB700" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="5" y1="6"  x2="13" y2="6"  stroke="#FFE066" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="5" y1="10" x2="13" y2="10" stroke="#FFE066" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="5" y1="14" x2="13" y2="14" stroke="#FFE066" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <span>Ladders:</span>
+          <span class="snake-counter-value ladder-counter-value" id="ladder-count">0</span>
+        </div>
         <div class="guided-list" id="ladder-list"><p class="guided-list-empty">No ladders yet</p></div>
-        <div class="step-nav">
+        <div class="step-nav snake-step-nav">
           <button class="btn-back-step" id="btn-step4-back">← Back</button>
-          <button class="btn-outline-action" id="btn-add-another-ladder">🪜 Add Another Ladder</button>
+          <button class="btn-outline-action" id="btn-undo-ladder">↩ Undo</button>
+          <button class="btn-outline-action" id="btn-auto-ladders">Auto Add</button>
           <button class="btn-next" id="btn-step4-next">Continue →</button>
         </div>
       </div>
     </div>
 
-    <!-- Step 5: Name & Save -->
-    <div class="designer-step hidden" id="designer-step-5">
-      <h3 class="step-heading">Name Your Board</h3>
-      <div class="name-suggestions" id="name-suggestions">
-        <!-- Chips injected by JS -->
+    <!-- Step 5: Board Ready -->
+    <div class="designer-step hidden board-ready-step" id="designer-step-5">
+      <div class="board-ready-top">
+        <div class="board-ready-icon">
+          <svg viewBox="0 0 64 64" width="72" height="72" xmlns="http://www.w3.org/2000/svg">
+            <!-- Board grid -->
+            <rect x="6" y="6" width="52" height="52" rx="8" fill="#fff" fill-opacity="0.15" stroke="#fff" stroke-opacity="0.4" stroke-width="2"/>
+            <line x1="6" y1="23" x2="58" y2="23" stroke="#fff" stroke-opacity="0.25" stroke-width="1.5"/>
+            <line x1="6" y1="41" x2="58" y2="41" stroke="#fff" stroke-opacity="0.25" stroke-width="1.5"/>
+            <line x1="23" y1="6" x2="23" y2="58" stroke="#fff" stroke-opacity="0.25" stroke-width="1.5"/>
+            <line x1="41" y1="6" x2="41" y2="58" stroke="#fff" stroke-opacity="0.25" stroke-width="1.5"/>
+            <!-- Snake -->
+            <path d="M14 50 Q12 38 20 32 Q30 26 28 16" fill="none" stroke="#4CD964" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="28" cy="13" r="5" fill="#4CD964"/>
+            <!-- Ladder -->
+            <line x1="42" y1="54" x2="42" y2="16" stroke="#FFB700" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="52" y1="54" x2="52" y2="16" stroke="#FFB700" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="42" y1="47" x2="52" y2="47" stroke="#FFE066" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="42" y1="38" x2="52" y2="38" stroke="#FFE066" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="42" y1="29" x2="52" y2="29" stroke="#FFE066" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Checkmark ring -->
+            <circle cx="50" cy="14" r="11" fill="#27ae60"/>
+            <polyline points="44,14 48,18 56,10" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="board-ready-title">Board Ready!</h3>
+        <p class="board-ready-sub">Your board has been created</p>
       </div>
-      <div class="board-name-wrap">
-        <input type="text" id="board-name-input" class="board-name-input" placeholder="Or type your own name…" maxlength="30">
+
+      <div class="board-name-card" id="board-name-card">
+        <div class="board-name-label">Board Name</div>
+        <div class="board-name-display" id="board-name-display">—</div>
+        <div class="board-diff-badge" id="board-diff-badge"></div>
       </div>
+
+      <div class="board-ready-stats" id="board-ready-stats"></div>
+
       <div class="step-nav save-nav">
         <button class="btn-back-step" id="btn-step5-back">← Back</button>
-        <button class="btn-save" id="btn-save-board">💾 Save Board</button>
-        <button class="btn-play-now" id="btn-play-now">🎮 Play Now!</button>
+        <button class="btn-save" id="btn-save-board">Save Board</button>
+        <button class="btn-play-now" id="btn-play-now">Play Now!</button>
       </div>
     </div>
   </div>
@@ -245,7 +689,7 @@
     <div class="theme-bg-art" id="theme-bg-art"></div>
     <div class="game-layout">
       <div class="game-top-bar">
-        <button class="btn-menu" id="btn-game-menu">☰</button>
+        <button class="btn-menu" id="btn-game-menu"><span id="icon-menu-btn"></span></button>
         <div class="current-player-indicator" id="current-player-indicator">
           <div class="cp-avatar" id="cp-avatar"></div>
           <div class="cp-info">
@@ -268,7 +712,7 @@
           </div>
         </div>
         <button class="btn-roll" id="btn-roll">
-          <span id="roll-btn-text">🎲 Roll Dice</span>
+          <span id="roll-btn-text"></span>
         </button>
       </div>
     </div>
@@ -336,6 +780,7 @@
   <script src="js/particles.js"></script>
   <script src="js/board.js"></script>
   <script src="js/components.js"></script>
+  <script src="js/icons.js"></script>
   <script src="js/game.js"></script>
   <script src="js/app.js"></script>
 </body>

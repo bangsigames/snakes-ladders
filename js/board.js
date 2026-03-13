@@ -122,17 +122,62 @@ const Board = (() => {
       drawPalm(w*0.92, h*0.84, h*0.34);
       drawPalm(w*0.5, h*1.02, h*0.22);
 
-      // ── EMOJI CHARACTERS ──
-      em(ctx,'🦜',w*0.14,h*0.44,w*0.10);
-      em(ctx,'🦜',w*0.88,h*0.38,w*0.09,-0.3);
-      em(ctx,'🐆',w*0.78,h*0.76,w*0.11);
-      em(ctx,'🐸',w*0.22,h*0.82,w*0.09);
-      em(ctx,'🦋',w*0.5,h*0.3,w*0.10);
-      em(ctx,'🌺',w*0.35,h*0.87,w*0.09);
-      em(ctx,'🌸',w*0.65,h*0.89,w*0.08);
-      em(ctx,'🍌',w*0.6,h*0.2,w*0.08,0.2);
-      em(ctx,'🌿',w*0.2,h*0.6,w*0.13,0.4);
-      em(ctx,'🌿',w*0.78,h*0.58,w*0.11,-0.4);
+      // ── CANVAS CHARACTERS (jungle) ──
+      // Parrot
+      const drawParrot = (px, py, sz) => {
+        ctx.save(); ctx.translate(px, py);
+        ctx.fillStyle = '#4CD964'; ctx.beginPath(); ctx.ellipse(0, 0, sz*0.4, sz*0.6, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#3CB4FF'; ctx.beginPath(); ctx.ellipse(-sz*0.3, sz*0.1, sz*0.25, sz*0.4, -0.4, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#FFD93D'; ctx.beginPath(); ctx.arc(sz*0.1, -sz*0.55, sz*0.28, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(sz*0.18, -sz*0.6, sz*0.1, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(sz*0.2, -sz*0.6, sz*0.06, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#FF6B6B'; ctx.beginPath(); ctx.moveTo(sz*0.28, -sz*0.55); ctx.lineTo(sz*0.45, -sz*0.5); ctx.lineTo(sz*0.28, -sz*0.45); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      };
+      drawParrot(w*0.12, h*0.42, w*0.09);
+      drawParrot(w*0.87, h*0.36, w*0.08);
+
+      // Frog
+      const drawFrog = (px, py, sz) => {
+        ctx.save(); ctx.translate(px, py);
+        ctx.fillStyle = '#4CD964';
+        ctx.beginPath(); ctx.ellipse(0, 0, sz*0.5, sz*0.4, 0, 0, Math.PI*2); ctx.fill();
+        [-sz*0.3, sz*0.3].forEach(ex => {
+          ctx.fillStyle = '#4CD964'; ctx.beginPath(); ctx.arc(ex, -sz*0.35, sz*0.22, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(ex, -sz*0.35, sz*0.15, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(ex+sz*0.03, -sz*0.35, sz*0.09, 0, Math.PI*2); ctx.fill();
+        });
+        ctx.strokeStyle = '#2A8A3A'; ctx.lineWidth = sz*0.08; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(0, sz*0.05, sz*0.25, 0.2, Math.PI-0.2); ctx.stroke();
+        ctx.restore();
+      };
+      drawFrog(w*0.2, h*0.82, w*0.075);
+
+      // Flower
+      const drawFlower = (px, py, sz, petColor) => {
+        ctx.save(); ctx.translate(px, py);
+        for (let a = 0; a < Math.PI*2; a += Math.PI/3) {
+          ctx.fillStyle = petColor;
+          ctx.beginPath(); ctx.ellipse(Math.cos(a)*sz*0.4, Math.sin(a)*sz*0.4, sz*0.22, sz*0.32, a, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.fillStyle = '#FFD93D'; ctx.beginPath(); ctx.arc(0, 0, sz*0.28, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+      };
+      drawFlower(w*0.33, h*0.87, w*0.055, '#FF6B6B');
+      drawFlower(w*0.66, h*0.88, w*0.05, '#FF6B6B');
+
+      // Butterfly
+      ctx.save(); ctx.translate(w*0.5, h*0.3);
+      const bsz = w*0.07;
+      ctx.fillStyle = '#8E6CFF'; ctx.globalAlpha = 0.8;
+      ctx.beginPath(); ctx.ellipse(-bsz*0.7, -bsz*0.3, bsz*0.7, bsz*0.5, -0.4, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bsz*0.7, -bsz*0.3, bsz*0.7, bsz*0.5, 0.4, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFD93D';
+      ctx.beginPath(); ctx.ellipse(-bsz*0.5, bsz*0.2, bsz*0.45, bsz*0.35, 0.4, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bsz*0.5, bsz*0.2, bsz*0.45, bsz*0.35, -0.4, 0, Math.PI*2); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.ellipse(0, 0, bsz*0.1, bsz*0.55, 0, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
 
     } else if (theme === 'space') {
       // ── DEEP SPACE ──
@@ -165,15 +210,77 @@ const Board = (() => {
         [[6,0],[-6,0],[0,6],[0,-6]].forEach(([dx,dy]) => { ctx.beginPath(); ctx.moveTo(sx*w,sy*h); ctx.lineTo(sx*w+dx,sy*h+dy); ctx.stroke(); });
       });
 
-      // ── EMOJI CHARACTERS ──
-      em(ctx,'🪐',w*0.82,h*0.14,w*0.18);
-      em(ctx,'🌍',w*0.12,h*0.78,w*0.13);
-      em(ctx,'🌙',w*0.88,h*0.72,w*0.11);
-      em(ctx,'🚀',w*0.3,h*0.1,w*0.13,0.35);
-      em(ctx,'👾',w*0.55,h*0.68,w*0.10);
-      em(ctx,'☄️',w*0.18,h*0.38,w*0.11,-0.5);
-      em(ctx,'⭐',w*0.6,h*0.88,w*0.09);
-      em(ctx,'💫',w*0.72,h*0.35,w*0.09);
+      // ── CANVAS CHARACTERS (space) ──
+      // Planet with rings
+      const drawPlanet = (px, py, pr, pc, rc) => {
+        ctx.save(); ctx.translate(px, py);
+        ctx.strokeStyle = rc; ctx.lineWidth = pr*0.22; ctx.globalAlpha = 0.5;
+        ctx.beginPath(); ctx.ellipse(0, pr*0.1, pr*1.6, pr*0.38, -0.3, Math.PI*0.6, Math.PI*1.4); ctx.stroke();
+        ctx.globalAlpha = 1;
+        const pg = ctx.createRadialGradient(-pr*0.3, -pr*0.3, pr*0.1, 0, 0, pr);
+        pg.addColorStop(0, lightenColor(pc, 40)); pg.addColorStop(1, pc);
+        ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(0, 0, pr, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = rc; ctx.lineWidth = pr*0.22; ctx.globalAlpha = 0.85;
+        ctx.beginPath(); ctx.ellipse(0, pr*0.1, pr*1.6, pr*0.38, -0.3, Math.PI*1.4, Math.PI*2.6); ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.restore();
+      };
+      drawPlanet(w*0.82, h*0.14, w*0.09, '#8E6CFF', '#C4B0FF');
+
+      // Moon crescent
+      ctx.save(); ctx.translate(w*0.88, h*0.72);
+      const mr = w*0.055;
+      ctx.fillStyle = '#FFD93D';
+      ctx.beginPath(); ctx.arc(0, 0, mr, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#0A001A';
+      ctx.beginPath(); ctx.arc(mr*0.4, -mr*0.2, mr*0.8, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+
+      // Rocket
+      ctx.save(); ctx.translate(w*0.3, h*0.1); ctx.rotate(0.35);
+      const rsz = w*0.065;
+      ctx.fillStyle = '#3CB4FF';
+      ctx.beginPath(); ctx.moveTo(0, -rsz*2); ctx.bezierCurveTo(rsz*0.6, -rsz*0.8, rsz*0.6, rsz*0.6, rsz*0.5, rsz); ctx.lineTo(-rsz*0.5, rsz); ctx.bezierCurveTo(-rsz*0.6, rsz*0.6, -rsz*0.6, -rsz*0.8, 0, -rsz*2); ctx.fill();
+      ctx.fillStyle = '#FFD93D'; ctx.beginPath(); ctx.arc(0, -rsz*0.3, rsz*0.32, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FF6B6B';
+      ctx.beginPath(); ctx.moveTo(rsz*0.5, rsz*0.3); ctx.lineTo(rsz*1.1, rsz*1.1); ctx.lineTo(rsz*0.5, rsz); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-rsz*0.5, rsz*0.3); ctx.lineTo(-rsz*1.1, rsz*1.1); ctx.lineTo(-rsz*0.5, rsz); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#FFD93D'; ctx.globalAlpha = 0.8;
+      ctx.beginPath(); ctx.moveTo(-rsz*0.3, rsz); ctx.bezierCurveTo(-rsz*0.1, rsz*1.8, rsz*0.1, rsz*1.8, rsz*0.3, rsz); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+
+      // Alien creature
+      ctx.save(); ctx.translate(w*0.55, h*0.68);
+      const asz = w*0.05;
+      ctx.fillStyle = '#4CD964';
+      ctx.beginPath(); ctx.ellipse(0, asz*0.3, asz*0.55, asz*0.7, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(0, -asz*0.6, asz*0.65, asz*0.6, 0, 0, Math.PI*2); ctx.fill();
+      [-asz*0.3, asz*0.3].forEach(ex => {
+        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.ellipse(ex, -asz*0.65, asz*0.28, asz*0.35, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(ex+asz*0.05, -asz*0.65, asz*0.18, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(ex+asz*0.1, -asz*0.73, asz*0.07, 0, Math.PI*2); ctx.fill();
+      });
+      ctx.strokeStyle = '#4CD964'; ctx.lineWidth = asz*0.1; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(-asz*0.3, -asz*1.2); ctx.lineTo(-asz*0.55, -asz*1.75); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(asz*0.3, -asz*1.2); ctx.lineTo(asz*0.55, -asz*1.75); ctx.stroke();
+      ctx.fillStyle = '#FFD93D';
+      ctx.beginPath(); ctx.arc(-asz*0.55, -asz*1.75, asz*0.18, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(asz*0.55, -asz*1.75, asz*0.18, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+
+      // Comet/meteor
+      ctx.save(); ctx.translate(w*0.18, h*0.38); ctx.rotate(-0.5);
+      const cometsz = w*0.055;
+      ctx.fillStyle = '#FF6B6B';
+      ctx.beginPath(); ctx.arc(0, 0, cometsz*0.5, 0, Math.PI*2); ctx.fill();
+      ctx.globalAlpha = 0.4;
+      const cometGrad = ctx.createLinearGradient(-cometsz*2.5, 0, 0, 0);
+      cometGrad.addColorStop(0, 'transparent'); cometGrad.addColorStop(1, '#FF6B6B');
+      ctx.fillStyle = cometGrad;
+      ctx.beginPath(); ctx.moveTo(0, cometsz*0.4); ctx.lineTo(-cometsz*2.5, 0); ctx.lineTo(0, -cometsz*0.4); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.restore();
 
     } else if (theme === 'ocean') {
       // ── UNDERWATER SCENE ──
@@ -225,17 +332,89 @@ const Board = (() => {
         ctx.beginPath(); ctx.arc(bx*w-br*0.3,by*h-br*0.3,br*0.4,0,Math.PI*2); ctx.fill();
       });
 
-      // ── EMOJI CHARACTERS ──
-      em(ctx,'🐋',w*0.25,h*0.22,w*0.16);
-      em(ctx,'🦈',w*0.7,h*0.15,w*0.14);
-      em(ctx,'🐠',w*0.8,h*0.42,w*0.11);
-      em(ctx,'🐙',w*0.14,h*0.55,w*0.13);
-      em(ctx,'🐡',w*0.48,h*0.62,w*0.10);
-      em(ctx,'🦑',w*0.85,h*0.65,w*0.10);
-      em(ctx,'🪸',w*0.08,h*0.91,w*0.12);
-      em(ctx,'🪸',w*0.35,h*0.92,w*0.10);
-      em(ctx,'🪸',w*0.65,h*0.91,w*0.11);
-      em(ctx,'🪸',w*0.9,h*0.92,w*0.10);
+      // ── CANVAS CHARACTERS (ocean) ──
+      // Whale
+      const drawWhale = (px, py, wsz) => {
+        ctx.save(); ctx.translate(px, py);
+        ctx.fillStyle = '#3CB4FF';
+        ctx.beginPath(); ctx.ellipse(0, 0, wsz, wsz*0.55, 0.1, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.beginPath(); ctx.ellipse(wsz*0.1, wsz*0.15, wsz*0.6, wsz*0.28, 0.1, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#3CB4FF';
+        ctx.beginPath(); ctx.moveTo(-wsz, -wsz*0.05); ctx.bezierCurveTo(-wsz*1.3, -wsz*0.4, -wsz*1.5, -wsz*0.25, -wsz*1.4, wsz*0.05); ctx.bezierCurveTo(-wsz*1.5, wsz*0.3, -wsz*1.3, wsz*0.4, -wsz, wsz*0.1); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(wsz*0.5, -wsz*0.15, wsz*0.12, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(wsz*0.52, -wsz*0.15, wsz*0.07, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = 'rgba(180,230,255,0.8)'; ctx.lineWidth = wsz*0.06; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(wsz*0.3, -wsz*0.5); ctx.bezierCurveTo(wsz*0.25, -wsz*0.9, wsz*0.35, -wsz*1.1, wsz*0.2, -wsz*1.3); ctx.stroke();
+        ctx.restore();
+      };
+      drawWhale(w*0.25, h*0.22, w*0.08);
+
+      // Shark
+      ctx.save(); ctx.translate(w*0.7, h*0.15); ctx.scale(-1, 1);
+      const shsz = w*0.07;
+      ctx.fillStyle = '#607D8B';
+      ctx.beginPath(); ctx.moveTo(shsz, 0); ctx.bezierCurveTo(shsz*0.5, -shsz*0.35, -shsz*0.8, -shsz*0.35, -shsz, 0); ctx.bezierCurveTo(-shsz*0.8, shsz*0.25, shsz*0.5, shsz*0.3, shsz, 0); ctx.fill();
+      ctx.fillStyle = '#546E7A';
+      ctx.beginPath(); ctx.moveTo(shsz*0.2, -shsz*0.3); ctx.lineTo(shsz*0.1, -shsz*0.95); ctx.lineTo(-shsz*0.25, -shsz*0.3); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.beginPath(); ctx.ellipse(0, shsz*0.1, shsz*0.5, shsz*0.18, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(shsz*0.6, -shsz*0.06, shsz*0.1, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(shsz*0.62, -shsz*0.06, shsz*0.06, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+
+      // Tropical fish
+      const drawFish = (px, py, fsz, fc) => {
+        ctx.save(); ctx.translate(px, py);
+        ctx.fillStyle = fc;
+        ctx.beginPath(); ctx.ellipse(0, 0, fsz*0.55, fsz*0.35, 0, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = fsz*0.08;
+        ctx.beginPath(); ctx.moveTo(-fsz*0.1, -fsz*0.35); ctx.lineTo(-fsz*0.1, fsz*0.35); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(fsz*0.15, -fsz*0.35); ctx.lineTo(fsz*0.15, fsz*0.35); ctx.stroke();
+        ctx.fillStyle = fc;
+        ctx.beginPath(); ctx.moveTo(-fsz*0.55, 0); ctx.lineTo(-fsz*0.9, -fsz*0.4); ctx.lineTo(-fsz*0.95, fsz*0.4); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(fsz*0.3, -fsz*0.05, fsz*0.1, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(fsz*0.32, -fsz*0.05, fsz*0.06, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+      };
+      drawFish(w*0.8, h*0.42, w*0.055, '#FF6B6B');
+      drawFish(w*0.48, h*0.62, w*0.05, '#FFD93D');
+
+      // Octopus
+      ctx.save(); ctx.translate(w*0.14, h*0.55);
+      const osz = w*0.065;
+      for (let ti = 0; ti < 8; ti++) {
+        const ta = (ti / 8) * Math.PI * 2;
+        const tx2 = Math.cos(ta) * osz * 1.5;
+        const ty2 = Math.sin(ta) * osz * 1.5 + osz * 0.6;
+        ctx.strokeStyle = '#8E6CFF'; ctx.lineWidth = osz * 0.28; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(Math.cos(ta)*osz*0.4, Math.sin(ta)*osz*0.4 + osz*0.3);
+        ctx.quadraticCurveTo(tx2*0.7, ty2*0.7, tx2, ty2); ctx.stroke();
+      }
+      ctx.fillStyle = '#8E6CFF';
+      ctx.beginPath(); ctx.arc(0, 0, osz, 0, Math.PI*2); ctx.fill();
+      [-osz*0.35, osz*0.35].forEach(ex => {
+        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(ex, -osz*0.1, osz*0.28, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(ex+osz*0.05, -osz*0.1, osz*0.16, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(ex+osz*0.08, -osz*0.17, osz*0.06, 0, Math.PI*2); ctx.fill();
+      });
+      ctx.restore();
+
+      // Coral shapes
+      const drawCoral = (px, py, csz, cc) => {
+        ctx.save(); ctx.translate(px, py);
+        ctx.fillStyle = cc;
+        const branches = [[0,-csz],[csz*0.5,-csz*0.7],[-csz*0.5,-csz*0.7],[csz*0.3,-csz*0.4],[-csz*0.3,-csz*0.4]];
+        branches.forEach(([bx, by]) => {
+          ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(bx, by); ctx.lineWidth = csz*0.22; ctx.strokeStyle = cc; ctx.lineCap = 'round'; ctx.stroke();
+          ctx.beginPath(); ctx.arc(bx, by, csz*0.18, 0, Math.PI*2); ctx.fill();
+        });
+        ctx.restore();
+      };
+      drawCoral(w*0.08, h*0.92, w*0.06, '#FF6B6B');
+      drawCoral(w*0.35, h*0.93, w*0.05, '#FF8E8E');
+      drawCoral(w*0.65, h*0.92, w*0.055, '#FFB3B3');
+      drawCoral(w*0.9, h*0.93, w*0.05, '#FF6B6B');
 
     } else if (theme === 'fantasy') {
       // ── MAGICAL SKY ──
@@ -276,17 +455,96 @@ const Board = (() => {
         ctx.fillStyle=tg; ctx.beginPath(); ctx.arc(tx*w,ty*h,w*0.08,0,Math.PI*2); ctx.fill();
       });
 
-      // ── EMOJI CHARACTERS ──
-      em(ctx,'🏰',w*0.5,h*0.68,w*0.18);
-      em(ctx,'🌈',w*0.18,h*0.38,w*0.20);
-      em(ctx,'🦄',w*0.14,h*0.76,w*0.12);
-      em(ctx,'🐉',w*0.82,h*0.44,w*0.15);
-      em(ctx,'🧚',w*0.38,h*0.28,w*0.10);
-      em(ctx,'💎',w*0.78,h*0.14,w*0.09);
-      em(ctx,'⭐',w*0.28,h*0.10,w*0.09);
-      em(ctx,'✨',w*0.68,h*0.22,w*0.09);
-      em(ctx,'🌟',w*0.88,h*0.84,w*0.09);
-      em(ctx,'🔮',w*0.62,h*0.82,w*0.09);
+      // ── CANVAS CHARACTERS (fantasy) ──
+      // Castle
+      const drawCastle = (px, py, csz) => {
+        ctx.save(); ctx.translate(px, py);
+        ctx.fillStyle = 'rgba(60,20,120,0.85)';
+        ctx.fillRect(-csz*0.3, -csz, csz*0.6, csz);
+        [-csz*0.3, -csz*0.1, csz*0.1].forEach(bx => {
+          ctx.fillRect(bx, -csz*1.18, csz*0.16, csz*0.2);
+        });
+        ctx.fillRect(-csz*0.65, -csz*0.75, csz*0.38, csz*0.75);
+        [-csz*0.65, -csz*0.48].forEach(bx => { ctx.fillRect(bx, -csz*0.9, csz*0.15, csz*0.17); });
+        ctx.fillRect(csz*0.27, -csz*0.75, csz*0.38, csz*0.75);
+        [csz*0.27, csz*0.44].forEach(bx => { ctx.fillRect(bx, -csz*0.9, csz*0.15, csz*0.17); });
+        ctx.fillStyle = '#FFD93D';
+        ctx.beginPath(); ctx.arc(0, -csz*0.15, csz*0.18, Math.PI, 0); ctx.lineTo(csz*0.18, 0); ctx.lineTo(-csz*0.18, 0); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#FFD93D';
+        [[-csz*0.5, -csz*0.45], [csz*0.5, -csz*0.45], [0, -csz*0.55]].forEach(([wx,wy]) => {
+          ctx.beginPath(); ctx.arc(wx, wy, csz*0.1, 0, Math.PI*2); ctx.fill();
+        });
+        ctx.restore();
+      };
+      drawCastle(w*0.5, h*0.72, w*0.09);
+
+      // Rainbow arc
+      ['#FF6B6B','#FF8C00','#FFD93D','#4CD964','#3CB4FF','#8E6CFF'].forEach((c,i) => {
+        ctx.strokeStyle=c; ctx.lineWidth=w*0.018; ctx.globalAlpha=0.45;
+        ctx.beginPath(); ctx.arc(w*0.18, h*0.38, w*(0.12+i*0.028), Math.PI*1.1, Math.PI*0.1, false); ctx.stroke();
+      });
+      ctx.globalAlpha=1;
+
+      // Dragon
+      ctx.save(); ctx.translate(w*0.82, h*0.44);
+      const dsz = w*0.075;
+      ctx.fillStyle = '#4CD964';
+      ctx.beginPath(); ctx.ellipse(0, 0, dsz*0.55, dsz*0.4, 0.3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(dsz*0.6, -dsz*0.2, dsz*0.42, dsz*0.35, -0.3, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#8E6CFF'; ctx.globalAlpha = 0.7;
+      ctx.beginPath(); ctx.moveTo(0, -dsz*0.3); ctx.bezierCurveTo(-dsz*0.5, -dsz*1.2, -dsz*1.2, -dsz*0.8, -dsz*1.0, -dsz*0.1); ctx.bezierCurveTo(-dsz*0.6, dsz*0.2, -dsz*0.1, dsz*0.1, 0, -dsz*0.3); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(dsz*0.75, -dsz*0.25, dsz*0.12, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFD93D'; ctx.beginPath(); ctx.arc(dsz*0.77, -dsz*0.25, dsz*0.08, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(dsz*0.77, -dsz*0.25, dsz*0.05, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FF6B6B'; ctx.globalAlpha = 0.85;
+      ctx.beginPath(); ctx.moveTo(dsz*0.9, -dsz*0.15); ctx.bezierCurveTo(dsz*1.3, -dsz*0.5, dsz*1.6, -dsz*0.1, dsz*1.4, dsz*0.2); ctx.bezierCurveTo(dsz*1.2, dsz*0.1, dsz*1.1, -dsz*0.05, dsz*0.9, dsz*0.1); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+
+      // Fairy
+      ctx.save(); ctx.translate(w*0.38, h*0.28);
+      const fsz2 = w*0.05;
+      ctx.fillStyle = 'rgba(200,180,255,0.6)';
+      ctx.beginPath(); ctx.ellipse(-fsz2*1.0, -fsz2*0.3, fsz2*0.9, fsz2*0.55, -0.5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(fsz2*1.0, -fsz2*0.3, fsz2*0.9, fsz2*0.55, 0.5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(-fsz2*0.6, fsz2*0.4, fsz2*0.55, fsz2*0.35, 0.5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(fsz2*0.6, fsz2*0.4, fsz2*0.55, fsz2*0.35, -0.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FF6B6B';
+      ctx.beginPath(); ctx.ellipse(0, fsz2*0.5, fsz2*0.28, fsz2*0.5, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFD93D';
+      ctx.beginPath(); ctx.arc(0, -fsz2*0.3, fsz2*0.38, 0, Math.PI*2); ctx.fill();
+      [-fsz2*0.13, fsz2*0.13].forEach(ex => {
+        ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(ex, -fsz2*0.32, fsz2*0.08, 0, Math.PI*2); ctx.fill();
+      });
+      ctx.strokeStyle = '#FFD93D'; ctx.lineWidth = fsz2*0.1; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(fsz2*0.5, 0); ctx.lineTo(fsz2*1.3, -fsz2*0.8); ctx.stroke();
+      ctx.fillStyle = '#FFD93D'; ctx.beginPath(); ctx.arc(fsz2*1.3, -fsz2*0.8, fsz2*0.2, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+
+      // Sparkle stars
+      const drawSparkle = (px, py, sz, sc) => {
+        ctx.save(); ctx.translate(px, py);
+        ctx.fillStyle = sc;
+        [0, Math.PI/4].forEach(baseAngle => {
+          ctx.save(); ctx.rotate(baseAngle);
+          ctx.beginPath(); ctx.moveTo(0,-sz); ctx.lineTo(sz*0.25,-sz*0.25); ctx.lineTo(sz,0); ctx.lineTo(sz*0.25,sz*0.25); ctx.lineTo(0,sz); ctx.lineTo(-sz*0.25,sz*0.25); ctx.lineTo(-sz,0); ctx.lineTo(-sz*0.25,-sz*0.25); ctx.closePath(); ctx.fill();
+          ctx.restore();
+        });
+        ctx.restore();
+      };
+      drawSparkle(w*0.28, h*0.10, w*0.025, 'rgba(255,217,61,0.7)');
+      drawSparkle(w*0.68, h*0.22, w*0.022, 'rgba(200,180,255,0.65)');
+      drawSparkle(w*0.88, h*0.84, w*0.02, 'rgba(255,217,61,0.6)');
+
+      // Crystal ball
+      ctx.save(); ctx.translate(w*0.62, h*0.82);
+      const crr = w*0.045;
+      const cg = ctx.createRadialGradient(-crr*0.3, -crr*0.3, crr*0.1, 0, 0, crr);
+      cg.addColorStop(0, 'rgba(200,180,255,0.9)'); cg.addColorStop(0.6, 'rgba(130,80,255,0.7)'); cg.addColorStop(1, 'rgba(60,0,150,0.5)');
+      ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(0, 0, crr, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.arc(-crr*0.25, -crr*0.25, crr*0.28, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
 
     } else {
       // ── CARTOON — cheerful outdoor scene ──
@@ -328,16 +586,92 @@ const Board = (() => {
       ctx.fillStyle='#FFCDD2'; ctx.fillRect(w*0.44,h*0.58,w*0.12,h*0.1);
       ctx.fillStyle='#795548'; ctx.fillRect(w*0.473,h*0.62,w*0.054,h*0.06);
 
-      // ── EMOJI CHARACTERS ──
-      em(ctx,'☀️',w*0.88,h*0.09,w*0.14);
-      em(ctx,'🌈',w*0.08,h*0.24,w*0.14);
-      em(ctx,'🎈',w*0.1,h*0.5,w*0.10);
-      em(ctx,'🎈',w*0.9,h*0.42,w*0.09);
-      em(ctx,'🌸',w*0.28,h*0.84,w*0.09);
-      em(ctx,'🌻',w*0.72,h*0.82,w*0.09);
-      em(ctx,'🐦',w*0.62,h*0.14,w*0.08,-0.2);
-      em(ctx,'⭐',w*0.5,h*0.07,w*0.08);
-      em(ctx,'🎉',w*0.78,h*0.68,w*0.08);
+      // ── CANVAS CHARACTERS (cartoon) ──
+      // Sun
+      ctx.save(); ctx.translate(w*0.88, h*0.09);
+      const sunsz = w*0.07;
+      ctx.strokeStyle = '#FFD93D'; ctx.lineWidth = sunsz*0.18; ctx.lineCap = 'round';
+      for (let ri = 0; ri < 8; ri++) {
+        const ra = (ri/8)*Math.PI*2;
+        ctx.beginPath(); ctx.moveTo(Math.cos(ra)*sunsz*0.7, Math.sin(ra)*sunsz*0.7); ctx.lineTo(Math.cos(ra)*sunsz*1.3, Math.sin(ra)*sunsz*1.3); ctx.stroke();
+      }
+      const sungrd = ctx.createRadialGradient(0,0,0,0,0,sunsz*0.65);
+      sungrd.addColorStop(0,'#FFF176'); sungrd.addColorStop(1,'#FFD93D');
+      ctx.fillStyle=sungrd; ctx.beginPath(); ctx.arc(0,0,sunsz*0.65,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#F59E0B'; ctx.lineWidth=sunsz*0.1; ctx.lineCap='round';
+      ctx.beginPath(); ctx.arc(0, sunsz*0.1, sunsz*0.28, 0.2, Math.PI-0.2); ctx.stroke();
+      [-sunsz*0.2, sunsz*0.2].forEach(ex => {
+        ctx.fillStyle='#F59E0B'; ctx.beginPath(); ctx.arc(ex, -sunsz*0.1, sunsz*0.08, 0, Math.PI*2); ctx.fill();
+      });
+      ctx.restore();
+
+      // Balloons
+      const drawBalloon = (px, py, bsz, bc) => {
+        ctx.save(); ctx.translate(px, py);
+        const bg = ctx.createRadialGradient(-bsz*0.25, -bsz*0.3, bsz*0.05, 0, 0, bsz);
+        bg.addColorStop(0, lightenColor(bc, 50)); bg.addColorStop(1, bc);
+        ctx.fillStyle = bg; ctx.beginPath(); ctx.ellipse(0, 0, bsz*0.6, bsz*0.75, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = lightenColor(bc, -30);
+        ctx.beginPath(); ctx.arc(0, bsz*0.78, bsz*0.1, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle='rgba(0,0,0,0.3)'; ctx.lineWidth=1; ctx.beginPath();
+        ctx.moveTo(0, bsz*0.9); ctx.bezierCurveTo(bsz*0.15, bsz*1.3, -bsz*0.1, bsz*1.6, 0, bsz*2); ctx.stroke();
+        ctx.restore();
+      };
+      drawBalloon(w*0.1, h*0.5, w*0.055, '#FF6B6B');
+      drawBalloon(w*0.9, h*0.42, w*0.05, '#8E6CFF');
+
+      // Flowers
+      const drawFlower2 = (px, py, sz, petColor, ctrColor) => {
+        ctx.save(); ctx.translate(px, py);
+        for (let a = 0; a < Math.PI*2; a += Math.PI/4) {
+          ctx.fillStyle = petColor;
+          ctx.beginPath(); ctx.ellipse(Math.cos(a)*sz*0.38, Math.sin(a)*sz*0.38, sz*0.2, sz*0.3, a, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.fillStyle = ctrColor; ctx.beginPath(); ctx.arc(0, 0, sz*0.26, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+      };
+      drawFlower2(w*0.28, h*0.84, w*0.055, '#FF6B6B', '#FFD93D');
+      drawFlower2(w*0.72, h*0.82, w*0.05, '#FFD93D', '#FF6B6B');
+
+      // Bird
+      ctx.save(); ctx.translate(w*0.62, h*0.14); ctx.rotate(-0.2);
+      const birdsz = w*0.04;
+      ctx.fillStyle = '#3CB4FF';
+      ctx.beginPath(); ctx.ellipse(0, 0, birdsz*0.8, birdsz*0.45, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#0090D9';
+      ctx.beginPath(); ctx.moveTo(birdsz*0.1, -birdsz*0.1); ctx.bezierCurveTo(birdsz*0.3, -birdsz*0.7, -birdsz*0.5, -birdsz*0.7, -birdsz*0.4, -birdsz*0.1); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#3CB4FF';
+      ctx.beginPath(); ctx.arc(birdsz*0.65, -birdsz*0.15, birdsz*0.35, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFD93D';
+      ctx.beginPath(); ctx.moveTo(birdsz*0.95, -birdsz*0.15); ctx.lineTo(birdsz*1.3, -birdsz*0.08); ctx.lineTo(birdsz*0.95, 0); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(birdsz*0.72, -birdsz*0.22, birdsz*0.1, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+
+      // Star sparkle
+      ctx.save(); ctx.translate(w*0.5, h*0.07);
+      const ssz = w*0.025;
+      ctx.fillStyle = 'rgba(255,217,61,0.75)';
+      [0, Math.PI/4].forEach(baseAngle => {
+        ctx.save(); ctx.rotate(baseAngle);
+        ctx.beginPath(); ctx.moveTo(0,-ssz); ctx.lineTo(ssz*0.25,-ssz*0.25); ctx.lineTo(ssz,0); ctx.lineTo(ssz*0.25,ssz*0.25); ctx.lineTo(0,ssz); ctx.lineTo(-ssz*0.25,ssz*0.25); ctx.lineTo(-ssz,0); ctx.lineTo(-ssz*0.25,-ssz*0.25); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      });
+      ctx.restore();
+
+      // Party confetti burst
+      ctx.save(); ctx.translate(w*0.78, h*0.68);
+      const confColors = ['#FF6B6B','#FFD93D','#4CD964','#3CB4FF','#8E6CFF'];
+      for (let ci = 0; ci < 12; ci++) {
+        const ca = (ci/12)*Math.PI*2;
+        const cd = w*0.04 + (ci%3)*w*0.015;
+        ctx.fillStyle = confColors[ci%confColors.length];
+        ctx.save();
+        ctx.translate(Math.cos(ca)*cd, Math.sin(ca)*cd);
+        ctx.rotate(ca);
+        ctx.fillRect(-w*0.008, -w*0.004, w*0.016, w*0.008);
+        ctx.restore();
+      }
+      ctx.restore();
     }
     ctx.restore();
   }
@@ -348,97 +682,202 @@ const Board = (() => {
   }
 
   function drawCell(ctx, r, cellNum, isEven, T, cellW, cellH, theme, total) {
-    const pad = 2;
-    const cx = r.x + pad, cy = r.y + pad, cw = r.w - pad*2, ch = r.h - pad*2;
-    const rr = Math.min(cw, ch) * 0.14; // rounded corners radius
+    const gap = 2;
+    const cx = r.x + gap, cy = r.y + gap;
+    const cw = r.w - gap * 2, ch = r.h - gap * 2;
+    const rr = Math.min(cw, ch) * 0.22;
+    const edgeH = Math.min(ch * 0.13, 5); // 3D bottom-edge height
+    const faceH = ch - edgeH;
 
-    // Rounded rect path helper (reused throughout)
     function rRect(x, y, w, h, rv) {
+      const rc = rv !== undefined ? rv : rr;
       ctx.beginPath();
-      ctx.moveTo(x+rv, y);
-      ctx.lineTo(x+w-rv, y); ctx.quadraticCurveTo(x+w, y, x+w, y+rv);
-      ctx.lineTo(x+w, y+h-rv); ctx.quadraticCurveTo(x+w, y+h, x+w-rv, y+h);
-      ctx.lineTo(x+rv, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-rv);
-      ctx.lineTo(x, y+rv); ctx.quadraticCurveTo(x, y, x+rv, y);
+      ctx.moveTo(x + rc, y);
+      ctx.lineTo(x + w - rc, y); ctx.quadraticCurveTo(x + w, y, x + w, y + rc);
+      ctx.lineTo(x + w, y + h - rc); ctx.quadraticCurveTo(x + w, y + h, x + w - rc, y + h);
+      ctx.lineTo(x + rc, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - rc);
+      ctx.lineTo(x, y + rc); ctx.quadraticCurveTo(x, y, x + rc, y);
       ctx.closePath();
     }
 
-    // Semi-transparent rounded cell fill
-    const base = isEven ? T.cellEven : T.cellOdd;
-    const cellGrad = ctx.createLinearGradient(cx, cy, cx, cy + ch);
-    cellGrad.addColorStop(0, base);
-    cellGrad.addColorStop(1, shadeColor(base, theme === 'space' ? -10 : -6));
+    // Rotating colour palette — cycles through 5 vivid theme colours
+    const palette = T.tilePalette || [T.cellEven, T.cellOdd];
+    const baseColor = palette[(cellNum - 1) % palette.length];
+    const darkColor = shadeColor(baseColor, -38);
+
+    // ── 3D bottom edge (toy-block depth) ──
     ctx.save();
-    ctx.globalAlpha = 0.72;
-    rRect(cx, cy, cw, ch, rr);
-    ctx.fillStyle = cellGrad;
+    ctx.shadowColor = 'rgba(0,0,0,0.3)';
+    ctx.shadowBlur = 5;
+    ctx.shadowOffsetY = 2;
+    rRect(cx, cy + edgeH, cw, ch - edgeH);
+    ctx.fillStyle = darkColor;
     ctx.fill();
     ctx.restore();
 
-    // Themed border stroke — colored, not grey
+    // ── Main tile face ──
     ctx.save();
-    ctx.globalAlpha = 0.45;
-    rRect(cx, cy, cw, ch, rr);
-    ctx.strokeStyle = T.cellBorder;
-    ctx.lineWidth = 1.5;
+    const fg = ctx.createLinearGradient(cx, cy, cx + cw * 0.55, cy + faceH);
+    fg.addColorStop(0, lightenColor(baseColor, 50));
+    fg.addColorStop(0.4, lightenColor(baseColor, 20));
+    fg.addColorStop(1, baseColor);
+    rRect(cx, cy, cw, faceH);
+    ctx.fillStyle = fg;
+    ctx.fill();
+    ctx.restore();
+
+    // ── Glossy candy-shine highlight ──
+    ctx.save();
+    ctx.globalAlpha = 0.42;
+    const sg = ctx.createLinearGradient(cx, cy, cx, cy + faceH * 0.44);
+    sg.addColorStop(0, 'rgba(255,255,255,0.75)');
+    sg.addColorStop(1, 'rgba(255,255,255,0)');
+    rRect(cx + 1, cy + 1, cw - 2, faceH * 0.52, rr * 0.7);
+    ctx.fillStyle = sg;
+    ctx.fill();
+    ctx.restore();
+
+    // ── Tile border ──
+    ctx.save();
+    rRect(cx, cy, cw, faceH);
+    ctx.strokeStyle = shadeColor(baseColor, -24);
+    ctx.lineWidth = 1.8;
+    ctx.globalAlpha = 0.5;
     ctx.stroke();
     ctx.restore();
 
-    // Special: start cell (1) — green glow + play icon
+    // ── Subtle themed decoration ──
+    drawTileDecoration(ctx, cx, cy, cw, faceH, cellNum, theme);
+
+    // ── Special: start cell (1) ──
     if (cellNum === 1) {
-      ctx.save(); ctx.globalAlpha = 0.38;
-      ctx.fillStyle = '#2ED573'; rRect(cx, cy, cw, ch, rr); ctx.fill();
+      ctx.save();
+      const sg2 = ctx.createRadialGradient(cx + cw*0.5, cy + faceH*0.5, 0, cx + cw*0.5, cy + faceH*0.5, Math.max(cw, faceH) * 0.65);
+      sg2.addColorStop(0, 'rgba(46,213,115,0.5)');
+      sg2.addColorStop(1, 'rgba(46,213,115,0)');
+      rRect(cx, cy, cw, faceH);
+      ctx.fillStyle = sg2;
+      ctx.fill();
+      // Play arrow
+      ctx.globalAlpha = 0.65;
+      ctx.fillStyle = '#1a7a42';
+      const arrowSz = Math.min(cw, faceH) * 0.25;
+      const ax = cx + cw - arrowSz * 0.5 - 2;
+      const ay = cy + faceH - arrowSz * 0.5 - 2;
+      ctx.beginPath();
+      ctx.moveTo(ax - arrowSz, ay - arrowSz * 0.65);
+      ctx.lineTo(ax, ay);
+      ctx.lineTo(ax - arrowSz, ay + arrowSz * 0.65);
+      ctx.closePath();
+      ctx.fill();
       ctx.restore();
-      const iSize = Math.min(cw, ch) * 0.3;
-      ctx.font = `${iSize}px sans-serif`;
-      ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-      ctx.globalAlpha = 0.7; ctx.fillStyle = '#27ae60';
-      ctx.fillText('▶', cx + cw - 1, cy + ch - 1); ctx.globalAlpha = 1;
-    // Special: finish cell — gold glow + star
+    // ── Special: finish cell ──
     } else if (cellNum === total) {
-      ctx.save(); ctx.globalAlpha = 0.38;
-      ctx.fillStyle = '#FFD700'; rRect(cx, cy, cw, ch, rr); ctx.fill();
+      ctx.save();
+      const fg2 = ctx.createRadialGradient(cx + cw*0.5, cy + faceH*0.5, 0, cx + cw*0.5, cy + faceH*0.5, Math.max(cw, faceH) * 0.7);
+      fg2.addColorStop(0, 'rgba(255,215,0,0.55)');
+      fg2.addColorStop(1, 'rgba(255,215,0,0)');
+      rRect(cx, cy, cw, faceH);
+      ctx.fillStyle = fg2;
+      ctx.fill();
+      // Gold star in corner
+      ctx.globalAlpha = 0.65;
+      ctx.fillStyle = '#b87a08';
+      const starSz = Math.min(cw, faceH) * 0.27;
+      ctx.font = `${starSz}px sans-serif`;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('★', cx + cw - 2, cy + faceH - 2);
       ctx.restore();
-      const iSize = Math.min(cw, ch) * 0.32;
-      ctx.font = `${iSize}px sans-serif`;
-      ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-      ctx.globalAlpha = 0.75; ctx.fillStyle = '#f59e0b';
-      ctx.fillText('★', cx + cw - 1, cy + ch - 1); ctx.globalAlpha = 1;
     }
 
-    // ── Number — Baloo 2, centered, vibrant theme color with white halo ──
-    const fontSize = Math.min(cellW * 0.30, cellH * 0.34, 17);
-    ctx.font = `800 ${fontSize}px 'Baloo 2', 'Fredoka One', cursive`;
+    // ── Number — big, bold, easy for kids to read ──
+    const fontSize = Math.min(cellW * 0.42, cellH * 0.46, 24);
+    ctx.font = `900 ${fontSize}px 'Baloo 2', 'Fredoka One', cursive`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // Theme-specific vibrant palette for numbers
-    let numColor, haloColor;
+    const numY = cy + faceH * 0.47;
+
+    let numFill, numShadow;
     if (theme === 'space') {
-      numColor  = '#d4b8ff';
-      haloColor = 'rgba(10,0,30,0.95)';
-    } else if (theme === 'jungle') {
-      numColor  = '#1b5e20';
-      haloColor = 'rgba(255,255,255,0.95)';
+      numFill = '#e0d4ff'; numShadow = 'rgba(5,0,20,0.98)';
     } else if (theme === 'ocean') {
-      numColor  = '#0d47a1';
-      haloColor = 'rgba(255,255,255,0.95)';
+      numFill = '#ffffff'; numShadow = 'rgba(0,40,80,0.96)';
     } else if (theme === 'fantasy') {
-      numColor  = '#6a1b9a';
-      haloColor = 'rgba(255,255,255,0.9)';
-    } else { // cartoon — cycling vivid colors
-      const palette = ['#FF4D6D','#7C3AED','#0EA5E9','#F59E0B','#10B981'];
-      numColor  = palette[cellNum % palette.length];
-      haloColor = 'rgba(255,255,255,0.95)';
+      numFill = '#ffffff'; numShadow = 'rgba(60,0,100,0.92)';
+    } else if (theme === 'jungle') {
+      numFill = '#ffffff'; numShadow = 'rgba(20,50,20,0.96)';
+    } else {
+      numFill = '#ffffff'; numShadow = 'rgba(20,20,40,0.96)';
     }
 
-    // White halo for crisp legibility over illustrated background
-    ctx.shadowColor = haloColor;
-    ctx.shadowBlur = 5;
-    ctx.fillStyle = numColor;
-    ctx.fillText(cellNum, r.cx, r.cy);
+    ctx.shadowColor = numShadow;
+    ctx.shadowBlur = 6;
+    ctx.fillStyle = numFill;
+    ctx.fillText(cellNum, r.cx, numY);
     ctx.shadowBlur = 0;
     ctx.shadowColor = 'transparent';
+  }
+
+  function drawTileDecoration(ctx, cx, cy, cw, faceH, cellNum, theme) {
+    const type = cellNum % 5;
+    if (type === 0) return; // plain tile
+
+    const sz = Math.min(cw, faceH) * 0.18;
+    if (sz < 3) return;
+
+    // Bottom-right corner position
+    const px = cx + cw - sz * 0.85;
+    const py = cy + faceH - sz * 0.85;
+
+    ctx.save();
+    ctx.globalAlpha = 0.24;
+    const dc = { jungle: '#ffffff', space: '#c4b5fd', ocean: '#ffffff', fantasy: '#fde68a', cartoon: '#ffffff' }[theme] || '#ffffff';
+    ctx.fillStyle = dc;
+    ctx.strokeStyle = dc;
+
+    if (type === 1) {
+      // 3 small dots in a row
+      const dr = sz * 0.27;
+      for (let d = 0; d < 3; d++) {
+        ctx.beginPath();
+        ctx.arc(px - sz * (2 - d) * 0.42, py, dr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (type === 2) {
+      // 4-point sparkle star
+      ctx.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * Math.PI * 2 - Math.PI / 2;
+        const rad = i % 2 === 0 ? sz * 0.5 : sz * 0.22;
+        const x2 = px + Math.cos(a) * rad;
+        const y2 = py + Math.sin(a) * rad;
+        if (i === 0) ctx.moveTo(x2, y2); else ctx.lineTo(x2, y2);
+      }
+      ctx.closePath();
+      ctx.fill();
+    } else if (type === 3) {
+      // Diamond
+      ctx.beginPath();
+      ctx.moveTo(px, py - sz * 0.5);
+      ctx.lineTo(px + sz * 0.38, py);
+      ctx.lineTo(px, py + sz * 0.5);
+      ctx.lineTo(px - sz * 0.38, py);
+      ctx.closePath();
+      ctx.fill();
+    } else if (type === 4) {
+      // Ring + centre dot
+      ctx.lineWidth = Math.max(1, sz * 0.18);
+      ctx.beginPath();
+      ctx.arc(px, py, sz * 0.38, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(px, py, sz * 0.14, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
   }
 
   // Lighten or darken a hex/rgb color by `amount` (negative = darker)
@@ -466,7 +905,7 @@ const Board = (() => {
     const cp2x = hx - dx * 0.25 + dy * 0.2;
     const cp2y = hy - dy * 0.25 - dx * 0.2;
 
-    const lineW = Math.min(head.w * 0.13, 8);
+    const lineW = Math.min(head.w * 0.18, 12);
 
     ctx.save();
 
@@ -1203,26 +1642,46 @@ const Board = (() => {
     },
     mode: 'idle', // 'snake-head' | 'snake-tail' | 'ladder-bottom' | 'ladder-top'
     pending: null, // first cell selected in a two-click placement
+    _hoverCell: null,
     targetSnakeCount: 3,
     targetLadderCount: 3,
 
     _clickHandler: null,
+    _moveHandler: null,
     _resizeHandler: null,
     initialized: false,
 
     init(canvasEl) {
       // Remove previous listeners if re-initializing
-      if (this._clickHandler) canvasEl.removeEventListener('click', this._clickHandler);
+      if (this._clickHandler)  canvasEl.removeEventListener('click', this._clickHandler);
+      if (this._moveHandler)   { canvasEl.removeEventListener('mousemove', this._moveHandler); canvasEl.removeEventListener('touchmove', this._moveHandler); }
       if (this._resizeHandler) window.removeEventListener('resize', this._resizeHandler);
 
       this.canvas = canvasEl;
       this.ctx = canvasEl.getContext('2d');
       this.mode = 'idle';
       this.pending = null;
+      this._hoverCell = null;
 
       this._clickHandler = e => this.handleClick(e);
+      this._moveHandler  = e => {
+        if (this.mode !== 'snake-tail' && this.mode !== 'ladder-top') return;
+        if (e.cancelable) e.preventDefault();
+        const src = e.touches ? e.touches[0] : e;
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        const cell = getCellFromPoint(
+          (src.clientX - rect.left) * scaleX,
+          (src.clientY - rect.top)  * scaleY,
+          this.config.cols, this.config.rows, this.canvas.width, this.canvas.height
+        );
+        if (cell !== this._hoverCell) { this._hoverCell = cell; this.draw(); }
+      };
       this._resizeHandler = () => { this.resize(); this.draw(); };
       canvasEl.addEventListener('click', this._clickHandler);
+      canvasEl.addEventListener('mousemove', this._moveHandler);
+      canvasEl.addEventListener('touchmove', this._moveHandler, { passive: false });
       window.addEventListener('resize', this._resizeHandler);
 
       this.initialized = true;
@@ -1287,6 +1746,7 @@ const Board = (() => {
     setMode(mode) {
       this.mode = mode;
       this.pending = null;
+      this._hoverCell = null;
       this.draw();
     },
 
@@ -1300,10 +1760,21 @@ const Board = (() => {
       if (!cell) return;
 
       if (this.mode === 'snake-head') {
+        // Tap existing snake to delete it
+        const si = this.config.snakes.findIndex(s => s.head === cell || s.tail === cell);
+        if (si !== -1) {
+          this.config.snakes.splice(si, 1);
+          this.draw();
+          updateDesignerUI();
+          showToast('Snake removed');
+          Sounds.button();
+          return;
+        }
+        if (this.cellOccupied(cell)) { showToast('Square taken! Try another ↩'); return; }
         this.pending = cell;
         this.mode = 'snake-tail';
         this.draw();
-        updatePlacementHint('Tap end square');
+        updatePlacementHint('Now tap the end square');
         Sounds.button();
       } else if (this.mode === 'snake-tail') {
         if (this.pending !== null && cell < this.pending && cell >= 1) {
@@ -1315,16 +1786,33 @@ const Board = (() => {
             updateDesignerUI();
             Sounds.landLadder();
           } else {
-            showToast('That square is already used! Try another.');
+            showToast('Square taken! Try another ↩');
           }
+        } else if (cell === this.pending) {
+          // Cancel placement by tapping the head again
+          this.pending = null;
+          this.mode = 'snake-head';
+          this.draw();
+          updatePlacementHint('');
         } else {
-          showToast('End square must be lower! Try again.');
+          showToast('End must be lower!');
         }
       } else if (this.mode === 'ladder-bottom') {
+        // Tap existing ladder to delete it
+        const li = this.config.ladders.findIndex(l => l.bottom === cell || l.top === cell);
+        if (li !== -1) {
+          this.config.ladders.splice(li, 1);
+          this.draw();
+          updateDesignerUI();
+          showToast('Ladder removed');
+          Sounds.button();
+          return;
+        }
+        if (this.cellOccupied(cell)) { showToast('Square taken! Try another ↩'); return; }
         this.pending = cell;
         this.mode = 'ladder-top';
         this.draw();
-        updatePlacementHint('Tap top square');
+        updatePlacementHint('Now tap the top square');
         Sounds.button();
       } else if (this.mode === 'ladder-top') {
         if (this.pending !== null && cell > this.pending && cell <= this.config.total) {
@@ -1336,10 +1824,16 @@ const Board = (() => {
             updateDesignerUI();
             Sounds.landLadder();
           } else {
-            showToast('That square is already used! Try another.');
+            showToast('Square taken! Try another ↩');
           }
+        } else if (cell === this.pending) {
+          // Cancel placement by tapping the bottom again
+          this.pending = null;
+          this.mode = 'ladder-bottom';
+          this.draw();
+          updatePlacementHint('');
         } else {
-          showToast('Top square must be higher! Try again.');
+          showToast('Top must be higher!');
         }
       }
     },
@@ -1432,23 +1926,115 @@ const Board = (() => {
       const T = THEMES[theme] || THEMES.cartoon;
       const w = this.canvas.width, h = this.canvas.height;
 
-      // Highlight pending cell
+      // Valid/invalid cell overlay when picking snake tail
+      if (this.mode === 'snake-tail' && this.pending !== null) {
+        const total = cols * rows;
+        for (let cell = 1; cell <= total; cell++) {
+          if (cell === this.pending) continue;
+          const r = getCellRect(cell, cols, rows, w, h);
+          const isValid = cell < this.pending && !this.cellOccupied(cell);
+          this.ctx.fillStyle = isValid ? 'rgba(34,197,94,0.18)' : 'rgba(0,0,0,0.46)';
+          this.ctx.fillRect(r.x + 1, r.y + 1, r.w - 2, r.h - 2);
+        }
+        // Hover preview snake
+        if (this._hoverCell && this._hoverCell < this.pending && !this.cellOccupied(this._hoverCell)) {
+          this.ctx.save();
+          this.ctx.globalAlpha = 0.45;
+          drawSnake(this.ctx, this.pending, this._hoverCell, cols, rows, w, h, T, theme);
+          this.ctx.restore();
+        }
+      }
+
+      // Valid/invalid cell overlay when picking ladder top
+      if (this.mode === 'ladder-top' && this.pending !== null) {
+        const total = cols * rows;
+        for (let cell = 1; cell <= total; cell++) {
+          if (cell === this.pending) continue;
+          const r = getCellRect(cell, cols, rows, w, h);
+          const isValid = cell > this.pending && !this.cellOccupied(cell);
+          this.ctx.fillStyle = isValid ? 'rgba(255,183,0,0.18)' : 'rgba(0,0,0,0.46)';
+          this.ctx.fillRect(r.x + 1, r.y + 1, r.w - 2, r.h - 2);
+        }
+        // Hover preview ladder
+        if (this._hoverCell && this._hoverCell > this.pending && !this.cellOccupied(this._hoverCell)) {
+          this.ctx.save();
+          this.ctx.globalAlpha = 0.45;
+          drawLadder(this.ctx, this.pending, this._hoverCell, cols, rows, w, h, T, theme);
+          this.ctx.restore();
+        }
+      }
+
+      // Highlight pending cell marker
       if (this.pending !== null) {
         const r = getCellRect(this.pending, cols, rows, w, h);
-        this.ctx.fillStyle = 'rgba(255, 200, 0, 0.45)';
+        this.ctx.fillStyle = 'rgba(255, 200, 0, 0.5)';
         this.ctx.fillRect(r.x + 1, r.y + 1, r.w - 2, r.h - 2);
         this.ctx.strokeStyle = '#ffa502';
         this.ctx.lineWidth = 3;
         this.ctx.strokeRect(r.x + 1.5, r.y + 1.5, r.w - 3, r.h - 3);
+        const label = (this.mode === 'ladder-top') ? 'BOT' : 'HEAD';
+        const cw = r.w, ch = r.h;
+        const fontSize = Math.min(cw * 0.32, ch * 0.32, 16);
+        this.ctx.font = `900 ${fontSize}px sans-serif`;
+        this.ctx.fillStyle = '#7a3c00';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText(label, r.x + cw / 2, r.y + ch / 2);
       }
 
-      // Hover effect — just show mode cursor indicator
-      if (this.mode !== 'idle') {
+      // Subtle active-mode tint (non-overlay modes only)
+      if (this.mode !== 'idle' && this.mode !== 'snake-tail' && this.mode !== 'ladder-top') {
         this.ctx.save();
-        this.ctx.fillStyle = 'rgba(255,200,0,0.12)';
+        this.ctx.fillStyle = 'rgba(255,200,0,0.08)';
         this.ctx.fillRect(0, 0, w, h);
         this.ctx.restore();
       }
+    },
+
+    autoPlaceSnakes() {
+      const { cols, rows, total } = this.config;
+      const occupied = new Set([1, total]);
+      for (const l of this.config.ladders) { occupied.add(l.bottom); occupied.add(l.top); }
+      for (const s of this.config.snakes) { occupied.add(s.head); occupied.add(s.tail); }
+
+      const target = Math.max(3, Math.round(total / 20));
+      const candidates = shuffle(Array.from({ length: total - 2 }, (_, i) => i + 2));
+      let placed = 0, idx = 0;
+      while (placed < target && idx + 1 < candidates.length) {
+        const c1 = candidates[idx], c2 = candidates[idx + 1];
+        idx += 2;
+        const head = Math.max(c1, c2), tail = Math.min(c1, c2);
+        if (head - tail >= cols && !occupied.has(head) && !occupied.has(tail)) {
+          this.config.snakes.push({ head, tail });
+          occupied.add(head); occupied.add(tail);
+          placed++;
+        }
+      }
+      this.draw();
+      updateDesignerUI();
+    },
+
+    autoPlaceLadders() {
+      const { cols, rows, total } = this.config;
+      const occupied = new Set([1, total]);
+      for (const s of this.config.snakes) { occupied.add(s.head); occupied.add(s.tail); }
+      for (const l of this.config.ladders) { occupied.add(l.bottom); occupied.add(l.top); }
+
+      const target = Math.max(3, Math.round(total / 20));
+      const candidates = shuffle(Array.from({ length: total - 2 }, (_, i) => i + 2));
+      let placed = 0, idx = 0;
+      while (placed < target && idx + 1 < candidates.length) {
+        const c1 = candidates[idx], c2 = candidates[idx + 1];
+        idx += 2;
+        const bottom = Math.min(c1, c2), top = Math.max(c1, c2);
+        if (top - bottom >= cols && !occupied.has(bottom) && !occupied.has(top)) {
+          this.config.ladders.push({ bottom, top });
+          occupied.add(bottom); occupied.add(top);
+          placed++;
+        }
+      }
+      this.draw();
+      updateDesignerUI();
     },
 
     getBoardConfig() {
@@ -1489,29 +2075,24 @@ const Board = (() => {
   function resizeGameCanvas(boardConfig) {
     if (!gameCanvas) return;
 
-    const topBar    = document.querySelector('.game-top-bar');
-    const bottomBar = document.querySelector('.game-bottom-bar');
-    const topH    = topBar    ? topBar.offsetHeight    : 72;
-    const bottomH = bottomBar ? bottomBar.offsetHeight : 80;
-    const pad = 16;
+    // Use the actual wrap dimensions — flex already sized it correctly
+    // on both mobile and desktop, no need to guess bar heights.
+    const wrap = gameCanvas.closest('.game-board-wrap') || document.querySelector('.game-board-wrap');
+    if (!wrap) return;
 
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    const rect = wrap.getBoundingClientRect();
+    const availW = rect.width  - 24; // 12px left + 12px right padding
+    const availH = rect.height - 16; // 8px top + 8px bottom padding
 
-    // Board must occupy 60–75% of screen height
-    const naturalH = vh - topH - bottomH - pad * 2;
-    const clampedH = Math.min(Math.max(naturalH, vh * 0.60), vh * 0.75);
-    const availW   = vw - pad * 2;
+    if (availW <= 0 || availH <= 0) return;
 
-    if (availW <= 0 || clampedH <= 0) return;
-
-    const cols = boardConfig.cols;
-    const rows = boardConfig.rows;
+    const cols   = boardConfig.cols;
+    const rows   = boardConfig.rows;
     const aspect = cols / rows;
 
     let cw, ch;
-    if (availW / clampedH > aspect) {
-      ch = clampedH;
+    if (availW / availH > aspect) {
+      ch = availH;
       cw = ch * aspect;
     } else {
       cw = availW;
@@ -1523,7 +2104,7 @@ const Board = (() => {
     if (cw / cols < MIN_CELL) { cw = cols * MIN_CELL; ch = cw / aspect; }
     if (ch / rows < MIN_CELL) { ch = rows * MIN_CELL; cw = ch * aspect; }
 
-    // Never exceed device width
+    // Never exceed available width
     if (cw > availW) { cw = availW; ch = cw / aspect; }
 
     cw = Math.round(cw);
@@ -1553,8 +2134,15 @@ const Board = (() => {
 // Helpers needed by Board.designer (defined outside module for cleanliness)
 function updatePlacementHint(text) {
   const mode = Board.designer.mode;
-  const isLadderMode = mode === 'ladder-bottom' || mode === 'ladder-top';
-  const id = isLadderMode ? 'ladder-hint' : 'placement-hint';
-  const el = document.getElementById(id);
-  if (el) el.textContent = text;
+
+  if (mode === 'ladder-bottom' || mode === 'ladder-top') {
+    if (typeof setLadderGuideStep === 'function') {
+      setLadderGuideStep(mode === 'ladder-top' ? 2 : 1);
+    }
+    return;
+  }
+
+  if (typeof setSnakeGuideStep === 'function') {
+    setSnakeGuideStep(mode === 'snake-tail' ? 2 : 1);
+  }
 }
