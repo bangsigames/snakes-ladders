@@ -145,6 +145,31 @@ const Game = (() => {
     }, 900);
   }
 
+  // ---- Board zoom helpers ----
+
+  function zoomBoard(targetPos) {
+    const canvas = document.getElementById('game-canvas');
+    if (!canvas) return;
+    const board = state.board;
+    const pos = (targetPos > 0) ? targetPos : Math.ceil(board.total / 2);
+    const cell = getCellRect(pos, board.cols, board.rows, canvas.width, canvas.height);
+    const pctX = (cell.cx / canvas.width  * 100).toFixed(1);
+    const pctY = (cell.cy / canvas.height * 100).toFixed(1);
+    canvas.style.transformOrigin = `${pctX}% ${pctY}%`;
+    canvas.style.transform = 'scale(1.08)';
+  }
+
+  function unzoomBoard(cb) {
+    const canvas = document.getElementById('game-canvas');
+    if (!canvas) { if (cb) cb(); return; }
+    canvas.style.transform = '';
+    if (!cb) return;
+    let done = false;
+    const finish = () => { if (!done) { done = true; cb(); } };
+    canvas.addEventListener('transitionend', finish, { once: true });
+    setTimeout(finish, 400); // fallback in case transitionend doesn't fire
+  }
+
   // ---- Movement ----
 
   function moveCurrentPlayer(steps) {
@@ -160,6 +185,9 @@ const Game = (() => {
       newPos = total - over;
     }
 
+    // Zoom board toward the player's current token position
+    zoomBoard(oldPos > 0 ? oldPos : newPos);
+
     // Animate movement step by step
     animateMove(player, oldPos, newPos, () => {
       player.position = newPos;
@@ -173,6 +201,7 @@ const Game = (() => {
         player.finished = true;
         player.finishTurn = state.turn;
         state.rankings.push(player);
+        unzoomBoard(null); // zoom out; don't delay win screen
         if (allPlayersFinished() || state.rankings.length === 1) {
           endGame();
           return;
@@ -185,15 +214,17 @@ const Game = (() => {
       const snake = state.board.snakes.find(s => s.head === newPos);
       if (snake) {
         Sounds.landSnake();
-        // Animate along snake bezier, then show event card
+        // Animate along snake bezier (stay zoomed), then zoom out → event card
         animateAlongSnake(player, snake, () => {
           player.position = snake.tail;
           player.snakeBites++;
           state.turn++;
           Board.redrawGame(state.board, state.players, null);
           updateGameUI();
-          showEventBrief('snake', player, snake, () => {
-            nextTurn();
+          unzoomBoard(() => {
+            showEventBrief('snake', player, snake, () => {
+              nextTurn();
+            });
           });
         });
         return;
@@ -203,15 +234,17 @@ const Game = (() => {
       const ladder = state.board.ladders.find(l => l.bottom === newPos);
       if (ladder) {
         Sounds.landLadder();
-        // Animate along ladder, then show event card
+        // Animate along ladder (stay zoomed), then zoom out → event card
         animateAlongLadder(player, ladder, () => {
           player.position = ladder.top;
           player.laddersClimbed++;
           state.turn++;
           Board.redrawGame(state.board, state.players, null);
           updateGameUI();
-          showEventBrief('ladder', player, ladder, () => {
-            nextTurn();
+          unzoomBoard(() => {
+            showEventBrief('ladder', player, ladder, () => {
+              nextTurn();
+            });
           });
         });
         return;
@@ -219,7 +252,7 @@ const Game = (() => {
 
       Board.redrawGame(state.board, state.players, null);
       updateGameUI();
-      nextTurn();
+      unzoomBoard(nextTurn);
     });
   }
 

@@ -185,7 +185,7 @@ body.theme-cartoon .home-bg {
 /* Rolling hills at bottom */
 .home-hills {
   position: absolute; bottom: 0; left: 0; right: 0;
-  height: 180px;
+  height: 80px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 180' preserveAspectRatio='none'%3E%3Cpath d='M0 180 Q150 80 300 130 Q450 180 600 100 Q750 20 900 90 Q1050 160 1200 80 L1200 180 Z' fill='rgba(255,77,109,0.18)'/%3E%3Cpath d='M0 180 Q200 110 400 150 Q600 190 800 120 Q1000 50 1200 130 L1200 180 Z' fill='rgba(124,58,237,0.22)'/%3E%3C/svg%3E");
   background-size: 100% 100%;
   pointer-events: none;
@@ -261,9 +261,9 @@ body.theme-cartoon .home-bg {
 .f1 { top:7%;  left:6%;    animation-delay:0s;   }
 .f2 { top:10%; right:8%;   animation-delay:1.2s; }
 .f3 { top:44%; left:3%;    animation-delay:2.5s; }
-.f4 { top:68%; right:5%;   animation-delay:0.7s; }
-.f5 { bottom:14%; left:9%; animation-delay:1.8s; }
-.f6 { bottom:9%; right:11%;animation-delay:3.2s; }
+.f4 { display: none; }
+.f5 { display: none; }
+.f6 { display: none; }
 
 @keyframes floaterAnim {
   0%,100% { transform: translateY(0) rotate(-5deg); }
@@ -275,14 +275,14 @@ body.theme-cartoon .home-bg {
   position: relative; z-index: 2;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  height: 100%; gap: 36px; padding: 28px 24px;
+  height: 100%; gap: 20px; padding: 16px 24px;
 }
 
 .home-logo { text-align: center; }
 
 .logo-badge {
-  display: inline-flex; align-items: center; gap: 18px;
-  padding: 22px 28px;
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
   background: rgba(255,255,255,0.10);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -308,7 +308,7 @@ body.theme-cartoon .home-bg {
 
 .logo-title {
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 8vw, 4rem);
+  font-size: clamp(1.2rem, 4.5vw, 1.6rem);
   color: white;
   text-shadow: 0 3px 0 rgba(0,0,0,0.25), 0 8px 32px rgba(255,77,109,0.5);
   line-height: 1;
@@ -319,7 +319,7 @@ body.theme-cartoon .home-bg {
 
 .logo-amp {
   font-family: var(--font-display);
-  font-size: clamp(1.4rem, 5vw, 2.5rem);
+  font-size: clamp(0.9rem, 3vw, 1.2rem);
   color: var(--accent);
   text-shadow: 0 2px 0 rgba(0,0,0,0.1), 0 4px 24px rgba(255,190,11,0.5);
   line-height: 1;
@@ -327,7 +327,7 @@ body.theme-cartoon .home-bg {
 }
 
 .logo-tagline {
-  margin-top: 14px;
+  margin-top: 8px;
   font-size: clamp(0.8rem, 2.5vw, 1rem);
   font-weight: 700;
   color: rgba(255,255,255,0.65);
@@ -347,40 +347,40 @@ body.theme-cartoon .home-bg {
 }
 
 .home-btn {
-  display: flex; align-items: center; gap: 14px;
-  padding: 20px 24px;
-  border: none; border-radius: 24px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  border: none; border-radius: 20px;
   font-family: var(--font-display);
-  font-size: clamp(1.1rem, 3.5vw, 1.5rem);
+  font-size: clamp(0.95rem, 3vw, 1.2rem);
   font-weight: 800;
   cursor: pointer;
   position: relative; overflow: hidden;
   transition: transform 0.12s cubic-bezier(0.34,1.56,0.64,1),
               box-shadow 0.12s ease;
   text-align: left;
-  min-height: 72px;
+  min-height: 64px;
 }
 .home-btn:hover:not(:active) { transform: translateY(-4px) scale(1.01); }
 .home-btn:active             { transform: translateY(5px) scale(0.98); }
 
-.home-btn-icon  { font-size: 2rem; flex-shrink: 0; }
+.home-btn-icon  { font-size: 1.5rem; flex-shrink: 0; }
 .home-btn-label { color: white; flex: 1; }
 
 /* PRIMARY — Play Game: yellow candy */
 .btn-play {
   background: linear-gradient(180deg, #FFCF2F 0%, #FFB700 60%, #FF9F00 100%);
-  box-shadow: 0 8px 0 #cc7a00, 0 12px 40px rgba(255,183,0,0.55);
+  box-shadow: 0 6px 0 #cc7a00, 0 10px 32px rgba(255,183,0,0.55);
   animation: playBtnPulse 2.5s ease-in-out infinite;
-  min-height: 100px;
-  padding: 24px 28px;
-  border-radius: 28px;
+  min-height: 72px;
+  padding: 16px 20px;
+  border-radius: 22px;
 }
 .btn-play .home-btn-label {
-  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-size: clamp(1.15rem, 4vw, 1.5rem);
   color: #7a3c00;
   text-shadow: 0 1px 0 rgba(255,255,255,0.4);
 }
-.btn-play .home-btn-icon { font-size: 2.8rem; }
+.btn-play .home-btn-icon { font-size: 2rem; }
 .btn-play:active {
   box-shadow: 0 2px 0 #cc7a00, 0 4px 16px rgba(255,183,0,0.35);
   transform: translateY(6px) scale(0.98);
@@ -405,7 +405,7 @@ body.theme-cartoon .home-bg {
 }
 
 .btn-play-chevron {
-  font-size: 2.6rem;
+  font-size: 2rem;
   color: #7a3c00;
   opacity: 0.65;
   flex-shrink: 0;
@@ -993,7 +993,9 @@ body.theme-cartoon .home-bg {
 .guided-step {
   gap: 0 !important;
   padding: 0 !important;
-  overflow: hidden !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  /* Let content stack vertically and scroll, don't clip the board */
 }
 
 .guided-top {
@@ -1113,17 +1115,19 @@ body.theme-cartoon .home-bg {
 .snake-step-nav .btn-outline-action { font-size: 0.85rem; padding: 0 14px; }
 
 .guided-board-wrap {
-  flex: 1;
-  min-height: 0;
+  /* Square: always as wide as the screen, height matches */
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px;
+  padding: 0;
 }
 
 #designer-canvas {
+  display: block;
   max-width: 100%;
-  max-height: 100%;
   border-radius: 18px;
   box-shadow: 0 16px 56px rgba(0,0,0,0.4);
   cursor: crosshair;
@@ -1131,16 +1135,14 @@ body.theme-cartoon .home-bg {
 
 .guided-bottom {
   flex-shrink: 0;
-  padding: 10px 20px 16px;
+  padding: 14px 20px calc(20px + env(safe-area-inset-bottom, 0px));
   display: flex; flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .guided-list {
   display: flex; flex-direction: column;
   gap: 8px;
-  max-height: 110px;
-  overflow-y: auto;
 }
 
 .guided-list-empty {
@@ -1240,7 +1242,7 @@ body.theme-cartoon .home-bg {
   border-radius: 18px;
   box-shadow: 0 16px 56px rgba(0,0,0,0.4);
   cursor: crosshair;
-  max-width: 100%; max-height: 100%;
+  max-width: 100%;
 }
 
 .control-section {
@@ -1495,8 +1497,8 @@ body.theme-cartoon .home-bg {
 }
 
 .player-count-row {
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
-  padding: 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 12px 16px;
   background: var(--surface);
   border-bottom: 1px solid rgba(0,0,0,0.06);
   flex-shrink: 0;
@@ -1505,12 +1507,12 @@ body.theme-cartoon .home-bg {
   font-family: var(--font-display);
   font-weight: 800; font-size: 1.1rem; color: var(--text);
 }
-.player-count-btns { display: flex; gap: 16px; }
+.player-count-btns { display: flex; gap: 10px; }
 .pcount-btn {
-  width: 80px; height: 80px; border-radius: 20px;
+  width: 56px; height: 56px; border-radius: 14px;
   border: 2.5px solid rgba(0,0,0,0.1);
   background: rgba(0,0,0,0.04); color: var(--text);
-  font-family: var(--font-display); font-size: 1.6rem; font-weight: 800;
+  font-family: var(--font-display); font-size: 1.3rem; font-weight: 800;
   cursor: pointer; transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
 }
 .pcount-btn.active {
@@ -1522,17 +1524,17 @@ body.theme-cartoon .home-bg {
 
 .players-setup-grid {
   flex: 1; overflow-y: auto;
-  padding: 18px 20px;
+  padding: 10px 14px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
+  gap: 10px;
   align-content: start;
 }
 
 .player-card {
   background: var(--surface);
-  border-radius: 20px;
-  padding: 18px;
+  border-radius: 16px;
+  padding: 12px 14px;
   box-shadow: var(--shadow-sm);
   border: 1.5px solid rgba(0,0,0,0.07);
   animation: cardPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
@@ -1542,7 +1544,7 @@ body.theme-cartoon .home-bg {
   to { transform: scale(1) translateY(0); opacity: 1; }
 }
 .player-card-header {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
 }
 .player-num-badge {
   width: 36px; height: 36px; border-radius: 50%;
@@ -1563,7 +1565,7 @@ body.theme-cartoon .home-bg {
   flex-shrink: 0;
 }
 .ptype-btn {
-  min-height: 56px; padding: 0 16px; border-radius: 12px;
+  min-height: 40px; padding: 0 14px; border-radius: 10px;
   border: none; cursor: pointer;
   font-family: var(--font-display); font-size: 0.95rem; font-weight: 800;
   color: var(--text-light); background: transparent;
@@ -1577,12 +1579,12 @@ body.theme-cartoon .home-bg {
 .ptype-static { font-size: 0.85rem; color: var(--text-light); font-weight: 700; }
 
 .player-name-input {
-  width: 100%; padding: 12px 18px;
+  width: 100%; padding: 8px 14px;
   border: 2px solid rgba(0,0,0,0.09);
-  border-radius: 16px;
+  border-radius: 12px;
   font-family: 'Nunito', sans-serif;
-  font-size: 1.05rem; font-weight: 800; color: var(--text);
-  background: rgba(0,0,0,0.025); outline: none; margin-bottom: 16px;
+  font-size: 1rem; font-weight: 800; color: var(--text);
+  background: rgba(0,0,0,0.025); outline: none; margin-bottom: 10px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .player-name-input:focus {
@@ -1597,26 +1599,26 @@ body.theme-cartoon .home-bg {
 }
 
 .setup-section-label {
-  font-size: 0.75rem; font-weight: 800;
+  font-size: 0.7rem; font-weight: 800;
   color: var(--text-light); text-transform: uppercase;
-  letter-spacing: 1.5px; margin-bottom: 9px;
+  letter-spacing: 1.5px; margin-bottom: 6px;
 }
 
 /* Player name chips — no typing needed */
 .player-name-chips {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 14px;
+  gap: 6px;
+  margin-bottom: 10px;
 }
 .player-name-chip {
   background: rgba(0,0,0,0.04);
   border: 2px solid rgba(0,0,0,0.09);
-  border-radius: 14px;
+  border-radius: 10px;
   color: var(--text);
   font-family: 'Nunito', sans-serif;
-  font-size: 0.9rem; font-weight: 800;
-  padding: 10px 6px; min-height: 52px;
+  font-size: 0.85rem; font-weight: 800;
+  padding: 6px 4px; min-height: 40px;
   cursor: pointer; text-align: center;
   transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
 }
@@ -1629,12 +1631,17 @@ body.theme-cartoon .home-bg {
   color: #1D4ED8;
 }
 
-/* Character picker */
-.char-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+/* Character picker — 3×2 grid */
+.char-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
 .char-btn {
-  width: 72px; height: 72px; border-radius: 18px;
+  width: 100%; aspect-ratio: 1 / 1; border-radius: 14px;
   border: 2.5px solid transparent;
-  background: rgba(0,0,0,0.04); font-size: 2rem;
+  background: rgba(0,0,0,0.04); font-size: 1.6rem;
   cursor: pointer; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
   display: flex; align-items: center; justify-content: center;
 }
@@ -1647,7 +1654,7 @@ body.theme-cartoon .home-bg {
 }
 
 /* Color picker */
-.color-picker { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.color-picker { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 .color-btn {
   width: 38px; height: 38px; border-radius: 50%;
   border: 3px solid transparent;
@@ -1676,11 +1683,11 @@ body.theme-cartoon .home-bg {
 }
 
 .btn-lets-play {
-  margin: 0 20px 20px;
+  margin: 0 14px 14px;
   flex-shrink: 0;
   background: #3B82F6; color: white; border: none;
-  min-height: 80px; border-radius: 24px;
-  font-family: var(--font-display); font-size: 1.4rem; font-weight: 800;
+  min-height: 56px; border-radius: 18px;
+  font-family: var(--font-display); font-size: 1.15rem; font-weight: 800;
   cursor: pointer;
   box-shadow: 0 6px 0 #1D4ED8, 0 8px 32px rgba(59,130,246,0.4);
   transition: all 0.12s cubic-bezier(0.34,1.56,0.64,1);
@@ -1890,6 +1897,9 @@ body.theme-cartoon .home-bg {
   border-radius: 18px;
   box-shadow: 0 16px 56px rgba(0,0,0,0.4);
   /* JS sets explicit width/height px — no stretching */
+  transform-origin: center center;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
 }
 
 /* Floating dice below the board — no panel */
@@ -2389,11 +2399,6 @@ body.theme-cartoon .home-bg {
   .designer-layout { flex-direction: column; }
   .designer-controls { width: 100%; flex-direction: row; flex-wrap: wrap; overflow-x: auto; }
   .control-section { flex: 1; min-width: 140px; }
-  .home-buttons { gap: 10px; }
-  .home-secondary-row { gap: 10px; }
-  .home-btn { padding: 16px 18px; }
-  .btn-play { min-height: 88px; padding: 20px 22px; }
-  .logo-badge { gap: 12px; padding: 16px 20px; }
   .winner-stats { gap: 10px; }
   .winner-buttons { flex-direction: column; }
   .players-setup-grid { grid-template-columns: 1fr; }

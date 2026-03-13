@@ -1692,29 +1692,21 @@ const Board = (() => {
     resize() {
       const wrap = this.canvas.parentElement;
       if (!wrap) return;
-      const pad = 16;
-      const availW = wrap.clientWidth  - pad;
-      const availH = wrap.clientHeight - pad;
-      if (availW <= 0 || availH <= 0) return;
+      // Board wrap is square (aspect-ratio: 1/1), so base sizing on width only
+      const availW = wrap.clientWidth;
+      if (availW <= 0) return;
 
       const cols   = this.config.cols;
       const rows   = this.config.rows;
       const aspect = cols / rows;
 
-      let cw, ch;
-      if (availW / availH > aspect) {
-        ch = availH; cw = ch * aspect;
-      } else {
-        cw = availW; ch = cw / aspect;
-      }
+      let cw = availW;
+      let ch = cw / aspect;
 
       // Enforce 48px minimum cell size (squares are tappable in designer)
       const MIN_CELL = 48;
       if (cw / cols < MIN_CELL) { cw = cols * MIN_CELL; ch = cw / aspect; }
       if (ch / rows < MIN_CELL) { ch = rows * MIN_CELL; cw = ch * aspect; }
-
-      // Never exceed wrap width
-      if (cw > availW) { cw = availW; ch = cw / aspect; }
 
       cw = Math.round(cw);
       ch = Math.round(ch);

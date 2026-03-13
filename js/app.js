@@ -318,11 +318,11 @@ const App = (() => {
           ${!isPlayer1 ? `
             <div class="player-type-toggle">
               <button class="ptype-btn ${!isBot ? 'active' : ''}"
-                      onclick="App.setPlayerType(${i}, false)" ${forceBot ? 'disabled' : ''}>👤 Human</button>
+                      onclick="App.setPlayerType(${i}, false)" ${forceBot ? 'disabled' : ''}>👤 Player</button>
               <button class="ptype-btn ${isBot ? 'active' : ''}"
                       onclick="App.setPlayerType(${i}, true)" ${forceBot ? 'disabled' : ''}>🤖 Bot</button>
             </div>
-          ` : '<span class="ptype-static">👤 Human</span>'}
+          ` : '<span class="ptype-static">👤 Player</span>'}
         </div>
         ${isBot ? '' : `
           <div class="player-name-chips" id="pname-chips-${i}">
