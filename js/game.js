@@ -262,12 +262,22 @@ const Game = (() => {
         player.finished = true;
         player.finishTurn = state.turn;
         state.rankings.push(player);
-        unzoomBoard(null); // zoom out; don't delay win screen
-        if (allPlayersFinished() || state.rankings.length === 1) {
+        unzoomBoard(null);
+
+        // Can remaining players continue racing?
+        // Yes if: 3+ total players AND at least 1 unfinished human still playing
+        const unfinishedHumans = state.players.filter(p => !p.finished && !p.isBot);
+        const canContinue = state.players.length >= 3 && unfinishedHumans.length > 0;
+
+        if (allPlayersFinished() || !canContinue) {
           endGame();
           return;
         }
-        nextTurn();
+
+        // Interim winner — pause game, show winner screen with continue option
+        state.phase = 'done';
+        Sounds.win();
+        setTimeout(() => App.showWinner(state, true), 800);
         return;
       }
 
@@ -671,6 +681,14 @@ const Game = (() => {
     }, 800);
   }
 
+  function continueForNextPlace() {
+    animating = false;
+    state.phase = 'rolling';
+    Board.redrawGame(state.board, state.players, null);
+    updateGameUI();
+    nextTurn();
+  }
+
   // ---- UI Updates ----
 
   function updateGameUI() {
@@ -800,5 +818,5 @@ const Game = (() => {
     scheduleBotTurn();
   }
 
-  return { init, getState, rollDice, cleanup, restoreGame };
+  return { init, getState, rollDice, cleanup, restoreGame, continueForNextPlace };
 })();

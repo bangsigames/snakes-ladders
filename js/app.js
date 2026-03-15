@@ -650,8 +650,8 @@ const App = (() => {
   // WINNER SCREEN
   // ============================================================
 
-  function showWinner(gameState) {
-    const winner = gameState.winner;
+  function showWinner(gameState, canContinue = false) {
+    const winner = gameState.winner || gameState.rankings[gameState.rankings.length - 1];
     const players = gameState.players;
 
     // Sort by finish turn
@@ -689,6 +689,23 @@ const App = (() => {
         <div class="score-moves">${p.finished ? `${p.turns} turns · 🐍${p.snakeBites} · 🪜${p.laddersClimbed}` : `Sq. ${p.position}`}</div>
       </div>
     `).join('');
+
+    // Subtitle and continue button
+    const place = gameState.rankings.length;
+    const ordinals = ['', '1st', '2nd', '3rd', '4th'];
+    const subtitle = document.getElementById('winner-subtitle');
+    if (subtitle) subtitle.textContent = place === 1 ? 'WINS THE GAME! 🥇' : `TAKES ${ordinals[place].toUpperCase()} PLACE! ${['','🥇','🥈','🥉',''][place]||''}`;
+
+    const continueBtn = document.getElementById('btn-continue-place');
+    if (continueBtn) {
+      if (canContinue) {
+        const nextOrdinal = ordinals[place + 1] || `${place + 1}th`;
+        continueBtn.textContent = `Continue for ${nextOrdinal} place?`;
+        continueBtn.classList.remove('hidden');
+      } else {
+        continueBtn.classList.add('hidden');
+      }
+    }
 
     applyTheme(gameState.board.theme || 'cartoon');
     showScreen('screen-winner');
@@ -960,6 +977,12 @@ const App = (() => {
     });
 
     // Winner screen
+    document.getElementById('btn-continue-place').addEventListener('click', () => {
+      Sounds.button();
+      Particles.stop();
+      showScreen('screen-game');
+      Game.continueForNextPlace();
+    });
     document.getElementById('btn-play-again-same').addEventListener('click', () => {
       Sounds.button();
       Particles.stop();
