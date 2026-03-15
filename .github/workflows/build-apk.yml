@@ -28,16 +28,22 @@ jobs:
         run: npm install
 
       - name: Prepare web assets
-        run: mkdir -p www && cp -r index.html css js resources www/
+        run: mkdir -p www && cp -r index.html css js img www/
 
       - name: Add Android platform
         run: npx cap add android
 
-      - name: Generate app icons and splash
-        run: npx @capacitor/assets generate --android
-
       - name: Sync web assets
         run: npx cap sync android
+
+      - name: Generate app icons with ImageMagick
+        run: |
+          for entry in "48:mdpi" "72:hdpi" "96:xhdpi" "144:xxhdpi" "192:xxxhdpi"; do
+            size="${entry%%:*}"
+            dpi="${entry##*:}"
+            convert resources/icon.png -resize ${size}x${size} android/app/src/main/res/mipmap-${dpi}/ic_launcher.png
+            convert resources/icon.png -resize ${size}x${size} android/app/src/main/res/mipmap-${dpi}/ic_launcher_round.png
+          done
 
       - name: Decode keystore
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/snakesladders-release.jks
