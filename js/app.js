@@ -640,8 +640,8 @@ const App = (() => {
     const musicBtn = document.getElementById('btn-music-toggle');
     const sfxOff   = Sounds.isMuted();
     const musicOff = Sounds.isMusicMuted();
-    if (sfxBtn)   sfxBtn.innerHTML   = sfxOff   ? Icons.get('sound', 24).replace(/#FFD93D/g, '#888') : Icons.get('sound', 24);
-    if (musicBtn) musicBtn.innerHTML = musicOff ? Icons.get('music', 24).replace(/#A78BFA/g, '#888') : Icons.get('music', 24);
+    if (sfxBtn)   sfxBtn.innerHTML   = (sfxOff   ? Icons.get('sound', 22).replace(/#FFD93D/g, '#aaa') : Icons.get('sound', 22)) + `<span>${sfxOff ? '🔇 SFX' : '🔊 SFX'}</span>`;
+    if (musicBtn) musicBtn.innerHTML = (musicOff ? Icons.get('music', 22).replace(/#A78BFA/g, '#aaa') : Icons.get('music', 22)) + `<span>${musicOff ? '🎵 off' : '🎵 on'}</span>`;
   }
 
   function toggleMusicMute() {

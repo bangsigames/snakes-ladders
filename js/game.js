@@ -698,21 +698,6 @@ const Game = (() => {
     if (!state) return;
     const player = state.players[state.currentIndex];
 
-    // Current player indicator
-    const avatar = document.getElementById('cp-avatar');
-    const name = document.getElementById('cp-name');
-    const turnCount = document.getElementById('game-turn-count');
-    const rollBtn = document.getElementById('btn-roll');
-
-    if (avatar) {
-      avatar.textContent = player.character;
-      avatar.style.background = player.color + '55';
-      avatar.style.boxShadow = `0 0 0 2px ${player.color}`;
-    }
-    if (name) {
-      name.textContent = t('game.turn_label', { name: player.name });
-    }
-
     // Floating dice state
     const diceEl      = document.getElementById('dice');
     const tapLabel    = document.getElementById('dice-tap-label');
@@ -747,23 +732,32 @@ const Game = (() => {
     if (!container) return;
 
     const total = state.board.total || 100;
-    container.innerHTML = state.players.map((p, i) => {
+
+    // Reorder: active player first, then others in turn order
+    const active = state.players[state.currentIndex];
+    const rest = [
+      ...state.players.slice(state.currentIndex + 1),
+      ...state.players.slice(0, state.currentIndex),
+    ];
+
+    const renderChip = (p, isActive) => {
       const almostThere = !p.finished && p.position > 0 && (total - p.position) <= 10;
-      // L5: play chime once per player on first entry into almost-there zone
       if (almostThere && !_almostNotified.has(p.id)) {
         _almostNotified.add(p.id);
-        setTimeout(() => Sounds.almostThere(), 350); // slight delay after landing sound
+        setTimeout(() => Sounds.almostThere(), 350);
       }
       return `
-      <div class="player-chip ${i === state.currentIndex ? 'active-chip' : ''} ${almostThere ? 'chip-almost' : ''}"
-           style="border-color: ${i === state.currentIndex ? p.color : 'transparent'}">
+      <div class="player-chip ${isActive ? 'active-chip' : ''} ${almostThere ? 'chip-almost' : ''}"
+           style="border-color: ${isActive ? p.color : 'transparent'}">
         <span class="chip-avatar">${almostThere ? '🏁' : p.character}</span>
         <div>
           <div class="chip-name" style="color:${p.color}">${p.isBot ? '🤖 ' : ''}${p.name}</div>
           <div class="chip-pos">${p.position === 0 ? t('game.position_start') : p.finished ? t('game.position_done') : almostThere ? t('game.position_to_go', { n: total - p.position }) : t('game.position_sq', { n: p.position })}</div>
         </div>
-      </div>
-    `}).join('');
+      </div>`;
+    };
+
+    container.innerHTML = renderChip(active, true) + rest.map(p => renderChip(p, false)).join('');
   }
 
   // ---- Shake detection ----

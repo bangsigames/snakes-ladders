@@ -736,15 +736,7 @@
       <!-- Compact transparent top bar -->
       <div class="game-top-bar">
         <button class="btn btn-icon btn-glass" id="btn-game-menu"><span id="icon-menu-btn"></span></button>
-        <div class="game-turn-info">
-          <div class="cp-avatar" id="cp-avatar"></div>
-          <div class="cp-name" id="cp-name"></div>
-        </div>
         <div class="players-status" id="players-status"></div>
-        <div class="sound-toggles">
-          <button class="btn btn-icon btn-glass" id="btn-sfx-toggle" aria-label="Toggle sound effects"></button>
-          <button class="btn btn-icon btn-glass" id="btn-music-toggle" aria-label="Toggle music"></button>
-        </div>
       </div>
 
       <!-- Board fills remaining space -->
@@ -793,6 +785,10 @@
     <div class="game-menu-overlay hidden" id="game-menu-overlay">
       <div class="game-menu-card">
         <h3 data-i18n="game.menu_title">Game Menu</h3>
+        <div class="menu-sound-row">
+          <button class="btn btn-md btn-neutral menu-sound-btn" id="btn-sfx-toggle" aria-label="Toggle sound effects"></button>
+          <button class="btn btn-md btn-neutral menu-sound-btn" id="btn-music-toggle" aria-label="Toggle music"></button>
+        </div>
         <button class="btn btn-md btn-neutral" id="btn-resume" data-i18n="game.btn_keep_playing">Keep Playing</button>
         <button class="btn btn-md btn-neutral" id="btn-restart" data-i18n="game.btn_start_over">Start Over</button>
         <button class="btn btn-md btn-red" id="btn-quit" data-i18n="game.btn_leave">Leave Game</button>

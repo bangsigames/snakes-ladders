@@ -2268,31 +2268,6 @@ body.theme-cartoon .home-bg {
   max-height: 64px;
 }
 
-/* .btn-menu / .btn-music-toggle — replaced by .btn.btn-icon.btn-glass */
-.btn-menu,
-.btn-music-toggle { flex-shrink: 0; }
-
-.sound-toggles {
-  display: flex; align-items: center; gap: 4px;
-  flex-shrink: 0;
-}
-
-/* Turn info: avatar + name in top bar */
-.game-turn-info {
-  display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;
-}
-.cp-avatar {
-  width: 36px; height: 36px; border-radius: 10px;
-  background: rgba(255,255,255,0.15);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; flex-shrink: 0;
-  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-}
-.cp-name {
-  font-family: var(--font-display); font-size: 0.95rem; font-weight: 800;
-  color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
 .game-board-wrap {
   flex: 1 1 0; min-height: 0; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
@@ -2359,13 +2334,11 @@ body.theme-cartoon .home-bg {
   gap: 6px;
 }
 
-/* Player chips — compact avatars in top bar */
+/* Player chips — active first, then others */
 .players-status {
-  display: flex; gap: 6px; flex: 1;
-  overflow-x: auto; justify-content: flex-end;
-  scrollbar-width: none;
+  display: flex; gap: 6px; flex: 1; min-width: 0;
+  overflow: hidden; justify-content: flex-start; align-items: center;
 }
-.players-status::-webkit-scrollbar { display: none; }
 
 .player-chip {
   display: flex; align-items: center; justify-content: center;
@@ -2665,6 +2638,14 @@ body.theme-cartoon .home-bg {
 }
 /* .menu-btn / .btn-quit — replaced by .btn.btn-md.btn-neutral/.btn-red */
 .menu-btn { margin-bottom: 12px; }
+
+.menu-sound-row {
+  display: flex; gap: 12px; margin-bottom: 16px;
+}
+.menu-sound-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--font-display); font-weight: 800; font-size: 0.9rem;
+}
 
 /* ============================================================
    WINNER SCREEN

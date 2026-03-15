@@ -1517,8 +1517,9 @@ const Board = (() => {
       cw = Math.round(cw);
       ch = Math.round(ch);
 
-      this.canvas.width        = cw;
-      this.canvas.height       = ch;
+      const dpr = window.devicePixelRatio || 1;
+      this.canvas.width        = Math.round(cw * dpr);
+      this.canvas.height       = Math.round(ch * dpr);
       this.canvas.style.width  = cw + 'px';
       this.canvas.style.height = ch + 'px';
     },
@@ -1651,6 +1652,7 @@ const Board = (() => {
     },
 
     cellOccupied(cell) {
+      if (cell === 1 || cell === this.config.total) return true;
       for (const s of this.config.snakes) {
         if (s.head === cell || s.tail === cell) return true;
       }
@@ -1968,8 +1970,9 @@ const Board = (() => {
     cw = Math.round(cw);
     ch = Math.round(ch);
 
-    gameCanvas.width        = cw;
-    gameCanvas.height       = ch;
+    const dpr = window.devicePixelRatio || 1;
+    gameCanvas.width        = Math.round(cw * dpr);
+    gameCanvas.height       = Math.round(ch * dpr);
     gameCanvas.style.width  = cw + 'px';
     gameCanvas.style.height = ch + 'px';
   }
