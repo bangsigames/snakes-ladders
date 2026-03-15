@@ -499,7 +499,7 @@ const Game = (() => {
       card.classList.add('bounce-card');
       Particles.stop();
     } else if (type === 'snake') {
-      emoji.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      emoji.innerHTML = `<svg viewBox="0 -13 100 113" xmlns="http://www.w3.org/2000/svg">
         <!-- Body shadow/outline -->
         <path d="M18 92 Q6 68 18 50 Q30 32 50 30 Q70 28 64 10"
               fill="none" stroke="#1b5e20" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
