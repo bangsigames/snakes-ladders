@@ -2,7 +2,7 @@
    MY SNAKES & LADDERS — Main Stylesheet (v3 — Modern Redesign)
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');
+@import url('fonts/fonts.css');
 
 /* ---- CSS Reset & Base ---- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -496,6 +496,16 @@ body.theme-cartoon .home-bg {
 }
 
 .home-logo { text-align: center; }
+
+.logo-app-icon {
+  width: 148px;
+  height: 148px;
+  border-radius: 34px;
+  display: block;
+  margin: 0 auto 14px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 4px 14px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+  animation: charBounce 2.4s ease-in-out infinite;
+}
 
 .logo-badge {
   display: inline-flex; align-items: center; gap: 12px;
@@ -2833,7 +2843,76 @@ body.theme-cartoon .home-bg {
 .howto-card-icon {
   flex-shrink: 0;
   width: 64px; height: 64px;
+  position: relative;
   display: flex; align-items: center; justify-content: center;
+}
+
+/* Dice wobble */
+.howto-card:nth-child(1) .howto-card-icon svg {
+  animation: howto-dice-wobble 2.6s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes howto-dice-wobble {
+  0%, 65%, 100% { transform: rotate(0deg) scale(1); }
+  15% { transform: rotate(-22deg) scale(0.93); }
+  30% { transform: rotate(18deg) scale(1.07); }
+  45% { transform: rotate(-12deg) scale(0.97); }
+  55% { transform: rotate(7deg) scale(1.03); }
+}
+
+/* Generic animated token dot */
+.howto-token {
+  position: absolute;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #FF6B35;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+  pointer-events: none;
+}
+
+/* Ladder: token climbs from bottom to top */
+.howto-token-climb {
+  bottom: 4px;
+  left: calc(50% - 7px);
+  animation: howto-climb 2.6s ease-in-out infinite;
+}
+@keyframes howto-climb {
+  0%   { bottom:  4px; opacity: 1; }
+  60%  { bottom: 47px; opacity: 1; }
+  72%  { bottom: 47px; opacity: 0; }
+  73%  { bottom:  4px; opacity: 0; }
+  90%  { bottom:  4px; opacity: 0; }
+  100% { bottom:  4px; opacity: 1; }
+}
+
+/* Snake: token slides from head (top) to tail (bottom) */
+.howto-token-slide {
+  top: 3px; left: 23px;
+  animation: howto-slide 2.6s ease-in-out infinite;
+}
+@keyframes howto-slide {
+  0%   { top:  3px; left: 23px; opacity: 1; }
+  60%  { top: 52px; left:  8px; opacity: 1; }
+  72%  { top: 52px; left:  8px; opacity: 0; }
+  73%  { top:  3px; left: 23px; opacity: 0; }
+  90%  { top:  3px; left: 23px; opacity: 0; }
+  100% { top:  3px; left: 23px; opacity: 1; }
+}
+
+/* Finish: token bounces at the flag */
+.howto-token-win {
+  bottom: 4px;
+  left: calc(50% - 7px);
+  background: #FFBE0B;
+  border-color: #fff;
+  animation: howto-win 1.4s ease-in-out infinite;
+}
+@keyframes howto-win {
+  0%, 100% { transform: translateY(0)    scale(1); }
+  35%       { transform: translateY(-12px) scale(1.1); }
+  55%       { transform: translateY(-6px)  scale(1.05); }
+  70%       { transform: translateY(0)    scale(1); }
 }
 .howto-card-icon svg {
   width: 64px; height: 64px;
@@ -3020,6 +3099,11 @@ body.theme-cartoon .home-bg {
   .btn-play { min-height: 110px; }
 }
 
+@media (max-height: 680px) {
+  .logo-app-icon { width: 100px; height: 100px; border-radius: 24px; }
+  .home-content { gap: 12px; }
+}
+
 /* ============================================================
    H3 — LOGO SNAKE THEME-AWARE COLORS
    ============================================================ */
@@ -3047,3 +3131,35 @@ body.theme-cartoon .home-bg {
 /* jungle — keep green but warmer */
 .theme-jungle .lsv-body   { stroke: #5DCB53; }
 .theme-jungle .lsv-stripe { stroke: #A3E8A0; }
+
+/* ---- Language picker ---- */
+.lang-picker {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.lang-btn {
+  background: rgba(255,255,255,0.15);
+  border: 2px solid transparent;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.lang-btn:hover, .lang-btn:active {
+  background: rgba(255,255,255,0.28);
+  transform: scale(1.1);
+}
+.lang-btn.active {
+  border-color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.28);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+}

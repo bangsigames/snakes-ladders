@@ -14,6 +14,7 @@ const App = (() => {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const el = document.getElementById(id);
     if (el) el.classList.add('active');
+    if (typeof I18n !== 'undefined') I18n.translateDOM();
   }
 
   // ============================================================
@@ -63,18 +64,18 @@ const App = (() => {
       <div class="popup-modal-card resume-modal-card">
         <div class="resume-header">
           <div class="resume-icon">🎮</div>
-          <div class="resume-title">Game in Progress</div>
-          <div class="resume-board-name">${themeEmoji} ${escHtml(saved.board.name || 'Saved Game')}</div>
+          <div class="resume-title">${t('resume.title')}</div>
+          <div class="resume-board-name">${themeEmoji} ${escHtml(saved.board.name || t('misc.unnamed_board'))}</div>
         </div>
         <div class="resume-players">${avatarsHtml}</div>
         <div class="resume-whose-turn">
           <span class="resume-turn-avatar">${current.character}</span>
-          <span class="resume-turn-text">${escHtml(current.name)}'s turn to roll</span>
+          <span class="resume-turn-text">${t('resume.whose_turn', { name: escHtml(current.name) })}</span>
         </div>
         <div class="popup-modal-buttons" style="margin-top:24px">
-          <button class="btn btn-md btn-green btn-full" id="resume-btn-resume">▶ Resume Game</button>
-          <button class="btn btn-md btn-neutral btn-full" id="resume-btn-new">Start New Game</button>
-          <button class="btn btn-md btn-ghost-dk btn-full" id="resume-btn-later">Later (game saved)</button>
+          <button class="btn btn-md btn-green btn-full" id="resume-btn-resume">${t('resume.btn_resume')}</button>
+          <button class="btn btn-md btn-neutral btn-full" id="resume-btn-new">${t('resume.btn_new')}</button>
+          <button class="btn btn-md btn-ghost-dk btn-full" id="resume-btn-later">${t('resume.btn_later')}</button>
         </div>
       </div>`;
 
@@ -137,7 +138,7 @@ const App = (() => {
         const playStyle = playGrads[b.theme] || playGrads.cartoon;
         const squares = (b.cols || 10) * (b.rows || 10);
         const deleteBtn = b.isDefault
-          ? '<span class="card-default-badge">⭐ Built-in</span>'
+          ? `<span class="card-default-badge">${t('designer.builtin_badge')}</span>`
           : `<button class="btn-card-delete" onclick="event.stopPropagation();App.deleteBoard('${b.id}')">✕</button>`;
         return `
           <div class="saved-board-card">
@@ -146,13 +147,13 @@ const App = (() => {
               ${deleteBtn}
             </div>
             <div class="card-content">
-              <div class="card-name">${escHtml(b.name || 'Unnamed Board')}</div>
+              <div class="card-name">${b.isDefault ? t(`designer.default_${b.preset}_name`) : escHtml(b.name || t('misc.unnamed_board'))}</div>
               <div class="card-stats">
-                <span class="stat-chip">🐍 ${b.snakes.length} snakes</span>
-                <span class="stat-chip">🪜 ${b.ladders.length} ladders</span>
-                <span class="stat-chip">🎯 ${squares} squares</span>
+                <span class="stat-chip">🐍 ${b.snakes.length} ${t('designer.snakes_stat').toLowerCase()}</span>
+                <span class="stat-chip">🪜 ${b.ladders.length} ${t('designer.ladders_stat').toLowerCase()}</span>
+                <span class="stat-chip">🎯 ${squares} ${t('misc.squares_abbr')}</span>
               </div>
-              <button class="btn-board-play" style="background:${playStyle}" onclick="App.selectBoard('${b.id}')">▶ PLAY!</button>
+              <button class="btn-board-play" style="background:${playStyle}" onclick="App.selectBoard('${b.id}')">${t('designer.btn_play')}</button>
             </div>
           </div>`;
       }).join('');
@@ -172,11 +173,11 @@ const App = (() => {
 
   function deleteBoard(id) {
     Sounds.button();
-    showConfirm('Delete this board? This cannot be undone.', () => {
+    showConfirm(t('misc.confirm_delete'), () => {
       Storage.deleteBoard(id);
-      showToast('Board deleted 🗑️');
+      showToast(t('misc.board_deleted'));
       showBoardSelect();
-    }, { confirmLabel: 'Yes, delete it', cancelLabel: 'Keep it' });
+    }, { confirmLabel: t('misc.confirm_delete_label'), cancelLabel: t('misc.confirm_keep_label') });
   }
 
   // ============================================================
@@ -242,17 +243,18 @@ const App = (() => {
   }
 
   function generateBoardName(config) {
-    const adventureWords = {
-      jungle:  'Jungle Adventure',
-      space:   'Cosmic Quest',
-      ocean:   'Deep Sea Escape',
-      fantasy: 'Mystic Kingdom',
-      cartoon: 'Cartoon Chaos',
+    const nameKeys = {
+      jungle:  'designer.board_name_jungle',
+      space:   'designer.board_name_space',
+      ocean:   'designer.board_name_ocean',
+      fantasy: 'designer.board_name_fantasy',
+      cartoon: 'designer.board_name_cartoon',
     };
     const score = (config.snakes || []).length - (config.ladders || []).length;
-    const difficulty = score <= 0 ? 'Easy' : score <= 2 ? 'Normal' : score <= 4 ? 'Tricky' : 'Hard';
-    const word = adventureWords[config.theme] || 'Epic Adventure';
-    return { name: word, difficulty };
+    const diffKey = score <= 0 ? 'designer.difficulty_easy' : score <= 2 ? 'designer.difficulty_normal' : score <= 4 ? 'designer.difficulty_tricky' : 'designer.difficulty_hard';
+    const name = t(nameKeys[config.theme] || 'designer.board_name_cartoon');
+    const difficulty = t(diffKey);
+    return { name, difficulty };
   }
 
   function goToStep5() {
@@ -273,18 +275,19 @@ const App = (() => {
       const preset = GRID_PRESETS[config.preset] || {};
       stats.innerHTML = `
         <div class="ready-stat">
+          <svg viewBox="0 0 16 16" width="14" height="14"><rect x="1" y="1" width="6" height="6" rx="1" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/></svg>
           <div class="ready-stat-val">${config.cols}×${config.rows}</div>
-          <div class="ready-stat-lbl">Grid</div>
+          <div class="ready-stat-lbl">${t('designer.grid_label')}</div>
         </div>
         <div class="ready-stat">
           <svg viewBox="0 0 16 16" width="14" height="14"><path d="M3 13 Q2 8 6 6 Q10 4 9 2" fill="none" stroke="#4CD964" stroke-width="2.5" stroke-linecap="round"/><circle cx="9" cy="1.5" r="2" fill="#4CD964"/></svg>
           <div class="ready-stat-val">${config.snakes.length}</div>
-          <div class="ready-stat-lbl">Snakes</div>
+          <div class="ready-stat-lbl">${t('designer.snakes_stat')}</div>
         </div>
         <div class="ready-stat">
           <svg viewBox="0 0 16 16" width="14" height="14"><line x1="5" y1="2" x2="5" y2="14" stroke="#FFB700" stroke-width="2" stroke-linecap="round"/><line x1="11" y1="2" x2="11" y2="14" stroke="#FFB700" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="5" x2="11" y2="5" stroke="#FFE066" stroke-width="1.8" stroke-linecap="round"/><line x1="5" y1="9" x2="11" y2="9" stroke="#FFE066" stroke-width="1.8" stroke-linecap="round"/><line x1="5" y1="13" x2="11" y2="13" stroke="#FFE066" stroke-width="1.8" stroke-linecap="round"/></svg>
           <div class="ready-stat-val">${config.ladders.length}</div>
-          <div class="ready-stat-lbl">Ladders</div>
+          <div class="ready-stat-lbl">${t('designer.ladders_stat')}</div>
         </div>
       `;
     }
@@ -306,7 +309,7 @@ const App = (() => {
     const fullName = `${name} (${difficulty})`;
 
     if (config.snakes.length === 0 && config.ladders.length === 0) {
-      showToast('Add at least one snake and ladder first!');
+      showToast(t('misc.need_snake_ladder'));
       return null;
     }
 
@@ -317,7 +320,7 @@ const App = (() => {
       createdAt: Date.now(),
     };
     Storage.saveBoard(board);
-    showToast(`"${fullName}" saved!`);
+    showToast(t('misc.board_saved', { name: fullName }));
     return board;
   }
 
@@ -368,7 +371,12 @@ const App = (() => {
 
   function getThemeCharacters() {
     const theme = currentBoard ? (currentBoard.theme || 'cartoon') : 'cartoon';
-    return THEME_CHARACTERS[theme] || THEME_CHARACTERS.cartoon;
+    const chars = THEME_CHARACTERS[theme] || THEME_CHARACTERS.cartoon;
+    return chars.map(c => {
+      const key = `characters.${theme}_${c.id}`;
+      const translated = I18n.t(key);
+      return { ...c, name: translated !== key ? translated : c.name };
+    });
   }
 
   function syncNamesFromDOM() {
@@ -412,7 +420,7 @@ const App = (() => {
     if (!container) return;
     container.innerHTML = [1, 2, 3, 4].map(n => `
       <button class="pcount-btn ${n === playerCount ? 'active' : ''}" data-count="${n}">
-        ${n}${n === 1 ? '<span class="pcount-vs-bot">vs Bot</span>' : ''}
+        ${n}${n === 1 ? `<span class="pcount-vs-bot">${t('setup.vs_bot')}</span>` : ''}
       </button>
     `).join('');
     container.querySelectorAll('.pcount-btn').forEach(btn => {
@@ -463,18 +471,18 @@ const App = (() => {
       <div class="player-card" style="animation-delay: ${i * 0.1}s">
         <div class="player-card-header">
           <div class="player-num-badge" style="background:${PLAYER_COLORS[i]}">${i + 1}</div>
-          <div class="player-card-title">Player ${i + 1}</div>
+          <div class="player-card-title">${t('setup.player_n', { n: i + 1 })}</div>
           ${!isPlayer1 ? `
             <div class="player-type-toggle">
               <button class="ptype-btn ${!isBot ? 'active' : ''}"
-                      onclick="App.setPlayerType(${i}, false)" ${forceBot ? 'disabled' : ''}>👤 Player</button>
+                      onclick="App.setPlayerType(${i}, false)" ${forceBot ? 'disabled' : ''}>${t('setup.human')}</button>
               <button class="ptype-btn ${isBot ? 'active' : ''}"
-                      onclick="App.setPlayerType(${i}, true)" ${forceBot ? 'disabled' : ''}>🤖 Bot</button>
+                      onclick="App.setPlayerType(${i}, true)" ${forceBot ? 'disabled' : ''}>${t('setup.cpu')}</button>
             </div>
-          ` : '<span class="ptype-static">👤 Player</span>'}
+          ` : `<span class="ptype-static">${t('setup.human')}</span>`}
         </div>
         ${isBot ? '' : `
-          <div class="setup-section-label">1. Pick a name</div>
+          <div class="setup-section-label">${t('setup.pick_name')}</div>
           <div class="player-name-input-row">
             <input class="player-name-input"
                    id="pname-input-${i}"
@@ -484,7 +492,7 @@ const App = (() => {
                    autocorrect="off"
                    spellcheck="false"
                    maxlength="12"
-                   placeholder="Type a name…"
+                   placeholder="${t('setup.name_placeholder')}"
                    value="${escHtml(p.name)}"
                    oninput="App.handleNameInput(${i}, this.value)">
             <button class="btn-name-done" onclick="document.getElementById('pname-input-${i}').blur()" aria-label="Done">✓</button>
@@ -495,7 +503,7 @@ const App = (() => {
                       onclick="App.selectPlayerName(${i}, '${escHtml(name)}')">${escHtml(name)}</button>
             `).join('')}
           </div>
-          <div class="setup-section-label">2. Pick your character</div>
+          <div class="setup-section-label">${t('setup.pick_character')}</div>
         `}
         ${Components.AvatarSelector(themeChars, p.character, i, takenEmojis)}
       </div>
@@ -515,7 +523,7 @@ const App = (() => {
     if (isBot) {
       const otherHumans = playerSetups.slice(0, playerCount).filter((p, i) => i !== playerIndex && !p.isBot);
       if (otherHumans.length === 0) {
-        showToast('At least one Human player required!');
+        showToast(t('misc.at_least_one_human'));
         return;
       }
     }
@@ -523,7 +531,7 @@ const App = (() => {
     Sounds.button();
     playerSetups[playerIndex].isBot = isBot;
     playerSetups[playerIndex].name = isBot
-      ? `Bot ${playerIndex}`
+      ? t('misc.bot_name', { n: playerIndex + 1 })
       : (getNameSets()[playerIndex] || getNameSets()[0])[0];
     renderPlayerCards();
   }
@@ -559,7 +567,7 @@ const App = (() => {
 
   function startGame() {
     if (!currentBoard) {
-      showToast('No board selected!');
+      showToast(t('misc.no_board_selected'));
       return;
     }
     syncNamesFromDOM(); // capture any final edits
@@ -570,7 +578,7 @@ const App = (() => {
       const p = playerSetups[i];
       if (!p || p.isBot) continue;
       if (!p.name || !p.name.trim()) {
-        showToast(`Player ${i + 1} needs a name!`);
+        showToast(t('misc.player_needs_name', { n: i + 1 }));
         const input = document.getElementById(`pname-input-${i}`);
         if (input) { input.focus(); input.classList.add('input-error'); setTimeout(() => input.classList.remove('input-error'), 1200); }
         return;
@@ -581,7 +589,7 @@ const App = (() => {
 
     // Collect player data
     const players = playerSetups.slice(0, displayCount).map((p, i) => ({
-      name: p.name || (p.isBot ? (getNameSets()[i] || getNameSets()[0])[0] : `Player ${i+1}`),
+      name: p.name || (p.isBot ? (getNameSets()[i] || getNameSets()[0])[0] : t('misc.player_fallback', { n: i + 1 })),
       character: p.character,
       color: p.color,
       sound: p.sound,
@@ -668,15 +676,15 @@ const App = (() => {
     document.getElementById('winner-stats').innerHTML = `
       <div class="stat-box">
         <div class="stat-value">${winner.turns}</div>
-        <div class="stat-label">Turns Taken</div>
+        <div class="stat-label">${t('winner.turns_taken')}</div>
       </div>
       <div class="stat-box">
         <div class="stat-value">${winner.snakeBites}</div>
-        <div class="stat-label">Snake Bites</div>
+        <div class="stat-label">${t('winner.snake_bites')}</div>
       </div>
       <div class="stat-box">
         <div class="stat-value">${winner.laddersClimbed}</div>
-        <div class="stat-label">Ladders Climbed</div>
+        <div class="stat-label">${t('winner.ladders_climbed')}</div>
       </div>
     `;
 
@@ -686,21 +694,21 @@ const App = (() => {
         <div class="score-rank ${i===0?'gold':''}">${medals[i]||i+1}</div>
         <div class="score-avatar">${p.character}</div>
         <div class="score-name">${escHtml(p.name)}${p.isBot ? ' 🤖' : ''}</div>
-        <div class="score-moves">${p.finished ? `${p.turns} turns · 🐍${p.snakeBites} · 🪜${p.laddersClimbed}` : `Sq. ${p.position}`}</div>
+        <div class="score-moves">${p.finished ? `${p.turns} ${t('scores.turns_unit')} · 🐍${p.snakeBites} · 🪜${p.laddersClimbed}` : t('game.position_sq', { n: p.position })}</div>
       </div>
     `).join('');
 
     // Subtitle and continue button
     const place = gameState.rankings.length;
-    const ordinals = ['', '1st', '2nd', '3rd', '4th'];
     const subtitle = document.getElementById('winner-subtitle');
-    if (subtitle) subtitle.textContent = place === 1 ? 'WINS THE GAME! 🥇' : `TAKES ${ordinals[place].toUpperCase()} PLACE! ${['','🥇','🥈','🥉',''][place]||''}`;
+    const subtitleKeys = { 1: 'winner.wins', 2: 'winner.second', 3: 'winner.third', 4: 'winner.fourth' };
+    if (subtitle) subtitle.textContent = t(subtitleKeys[place] || 'winner.wins');
 
     const continueBtn = document.getElementById('btn-continue-place');
     if (continueBtn) {
       if (canContinue) {
-        const nextOrdinal = ordinals[place + 1] || `${place + 1}th`;
-        continueBtn.textContent = `Continue for ${nextOrdinal} place?`;
+        const contKeys = { 2: 'winner.btn_continue_2nd', 3: 'winner.btn_continue_3rd', 4: 'winner.btn_continue_4th' };
+        continueBtn.textContent = t(contKeys[place + 1] || 'winner.btn_continue_2nd');
         continueBtn.classList.remove('hidden');
       } else {
         continueBtn.classList.add('hidden');
@@ -723,7 +731,7 @@ const App = (() => {
     const medals = ['🥇','🥈','🥉'];
 
     if (scores.length === 0) {
-      list.innerHTML = '<div style="text-align:center;color:white;padding:40px;font-size:1.2rem;font-weight:700;opacity:0.8">No scores yet! Play first 🎮</div>';
+      list.innerHTML = `<div style="text-align:center;color:white;padding:40px;font-size:1.2rem;font-weight:700;opacity:0.8">${t('scores.empty')}</div>`;
     } else {
       list.innerHTML = scores.map((s, i) => `
         <div class="score-entry">
@@ -731,9 +739,9 @@ const App = (() => {
           <div class="score-entry-avatar">${s.character || '🎮'}</div>
           <div class="score-entry-info">
             <div class="score-entry-name">${escHtml(s.playerName)}</div>
-            <div class="score-entry-meta">${s.boardName || 'Unknown Board'} · ${new Date(s.date).toLocaleDateString()}</div>
+            <div class="score-entry-meta">${s.boardName || t('misc.unknown_board')} · ${new Date(s.date).toLocaleDateString()}</div>
           </div>
-          <div class="score-entry-turns">${s.turns}<span style="font-size:0.7rem;opacity:0.7"> turns</span></div>
+          <div class="score-entry-turns">${s.turns}<span style="font-size:0.7rem;opacity:0.7"> ${t('scores.turns_unit')}</span></div>
         </div>
       `).join('');
     }
@@ -795,7 +803,7 @@ const App = (() => {
       const snakes = Board.designer.getBoardConfig().snakes;
       const target = Board.designer.targetSnakeCount;
       if (snakes.length < target) {
-        showToast(`Add at least ${target} snakes first!`);
+        showToast(t('misc.add_snakes_first', { n: target }));
         return;
       }
       Sounds.button();
@@ -803,7 +811,7 @@ const App = (() => {
     });
     document.getElementById('btn-undo-snake').addEventListener('click', () => {
       const snakes = Board.designer.getBoardConfig().snakes;
-      if (snakes.length === 0) { showToast('No snakes to undo'); return; }
+      if (snakes.length === 0) { showToast(t('misc.no_snakes_undo')); return; }
       Sounds.button();
       Board.designer.selectedSnakeIndex = -1;
       Board.designer.removeSnake(snakes.length - 1);
@@ -820,7 +828,7 @@ const App = (() => {
       Board.designer.setMode('snake-head');
       setSnakeGuideStep(1);
       updateSnakeSelection(-1);
-      showToast('Snake removed');
+      showToast(t('misc.snake_removed'));
     });
     document.getElementById('btn-auto-snakes').addEventListener('click', () => {
       Sounds.button();
@@ -834,7 +842,7 @@ const App = (() => {
       const ladders = Board.designer.getBoardConfig().ladders;
       const target = Board.designer.targetLadderCount;
       if (ladders.length < target) {
-        showToast(`Add at least ${target} ladders first!`);
+        showToast(t('misc.add_ladders_first', { n: target }));
         return;
       }
       Sounds.button();
@@ -842,7 +850,7 @@ const App = (() => {
     });
     document.getElementById('btn-undo-ladder').addEventListener('click', () => {
       const ladders = Board.designer.getBoardConfig().ladders;
-      if (ladders.length === 0) { showToast('No ladders to undo'); return; }
+      if (ladders.length === 0) { showToast(t('misc.no_ladders_undo')); return; }
       Sounds.button();
       Board.designer.selectedLadderIndex = -1;
       Board.designer.removeLadder(ladders.length - 1);
@@ -859,7 +867,7 @@ const App = (() => {
       Board.designer.setMode('ladder-bottom');
       setLadderGuideStep(1);
       updateLadderSelection(-1);
-      showToast('Ladder removed');
+      showToast(t('misc.ladder_removed'));
     });
 
     document.getElementById('btn-auto-ladders').addEventListener('click', () => {
@@ -871,28 +879,28 @@ const App = (() => {
 
     document.getElementById('btn-clear-snakes').addEventListener('click', () => {
       const snakes = Board.designer.getBoardConfig().snakes;
-      if (snakes.length === 0) { showToast('No snakes to clear'); return; }
-      showConfirm('Remove all snakes?', () => {
+      if (snakes.length === 0) { showToast(t('misc.no_snakes_clear')); return; }
+      showConfirm(t('misc.remove_all_snakes'), () => {
         while (Board.designer.getBoardConfig().snakes.length > 0) {
           Board.designer.removeSnake(0);
         }
         Board.designer.setMode('snake-head');
         setSnakeGuideStep(1);
-        showToast('All snakes cleared');
-      }, { confirmLabel: 'Yes, clear all', cancelLabel: 'Keep them', danger: false });
+        showToast(t('misc.all_snakes_cleared'));
+      }, { confirmLabel: t('misc.confirm_yes_clear'), cancelLabel: t('misc.keep_them'), danger: false });
     });
 
     document.getElementById('btn-clear-ladders').addEventListener('click', () => {
       const ladders = Board.designer.getBoardConfig().ladders;
-      if (ladders.length === 0) { showToast('No ladders to clear'); return; }
-      showConfirm('Remove all ladders?', () => {
+      if (ladders.length === 0) { showToast(t('misc.no_ladders_clear')); return; }
+      showConfirm(t('misc.remove_all_ladders'), () => {
         while (Board.designer.getBoardConfig().ladders.length > 0) {
           Board.designer.removeLadder(0);
         }
         Board.designer.setMode('ladder-bottom');
         setLadderGuideStep(1);
-        showToast('All ladders cleared');
-      }, { confirmLabel: 'Yes, clear all', cancelLabel: 'Keep them', danger: false });
+        showToast(t('misc.all_ladders_cleared'));
+      }, { confirmLabel: t('misc.confirm_yes_clear'), cancelLabel: t('misc.keep_them'), danger: false });
     });
 
     document.getElementById('btn-step5-back').addEventListener('click', () => { Sounds.button(); updateDesignerStep(4); });
@@ -968,12 +976,12 @@ const App = (() => {
     document.getElementById('btn-quit').addEventListener('click', () => {
       Sounds.button();
       document.getElementById('game-menu-overlay').classList.add('hidden');
-      showConfirm('Leave this game? Your progress will be lost.', () => {
+      showConfirm(t('misc.confirm_leave_game'), () => {
         Storage.clearGameState();
         Game.cleanup();
         Particles.stop();
         showHome();
-      }, { confirmLabel: 'Leave Game', cancelLabel: 'Stay', danger: true });
+      }, { confirmLabel: t('misc.confirm_quit_label'), cancelLabel: t('misc.confirm_stay_label'), danger: true });
     });
 
     // Winner screen
@@ -1006,10 +1014,10 @@ const App = (() => {
     document.getElementById('btn-scores-back').addEventListener('click', () => { Sounds.button(); showHome(); });
     document.getElementById('btn-clear-scores').addEventListener('click', () => {
       Sounds.button();
-      showConfirm('Wipe all scores? This cannot be undone.', () => {
+      showConfirm(t('misc.confirm_clear_scores'), () => {
         Storage.clearScores();
         showScores();
-      }, { confirmLabel: 'Yes, clear all', cancelLabel: 'Cancel' });
+      }, { confirmLabel: t('misc.confirm_yes_clear'), cancelLabel: t('misc.confirm_cancel') });
     });
 
     // Init default saved boards with a demo board
@@ -1022,7 +1030,7 @@ const App = (() => {
       const demo = {
         id: Storage.generateId(),
         name: 'Classic Adventure',
-        preset: 'classic', cols: 10, rows: 10, total: 100,
+        preset: 'large', isDefault: true, cols: 10, rows: 10, total: 100,
         theme: 'cartoon',
         snakes: [
           {head:99,tail:41},{head:87,tail:24},{head:54,tail:34},
@@ -1261,7 +1269,7 @@ function setSnakeGuideStep(step) {
   // Reset label when returning to step 1
   if (step === 1) {
     const lbl = s1 && s1.querySelector('.sh-label');
-    if (lbl) lbl.textContent = 'Tap HEAD';
+    if (lbl) lbl.textContent = t('designer.tap_head');
   }
 }
 
@@ -1270,14 +1278,14 @@ function confirmPlacementCell(type, cellNum) {
     const s1 = document.getElementById('sg-step-1');
     if (s1) {
       const lbl = s1.querySelector('.sh-label');
-      if (lbl) lbl.textContent = `HEAD ✓ (${cellNum})`;
+      if (lbl) lbl.textContent = `${t('designer.head')} ✓ (${cellNum})`;
       s1.classList.add('sh-confirmed');
     }
   } else if (type === 'ladder-bottom') {
     const l1 = document.getElementById('lg-step-1');
     if (l1) {
       const lbl = l1.querySelector('.sh-label');
-      if (lbl) lbl.textContent = `BOTTOM ✓ (${cellNum})`;
+      if (lbl) lbl.textContent = `${t('designer.bottom')} ✓ (${cellNum})`;
       l1.classList.add('sh-confirmed');
     }
   }
@@ -1308,7 +1316,7 @@ function setLadderGuideStep(step) {
   if (l2) l2.classList.toggle('sg-active', step === 2);
   if (step === 1) {
     const lbl = l1 && l1.querySelector('.sh-label');
-    if (lbl) lbl.textContent = 'Tap BOTTOM';
+    if (lbl) lbl.textContent = t('designer.tap_bottom');
     if (l1) l1.classList.remove('sh-confirmed');
   }
 }

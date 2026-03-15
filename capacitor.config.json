@@ -1,11 +1,14 @@
 {
   "appId": "com.mysnakesladders.app",
   "appName": "My Snakes & Ladders",
-  "webDir": "www",
+  "webDir": ".",
   "plugins": {
     "SplashScreen": {
-      "launchShowDuration": 2000,
-      "backgroundColor": "#ff6b81"
+      "launchShowDuration": 1800,
+      "launchAutoHide": true,
+      "backgroundColor": "#ff6b81",
+      "androidSplashResourceName": "splash",
+      "showSpinner": false
     },
     "StatusBar": {
       "style": "DARK",

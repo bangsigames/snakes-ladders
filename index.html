@@ -29,77 +29,43 @@
     </div>
     <div class="home-content">
       <div class="home-logo">
-        <div class="logo-badge">
-          <!-- Cartoon SVG snake -->
-          <svg class="logo-char logo-snake-svg" xmlns="http://www.w3.org/2000/svg" viewBox="-2 -10 84 110" width="56" height="70">
-            <!-- Shadow outline -->
-            <path class="lsv-outline" d="M40 92 Q14 76 20 54 Q26 34 46 34 Q66 34 61 14 Q56 4 46 4" fill="none" stroke="#1e6b2a" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- Body -->
-            <path class="lsv-body" d="M40 92 Q14 76 20 54 Q26 34 46 34 Q66 34 61 14 Q56 4 46 4" fill="none" stroke="#4CD964" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- Scale dashes (dorsal) -->
-            <path class="lsv-stripe" d="M40 92 Q14 76 20 54 Q26 34 46 34 Q66 34 61 14 Q56 4 46 4" fill="none" stroke="rgba(20,80,20,0.45)" stroke-width="13" stroke-linecap="butt" stroke-dasharray="6 7" stroke-dashoffset="3"/>
-            <!-- Belly stripe -->
-            <path d="M40 92 Q14 76 20 54 Q26 34 46 34 Q66 34 61 14 Q56 4 46 4" fill="none" stroke="rgba(200,240,170,0.68)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- Head shadow -->
-            <ellipse class="lsv-head-dark" cx="44" cy="6" rx="14" ry="13" fill="#1e6b2a"/>
-            <!-- Head -->
-            <ellipse class="lsv-head" cx="44" cy="5" rx="13" ry="12" fill="#4CD964"/>
-            <!-- Head gloss -->
-            <ellipse cx="38" cy="1" rx="5" ry="3" fill="rgba(255,255,255,0.20)" transform="rotate(-15 38 1)"/>
-            <!-- Eyes -->
-            <circle cx="38.5" cy="2"  r="3.5" fill="white"/>
-            <circle cx="49.5" cy="2"  r="3.5" fill="white"/>
-            <circle cx="39.3" cy="2.4" r="2"   fill="#111"/>
-            <circle cx="50.3" cy="2.4" r="2"   fill="#111"/>
-            <!-- Eye shine -->
-            <circle cx="39.8" cy="1.5" r="0.8" fill="white"/>
-            <circle cx="50.8" cy="1.5" r="0.8" fill="white"/>
-            <!-- Tongue -->
-            <line x1="44" y1="16" x2="44" y2="22" stroke="#FF1744" stroke-width="2.2" stroke-linecap="round"/>
-            <line x1="44" y1="22" x2="40.5" y2="26" stroke="#FF1744" stroke-width="2.2" stroke-linecap="round"/>
-            <line x1="44" y1="22" x2="47.5" y2="26" stroke="#FF1744" stroke-width="2.2" stroke-linecap="round"/>
-          </svg>
-
-          <div class="logo-text">
-            <h1 class="logo-title">Snakes &amp;</h1>
-            <h1 class="logo-title">Ladders</h1>
-            <div class="logo-usp">✏️ Build Your Own Board</div>
-          </div>
-
-          <!-- Cartoon SVG ladder with rainbow rungs -->
-          <svg class="logo-char logo-ladder-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" width="42" height="70">
-            <line x1="16" y1="5" x2="16" y2="95" stroke="#6B3F0E" stroke-width="8" stroke-linecap="round"/>
-            <line x1="44" y1="5" x2="44" y2="95" stroke="#6B3F0E" stroke-width="8" stroke-linecap="round"/>
-            <line x1="16" y1="8"  x2="16" y2="92" stroke="rgba(255,255,255,0.18)" stroke-width="2.5" stroke-linecap="round"/>
-            <line x1="44" y1="8"  x2="44" y2="92" stroke="rgba(255,255,255,0.18)" stroke-width="2.5" stroke-linecap="round"/>
-            <line x1="16" y1="17" x2="44" y2="17" stroke="#EF4444" stroke-width="5.5" stroke-linecap="round"/>
-            <line x1="16" y1="33" x2="44" y2="33" stroke="#F59E0B" stroke-width="5.5" stroke-linecap="round"/>
-            <line x1="16" y1="50" x2="44" y2="50" stroke="#22C55E" stroke-width="5.5" stroke-linecap="round"/>
-            <line x1="16" y1="67" x2="44" y2="67" stroke="#3B82F6" stroke-width="5.5" stroke-linecap="round"/>
-            <line x1="16" y1="83" x2="44" y2="83" stroke="#A855F7" stroke-width="5.5" stroke-linecap="round"/>
-          </svg>
+        <img src="resources/icon.png" class="logo-app-icon" alt="Snakes &amp; Ladders">
+        <div class="logo-text">
+          <h1 class="logo-title" data-i18n="home.title1">Snakes &amp;</h1>
+          <h1 class="logo-title" data-i18n="home.title2">Ladders</h1>
+          <div class="logo-usp" data-i18n="home.usp">✏️ Build Your Own Board</div>
         </div>
-        <p class="logo-tagline">Design your board. Dodge snakes. Reach the top!</p>
+        <p class="logo-tagline" data-i18n="home.tagline">Design your board. Dodge snakes. Reach the top!</p>
       </div>
       <div class="home-buttons">
         <button class="btn home-btn btn-play" id="btn-home-play">
           <span class="btn-play-glow"></span>
           <span class="home-btn-icon" id="icon-play"></span>
-          <span class="home-btn-label">PLAY GAME</span>
+          <span class="home-btn-label" data-i18n="home.btn_play">PLAY GAME</span>
         </button>
         <button class="btn home-btn btn-design" id="btn-home-design">
           <span class="home-btn-icon" id="icon-palette"></span>
-          <span class="home-btn-label">CREATE BOARD</span>
+          <span class="home-btn-label" data-i18n="home.btn_my_boards">CREATE BOARD</span>
         </button>
         <div class="home-secondary-row">
           <button class="btn home-btn home-btn-sm btn-scores" id="btn-home-scores">
             <span class="home-btn-icon" id="icon-scores"></span>
-            <span class="home-btn-label">HALL OF FAME</span>
+            <span class="home-btn-label" data-i18n="home.btn_high_scores">HALL OF FAME</span>
           </button>
           <button class="btn home-btn home-btn-sm btn-howto" id="btn-home-howto">
-            <span class="home-btn-label">❓ HOW TO PLAY</span>
+            <span class="home-btn-label" data-i18n="home.btn_howto">❓ HOW TO PLAY</span>
           </button>
         </div>
+      </div>
+
+      <!-- Language picker -->
+      <div class="lang-picker">
+        <button class="lang-btn active" data-lang="en">🇬🇧</button>
+        <button class="lang-btn" data-lang="fr">🇫🇷</button>
+        <button class="lang-btn" data-lang="de">🇩🇪</button>
+        <button class="lang-btn" data-lang="it">🇮🇹</button>
+        <button class="lang-btn" data-lang="es">🇪🇸</button>
+        <button class="lang-btn" data-lang="pt">🇧🇷</button>
       </div>
     </div>
   </div>
@@ -115,43 +81,43 @@
       <div class="boards-floater">🏆</div>
     </div>
     <div class="screen-header">
-      <button class="btn btn-sm btn-ghost-dk" id="btn-saved-back">← Back</button>
-      <h2 class="screen-title">Choose a Board</h2>
+      <button class="btn btn-sm btn-ghost-dk" id="btn-saved-back" data-i18n="setup.btn_back">← Back</button>
+      <h2 class="screen-title" data-i18n="designer.saved_boards_title">Choose a Board</h2>
     </div>
     <div class="saved-boards-list" id="saved-boards-list">
       <!-- Boards injected here -->
     </div>
     <div class="saved-boards-empty" id="saved-boards-empty" style="display:none;">
       <div class="empty-bounce">🎨</div>
-      <div class="empty-title">No boards yet!</div>
-      <div class="empty-sub">Create your first adventure below 👇</div>
-      <button class="btn btn-md btn-red" id="btn-go-design">🎨 Design a Board</button>
+      <div class="empty-title" data-i18n="designer.no_boards">No boards yet!</div>
+      <div class="empty-sub" data-i18n="designer.no_boards_sub">Create your first adventure below 👇</div>
+      <button class="btn btn-md btn-red" id="btn-go-design" data-i18n="designer.btn_create">🎨 Design a Board</button>
     </div>
   </div>
 
   <!-- ===== BOARD DESIGNER SCREEN ===== -->
   <div id="screen-designer" class="screen">
     <div class="screen-header designer-header">
-      <button class="btn btn-ghost-dk btn-back-sm" id="btn-designer-back">← Back</button>
+      <button class="btn btn-ghost-dk btn-back-sm" id="btn-designer-back" data-i18n="setup.btn_back">← Back</button>
       <div class="designer-step-track">
         <div class="step-dot active" data-step="1">
           <div class="step-num">1</div>
-          <div class="step-lbl">Size</div>
+          <div class="step-lbl" data-i18n="designer.step_nav_size">Size</div>
         </div>
         <div class="step-connector"></div>
         <div class="step-dot" data-step="2">
           <div class="step-num">2</div>
-          <div class="step-lbl">Theme</div>
+          <div class="step-lbl" data-i18n="designer.step_nav_theme">Theme</div>
         </div>
         <div class="step-connector"></div>
         <div class="step-dot" data-step="3">
           <div class="step-num">3</div>
-          <div class="step-lbl">Snakes</div>
+          <div class="step-lbl" data-i18n="designer.step_nav_snakes">Snakes</div>
         </div>
         <div class="step-connector"></div>
         <div class="step-dot" data-step="4">
           <div class="step-num">4</div>
-          <div class="step-lbl">Ladders</div>
+          <div class="step-lbl" data-i18n="designer.step_nav_ladders">Ladders</div>
         </div>
       </div>
     </div>
@@ -159,7 +125,7 @@
     <!-- Step 1: Grid Size -->
     <div class="designer-step" id="designer-step-1">
 
-<h3 class="step-heading">Pick Your Board!</h3>
+<h3 class="step-heading" data-i18n="designer.step1_title">Pick Your Board!</h3>
 
       <div class="grid-size-options">
 
@@ -167,8 +133,8 @@
         <button class="size-card" data-size="small">
           <div class="size-mini-svg" aria-hidden="true"></div>
           <div class="size-card-info">
-            <span class="size-card-name">Small</span>
-            <span class="size-card-dim">5 × 5 grid</span>
+            <span class="size-card-name" data-i18n="designer.size_small">Small</span>
+            <span class="size-card-dim" data-i18n="designer.size_dim_small">5 × 5 grid</span>
             <div class="size-dots">
               <span class="size-dot"></span>
             </div>
@@ -180,8 +146,8 @@
         <button class="size-card" data-size="medium">
           <div class="size-mini-svg" aria-hidden="true"></div>
           <div class="size-card-info">
-            <span class="size-card-name">Medium</span>
-            <span class="size-card-dim">8 × 8 grid</span>
+            <span class="size-card-name" data-i18n="designer.size_medium">Medium</span>
+            <span class="size-card-dim" data-i18n="designer.size_dim_medium">8 × 8 grid</span>
             <div class="size-dots">
               <span class="size-dot"></span>
               <span class="size-dot"></span>
@@ -194,9 +160,9 @@
         <button class="size-card selected" data-size="classic">
           <div class="size-mini-svg" aria-hidden="true"></div>
           <div class="size-card-info">
-            <span class="size-card-name">Classic</span>
-            <span class="size-card-dim">10 × 10 grid</span>
-            <span class="size-card-badge">The Original</span>
+            <span class="size-card-name" data-i18n="designer.size_classic">Classic</span>
+            <span class="size-card-dim" data-i18n="designer.size_dim_classic">10 × 10 grid</span>
+            <span class="size-card-badge" data-i18n="designer.size_original_badge">The Original</span>
             <div class="size-dots">
               <span class="size-dot"></span>
               <span class="size-dot"></span>
@@ -209,14 +175,14 @@
       </div>
 
       <button class="btn btn-lg btn-blue btn-full size-next-btn size-next-visible" id="btn-step1-next">
-        <span>Next: Pick Your Theme</span>
+        <span data-i18n="designer.btn_next">Next: Pick Your Theme</span>
         <span class="size-next-arrow">→</span>
       </button>
     </div>
 
     <!-- Step 2: Theme -->
     <div class="designer-step hidden" id="designer-step-2">
-      <h3 class="step-heading">Choose Your World</h3>
+      <h3 class="step-heading" data-i18n="designer.step2_title">Choose Your World</h3>
 
       <div class="theme-options">
 
@@ -261,8 +227,8 @@
               <circle cx="200" cy="90" r="4" fill="#fbbf24" opacity="0.7"/>
             </svg>
             <div class="theme-overlay">
-              <div class="theme-name">Jungle</div>
-              <div class="theme-tagline">Wild adventure in the trees</div>
+              <div class="theme-name" data-i18n="themes.jungle">Jungle</div>
+              <div class="theme-tagline" data-i18n="themes.jungle_tagline">Wild adventure in the trees</div>
             </div>
             <div class="theme-check-badge"></div>
           </div>
@@ -317,8 +283,8 @@
               <ellipse cx="310" cy="55" rx="30" ry="20" fill="#7c3aed" opacity="0.08"/>
             </svg>
             <div class="theme-overlay">
-              <div class="theme-name">Space</div>
-              <div class="theme-tagline">Blast off into the galaxy</div>
+              <div class="theme-name" data-i18n="themes.space">Space</div>
+              <div class="theme-tagline" data-i18n="themes.space_tagline">Blast off into the galaxy</div>
             </div>
             <div class="theme-check-badge"></div>
           </div>
@@ -378,8 +344,8 @@
               <path d="M130 32 L118 80" stroke="#bae6fd" stroke-width="1.5" opacity="0.12"/>
             </svg>
             <div class="theme-overlay">
-              <div class="theme-name">Ocean</div>
-              <div class="theme-tagline">Dive into the deep blue sea</div>
+              <div class="theme-name" data-i18n="themes.ocean">Ocean</div>
+              <div class="theme-tagline" data-i18n="themes.ocean_tagline">Dive into the deep blue sea</div>
             </div>
             <div class="theme-check-badge"></div>
           </div>
@@ -445,8 +411,8 @@
               <polygon points="255,110 260,96 265,110" fill="#7c3aed" opacity="0.6"/>
             </svg>
             <div class="theme-overlay">
-              <div class="theme-name">Fantasy</div>
-              <div class="theme-tagline">Enter a magical enchanted world</div>
+              <div class="theme-name" data-i18n="themes.fantasy">Fantasy</div>
+              <div class="theme-tagline" data-i18n="themes.fantasy_tagline">Enter a magical enchanted world</div>
             </div>
             <div class="theme-check-badge"></div>
           </div>
@@ -507,8 +473,8 @@
               <path d="M0 92 Q40 88 80 92 Q120 96 160 92 Q200 88 240 92 Q280 96 320 92" fill="none" stroke="#16a34a" stroke-width="2.5" opacity="0.5"/>
             </svg>
             <div class="theme-overlay">
-              <div class="theme-name">Cartoon</div>
-              <div class="theme-tagline">Bright colors and bouncy fun</div>
+              <div class="theme-name" data-i18n="themes.cartoon">Cartoon</div>
+              <div class="theme-tagline" data-i18n="themes.cartoon_tagline">Bright colors and bouncy fun</div>
             </div>
             <div class="theme-check-badge"></div>
           </div>
@@ -517,8 +483,8 @@
       </div>
 
       <div class="theme-sticky-nav">
-        <button class="btn btn-sm btn-ghost-lt" id="btn-step2-back">← Back</button>
-        <button class="btn btn-lg btn-blue btn-cta" id="btn-step2-next" disabled>Continue →</button>
+        <button class="btn btn-sm btn-ghost-lt" id="btn-step2-back" data-i18n="designer.btn_back">← Back</button>
+        <button class="btn btn-lg btn-blue btn-cta" id="btn-step2-next" disabled data-i18n="designer.continue">Continue →</button>
       </div>
     </div>
 
@@ -537,7 +503,7 @@
             <line x1="19.5" y1="8.5" x2="18" y2="10.5" stroke="#FF4444" stroke-width="1.2" stroke-linecap="round"/>
             <line x1="19.5" y1="8.5" x2="21" y2="10.5" stroke="#FF4444" stroke-width="1.2" stroke-linecap="round"/>
           </svg>
-          <h3 class="guided-step-title">Add Snakes</h3>
+          <h3 class="guided-step-title" data-i18n="designer.step3_title">Add Snakes</h3>
         </div>
         <div class="snake-hint" id="snake-hint">
           <div class="sh-badge sh-head" id="sg-step-1">
@@ -556,7 +522,7 @@
                 <line x1="16" y1="29" x2="18.8" y2="32" stroke="#FF4444" stroke-width="2.2" stroke-linecap="round"/>
               </svg>
             </span>
-            <span class="sh-label">Tap HEAD</span>
+            <span class="sh-label" data-i18n="designer.tap_head">Tap HEAD</span>
           </div>
           <div class="sh-arrow">→</div>
           <div class="sh-badge sh-tail" id="sg-step-2">
@@ -568,11 +534,11 @@
                 <path d="M18 1 Q26 8 24 16 Q22 23 16 31" fill="none" stroke="#88E89A" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 8" stroke-dashoffset="2"/>
               </svg>
             </span>
-            <span class="sh-label">Tap TAIL</span>
+            <span class="sh-label" data-i18n="designer.tap_tail">Tap TAIL</span>
           </div>
         </div>
-        <div class="snake-placement-rule">⬆ HEAD is higher on the board · TAIL is lower ⬇</div>
-        <div class="snake-hint-sub">👆 Tap any snake to remove it</div>
+        <div class="snake-placement-rule" data-i18n="designer.rule_snakes">⬆ HEAD is higher on the board · TAIL is lower ⬇</div>
+        <div class="snake-hint-sub" data-i18n="designer.remove_snake_hint">👆 Tap any snake to remove it</div>
         <!-- hidden for backward-compat with board.js calls -->
         <div id="placement-hint" style="display:none">Tap a square to start</div>
       </div>
@@ -583,21 +549,21 @@
       <div class="guided-bottom">
         <div class="snake-counter">
           <svg viewBox="0 0 18 18" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M3 15 Q2 10 6 8 Q10 6 9 3" fill="none" stroke="#4CD964" stroke-width="2.5" stroke-linecap="round"/><circle cx="9.5" cy="2.5" r="2.5" fill="#4CD964"/></svg>
-          <span>Snakes:</span>
+          <span data-i18n="designer.snakes_label_counter">Snakes:</span>
           <span class="snake-counter-value" id="snake-count">0</span>
           <span class="snake-counter-sep">/</span>
           <span class="snake-counter-target" id="snake-count-target">3</span>
         </div>
         <div class="snake-actions-row">
-          <button class="btn btn-sm btn-ghost-lt" id="btn-step3-back">← Back</button>
-          <button class="btn btn-compact btn-ghost-lt" id="btn-undo-snake">↩ Undo</button>
-          <button class="btn btn-compact btn-ghost-lt" id="btn-clear-snakes">🗑 Clear</button>
-          <button class="btn btn-compact btn-green" id="btn-auto-snakes">Add 3</button>
+          <button class="btn btn-sm btn-ghost-lt" id="btn-step3-back" data-i18n="designer.btn_back">← Back</button>
+          <button class="btn btn-compact btn-ghost-lt" id="btn-undo-snake" data-i18n="designer.btn_undo">↩ Undo</button>
+          <button class="btn btn-compact btn-ghost-lt" id="btn-clear-snakes" data-i18n="designer.btn_clear_pieces">🗑 Clear</button>
+          <button class="btn btn-compact btn-green" id="btn-auto-snakes" data-i18n="designer.btn_add_3">Add 3</button>
         </div>
       </div>
       <div class="guided-sticky-footer">
-        <button class="btn btn-lg btn-blue btn-full btn-cta" id="btn-step3-next" disabled>Continue →</button>
-        <div class="step-continue-hint" id="step3-continue-hint">Add at least 3 snakes to continue</div>
+        <button class="btn btn-lg btn-blue btn-full btn-cta" id="btn-step3-next" disabled data-i18n="designer.continue">Continue →</button>
+        <div class="step-continue-hint" id="step3-continue-hint" data-i18n="designer.continue_snakes_hint">Add at least 3 snakes to continue</div>
       </div>
     </div>
 
@@ -617,7 +583,7 @@
             <line x1="7" y1="15" x2="21" y2="15" stroke="#FFE066" stroke-width="2" stroke-linecap="round"/>
             <line x1="7" y1="21" x2="21" y2="21" stroke="#FFE066" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          <h3 class="guided-step-title">Add Ladders</h3>
+          <h3 class="guided-step-title" data-i18n="designer.step4_title">Add Ladders</h3>
         </div>
         <div class="snake-hint" id="ladder-hint-ui">
           <div class="sh-badge sh-bottom" id="lg-step-1">
@@ -635,7 +601,7 @@
                 <circle cx="16" cy="27" r="5.5" fill="rgba(255,215,0,0.18)" stroke="#FFD700" stroke-width="1.5"/>
               </svg>
             </span>
-            <span class="sh-label">Tap BOTTOM</span>
+            <span class="sh-label" data-i18n="designer.tap_bottom">Tap BOTTOM</span>
           </div>
           <div class="sh-arrow">→</div>
           <div class="sh-badge sh-top" id="lg-step-2">
@@ -655,11 +621,11 @@
                 <text x="16" y="2" font-size="7" text-anchor="middle" fill="#FFD700">★</text>
               </svg>
             </span>
-            <span class="sh-label">Tap TOP</span>
+            <span class="sh-label" data-i18n="designer.tap_top">Tap TOP</span>
           </div>
         </div>
-        <div class="snake-placement-rule">⬇ BOTTOM is lower on the board · TOP is higher ⬆</div>
-        <div class="snake-hint-sub">👆 Tap any ladder to remove it</div>
+        <div class="snake-placement-rule" data-i18n="designer.rule_ladders">⬇ BOTTOM is lower on the board · TOP is higher ⬆</div>
+        <div class="snake-hint-sub" data-i18n="designer.remove_ladder_hint">👆 Tap any ladder to remove it</div>
         <div id="ladder-hint" style="display:none">Tap a square to start</div>
       </div>
       <div class="guided-board-wrap" id="guided-board-wrap-4">
@@ -677,21 +643,21 @@
             <line x1="5" y1="10" x2="13" y2="10" stroke="#FFE066" stroke-width="1.5" stroke-linecap="round"/>
             <line x1="5" y1="14" x2="13" y2="14" stroke="#FFE066" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
-          <span>Ladders:</span>
+          <span data-i18n="designer.ladders_label_counter">Ladders:</span>
           <span class="snake-counter-value ladder-counter-value" id="ladder-count">0</span>
           <span class="snake-counter-sep">/</span>
           <span class="snake-counter-target" id="ladder-count-target">3</span>
         </div>
         <div class="snake-actions-row">
-          <button class="btn btn-sm btn-ghost-lt" id="btn-step4-back">← Back</button>
-          <button class="btn btn-compact btn-ghost-lt" id="btn-undo-ladder">↩ Undo</button>
-          <button class="btn btn-compact btn-ghost-lt" id="btn-clear-ladders">🗑 Clear</button>
-          <button class="btn btn-compact btn-amber" id="btn-auto-ladders">Add 3</button>
+          <button class="btn btn-sm btn-ghost-lt" id="btn-step4-back" data-i18n="designer.btn_back">← Back</button>
+          <button class="btn btn-compact btn-ghost-lt" id="btn-undo-ladder" data-i18n="designer.btn_undo">↩ Undo</button>
+          <button class="btn btn-compact btn-ghost-lt" id="btn-clear-ladders" data-i18n="designer.btn_clear_pieces">🗑 Clear</button>
+          <button class="btn btn-compact btn-amber" id="btn-auto-ladders" data-i18n="designer.btn_add_3">Add 3</button>
         </div>
       </div>
       <div class="guided-sticky-footer">
-        <button class="btn btn-lg btn-blue btn-full btn-cta" id="btn-step4-next" disabled>Continue →</button>
-        <div class="step-continue-hint" id="step4-continue-hint">Add at least 3 ladders to continue</div>
+        <button class="btn btn-lg btn-blue btn-full btn-cta" id="btn-step4-next" disabled data-i18n="designer.continue">Continue →</button>
+        <div class="step-continue-hint" id="step4-continue-hint" data-i18n="designer.continue_ladders_hint">Add at least 3 ladders to continue</div>
       </div>
     </div>
 
@@ -720,12 +686,12 @@
             <polyline points="44,14 48,18 56,10" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3 class="board-ready-title">Board Ready!</h3>
-        <p class="board-ready-sub">Your board has been created</p>
+        <h3 class="board-ready-title" data-i18n="designer.step5_title">Board Ready!</h3>
+        <p class="board-ready-sub" data-i18n="designer.step5_sub">Your board has been created</p>
       </div>
 
       <div class="board-name-card" id="board-name-card">
-        <div class="board-name-label">Board Name</div>
+        <div class="board-name-label" data-i18n="designer.board_name_label">Board Name</div>
         <div class="board-name-display" id="board-name-display">—</div>
         <div class="board-diff-badge" id="board-diff-badge"></div>
       </div>
@@ -733,9 +699,9 @@
       <div class="board-ready-stats" id="board-ready-stats"></div>
 
       <div class="step-nav save-nav">
-        <button class="btn btn-sm btn-ghost-lt" id="btn-step5-back">← Back</button>
-        <button class="btn btn-md btn-green btn-save" id="btn-save-board">Save Board</button>
-        <button class="btn btn-md btn-blue btn-play-now" id="btn-play-now">Play Now!</button>
+        <button class="btn btn-sm btn-ghost-lt" id="btn-step5-back" data-i18n="designer.btn_back">← Back</button>
+        <button class="btn btn-md btn-green btn-save" id="btn-save-board" data-i18n="designer.btn_save">Save Board</button>
+        <button class="btn btn-md btn-blue btn-play-now" id="btn-play-now" data-i18n="designer.btn_play_now">Play Now!</button>
       </div>
     </div>
   </div>
@@ -743,11 +709,11 @@
   <!-- ===== PLAYER SETUP SCREEN ===== -->
   <div id="screen-player-setup" class="screen">
     <div class="screen-header">
-      <button class="btn btn-sm btn-ghost-dk" id="btn-setup-back">← Back</button>
-      <h2 class="screen-title">Who's Playing?</h2>
+      <button class="btn btn-sm btn-ghost-dk" id="btn-setup-back" data-i18n="setup.btn_back">← Back</button>
+      <h2 class="screen-title" data-i18n="setup.title">Who's Playing?</h2>
     </div>
     <div class="player-count-row">
-      <span class="player-count-label">Players</span>
+      <span class="player-count-label" data-i18n="setup.players_label">Players</span>
       <div class="player-count-btns">
         <button class="btn pcount-btn" data-count="1">1</button>
         <button class="btn pcount-btn active" data-count="2">2</button>
@@ -758,7 +724,7 @@
     <div class="players-setup-grid" id="players-setup-grid">
       <!-- Player cards injected here -->
     </div>
-    <button class="btn btn-lg btn-blue btn-cta btn-lets-play" id="btn-lets-play">🎮 Let's Play!</button>
+    <button class="btn btn-lg btn-blue btn-cta btn-lets-play" id="btn-lets-play" data-i18n="setup.btn_start">🎮 Let's Play!</button>
   </div>
 
   <!-- ===== GAME SCREEN ===== -->
@@ -797,7 +763,7 @@
         <div class="dice" id="dice">
           <div class="dice-face dice-top"></div>
         </div>
-        <div class="dice-tap-label" id="dice-tap-label">Tap to roll</div>
+        <div class="dice-tap-label" id="dice-tap-label" data-i18n="game.tap_to_roll">Tap to roll!</div>
       </div>
 
     </div>
@@ -825,10 +791,10 @@
     <!-- Game Menu overlay -->
     <div class="game-menu-overlay hidden" id="game-menu-overlay">
       <div class="game-menu-card">
-        <h3>Game Menu</h3>
-        <button class="btn btn-md btn-neutral" id="btn-resume">Keep Playing</button>
-        <button class="btn btn-md btn-neutral" id="btn-restart">Start Over</button>
-        <button class="btn btn-md btn-red" id="btn-quit">Leave Game</button>
+        <h3 data-i18n="game.menu_title">Game Menu</h3>
+        <button class="btn btn-md btn-neutral" id="btn-resume" data-i18n="game.btn_keep_playing">Keep Playing</button>
+        <button class="btn btn-md btn-neutral" id="btn-restart" data-i18n="game.btn_start_over">Start Over</button>
+        <button class="btn btn-md btn-red" id="btn-quit" data-i18n="game.btn_leave">Leave Game</button>
       </div>
     </div>
   </div>
@@ -851,10 +817,10 @@
       <div class="winner-stats" id="winner-stats"></div>
       <div class="final-scoreboard" id="final-scoreboard"></div>
       <div class="winner-buttons">
-        <button class="btn btn-lg btn-blue hidden" id="btn-continue-place">Continue for 2nd place?</button>
-        <button class="btn btn-lg btn-green" id="btn-play-again-same">▶ Play Again</button>
-        <button class="btn btn-lg btn-neutral" id="btn-play-again">Change Players</button>
-        <button class="btn btn-lg btn-ghost-lt" id="btn-home-from-win">Home</button>
+        <button class="btn btn-lg btn-blue hidden" id="btn-continue-place" data-i18n="winner.btn_continue_2nd">Continue for 2nd place?</button>
+        <button class="btn btn-lg btn-green" id="btn-play-again-same" data-i18n="winner.btn_play_again">▶ Play Again</button>
+        <button class="btn btn-lg btn-neutral" id="btn-play-again" data-i18n="winner.btn_change_players">Change Players</button>
+        <button class="btn btn-lg btn-ghost-lt" id="btn-home-from-win" data-i18n="winner.btn_home">Home</button>
       </div>
     </div>
   </div>
@@ -862,19 +828,19 @@
   <!-- ===== SCORES SCREEN ===== -->
   <div id="screen-scores" class="screen">
     <div class="screen-header">
-      <button class="btn btn-sm btn-ghost-dk" id="btn-scores-back">← Back</button>
-      <h2 class="screen-title">🏆 Hall of Fame</h2>
+      <button class="btn btn-sm btn-ghost-dk" id="btn-scores-back" data-i18n="scores.btn_back">← Back</button>
+      <h2 class="screen-title" data-i18n="scores.title">🏆 Hall of Fame</h2>
     </div>
-    <p class="scores-note">Winners only — first to finish each game</p>
+    <p class="scores-note" data-i18n="scores.note">Winners only — first to finish each game</p>
     <div class="scores-list" id="scores-list"></div>
-    <button class="btn-clear-scores-link" id="btn-clear-scores">Clear all scores</button>
+    <button class="btn-clear-scores-link" id="btn-clear-scores" data-i18n="scores.btn_clear">Clear all scores</button>
   </div>
 
   <!-- ===== HOW TO PLAY SCREEN ===== -->
   <div id="screen-how-to-play" class="screen">
     <div class="screen-header">
-      <button class="btn btn-sm btn-ghost-dk" id="btn-howto-back">← Back</button>
-      <h2 class="screen-title">How to Play</h2>
+      <button class="btn btn-sm btn-ghost-dk" id="btn-howto-back" data-i18n="setup.btn_back">← Back</button>
+      <h2 class="screen-title" data-i18n="howto.title">How to Play</h2>
     </div>
     <div class="howto-scroll">
       <div class="howto-cards">
@@ -897,8 +863,8 @@
             </svg>
           </div>
           <div class="howto-card-body-wrap">
-            <div class="howto-card-title">Roll the Dice</div>
-            <div class="howto-card-body">Tap the dice on your turn — or shake your phone! Move your token forward the number of squares shown.</div>
+            <div class="howto-card-title" data-i18n="howto.card1_title">Roll the Dice</div>
+            <div class="howto-card-body" data-i18n="howto.card1_body">Tap the dice on your turn — or shake your phone! Move your token forward the number of squares shown.</div>
           </div>
         </div>
 
@@ -920,10 +886,11 @@
               <line x1="22" y1="64" x2="78" y2="64" stroke="#FFE066" stroke-width="6" stroke-linecap="round"/>
               <line x1="22" y1="84" x2="78" y2="84" stroke="#FFE066" stroke-width="6" stroke-linecap="round"/>
             </svg>
+            <div class="howto-token howto-token-climb"></div>
           </div>
           <div class="howto-card-body-wrap">
-            <div class="howto-card-title">Climb Ladders</div>
-            <div class="howto-card-body">Land on the bottom of a ladder and zoom up to a higher square. Lucky you!</div>
+            <div class="howto-card-title" data-i18n="howto.card2_title">Climb Ladders</div>
+            <div class="howto-card-body" data-i18n="howto.card2_body">Land on the bottom of a ladder and zoom up to a higher square. Lucky you!</div>
           </div>
         </div>
 
@@ -944,10 +911,11 @@
               <line x1="45" y1="28" x2="39" y2="36" stroke="#FF4444" stroke-width="3" stroke-linecap="round"/>
               <line x1="45" y1="28" x2="51" y2="36" stroke="#FF4444" stroke-width="3" stroke-linecap="round"/>
             </svg>
+            <div class="howto-token howto-token-slide"></div>
           </div>
           <div class="howto-card-body-wrap">
-            <div class="howto-card-title">Dodge Snakes</div>
-            <div class="howto-card-body">Land on a snake's head and slide all the way down to its tail. Oops!</div>
+            <div class="howto-card-title" data-i18n="howto.card3_title">Dodge Snakes</div>
+            <div class="howto-card-body" data-i18n="howto.card3_body">Land on a snake's head and slide all the way down to its tail. Oops!</div>
           </div>
         </div>
 
@@ -982,19 +950,21 @@
               <circle cx="50" cy="6"  r="2.5" fill="#FFBE0B" stroke="#fff" stroke-width="1"/>
               <circle cx="65" cy="9"  r="2.5" fill="#FFBE0B" stroke="#fff" stroke-width="1"/>
             </svg>
+            <div class="howto-token howto-token-win"></div>
           </div>
           <div class="howto-card-body-wrap">
-            <div class="howto-card-title">Reach the Finish</div>
-            <div class="howto-card-body">First to land on the last square wins! You need to roll the exact number — too many and you bounce back.</div>
+            <div class="howto-card-title" data-i18n="howto.card4_title">Reach the Finish</div>
+            <div class="howto-card-body" data-i18n="howto.card4_body">First to land on the last square wins! You need to roll the exact number — too many and you bounce back.</div>
           </div>
         </div>
 
       </div>
     </div>
-    <button class="btn btn-lg btn-green" id="btn-howto-play">Let's Play! 🎲</button>
+    <button class="btn btn-lg btn-green" id="btn-howto-play" data-i18n="howto.btn_play">Let's Play! 🎲</button>
   </div>
 
   <!-- Scripts -->
+  <script src="js/i18n.js"></script>
   <script src="js/config.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/sounds.js"></script>
@@ -1004,5 +974,21 @@
   <script src="js/icons.js"></script>
   <script src="js/game.js"></script>
   <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize language
+      I18n.translateDOM();
+      document.documentElement.lang = I18n.getLanguage();
+      // Lang picker buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        if (btn.dataset.lang === I18n.getLanguage()) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          I18n.setLanguage(btn.dataset.lang);
+        });
+      });
+    });
+  </script>
 </body>
 </html>

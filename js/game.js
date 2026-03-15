@@ -146,7 +146,7 @@ const Game = (() => {
     const player   = state.players[state.currentIndex];
 
     diceEl.textContent = faces[value - 1];
-    textEl.textContent = `${player.name} rolled ${value}!`;
+    textEl.textContent = t('game.rolled', { name: player.name, value });
 
     if (avatarEl) {
       avatarEl.textContent = player.character;
@@ -265,9 +265,12 @@ const Game = (() => {
         unzoomBoard(null);
 
         // Can remaining players continue racing?
-        // Yes if: 3+ total players AND at least 1 unfinished human still playing
-        const unfinishedHumans = state.players.filter(p => !p.finished && !p.isBot);
-        const canContinue = state.players.length >= 3 && unfinishedHumans.length > 0;
+        // Yes if: 3+ total players AND at least 2 players still unfinished (last
+        // remaining player is automatically last place — no point continuing)
+        // AND at least 1 of those is human (no value in watching bots race)
+        const unfinishedPlayers = state.players.filter(p => !p.finished);
+        const unfinishedHumans = unfinishedPlayers.filter(p => !p.isBot);
+        const canContinue = state.players.length >= 3 && unfinishedPlayers.length > 1 && unfinishedHumans.length > 0;
 
         if (allPlayersFinished() || !canContinue) {
           endGame();
@@ -493,8 +496,8 @@ const Game = (() => {
         <!-- Gloss highlight -->
         <ellipse cx="60" cy="43" rx="3.5" ry="2" fill="white" opacity="0.3" transform="rotate(-20,60,43)"/>
       </svg>`;
-      title.textContent = 'Bounced Back!';
-      desc.textContent = `${player.name} needed ${data.needed} — rolled ${data.rolled}!`;
+      title.textContent = t('event.bounce_title');
+      desc.textContent = t('event.bounce_desc', { name: player.name, needed: data.needed, rolled: data.rolled });
       overlay.classList.add('bounce-event');
       card.classList.add('bounce-card');
       Particles.stop();
@@ -534,8 +537,8 @@ const Game = (() => {
         <line x1="66" y1="36" x2="59" y2="43" stroke="#FF1744" stroke-width="3.2" stroke-linecap="round"/>
         <line x1="66" y1="36" x2="73" y2="43" stroke="#FF1744" stroke-width="3.2" stroke-linecap="round"/>
       </svg>`;
-      title.textContent = 'Oh no!';
-      desc.textContent = `${player.name} hit a snake!`;
+      title.textContent = t('event.snake_title');
+      desc.textContent = t('event.snake_desc', { name: player.name });
       overlay.classList.add('snake-event');
       card.classList.add('snake-card');
       Particles.stop();
@@ -554,8 +557,8 @@ const Game = (() => {
         <line x1="22" y1="62" x2="78" y2="62" stroke="#FFE066" stroke-width="6" stroke-linecap="round"/>
         <line x1="22" y1="82" x2="78" y2="82" stroke="#FFE066" stroke-width="6" stroke-linecap="round"/>
       </svg>`;
-      title.textContent = 'Woohoo!';
-      desc.textContent = `${player.name} climbs the ladder!`;
+      title.textContent = t('event.ladder_title');
+      desc.textContent = t('event.ladder_desc', { name: player.name });
       overlay.classList.add('ladder-event');
       card.classList.add('ladder-card');
       confettiCanvas.width = window.innerWidth;
@@ -582,7 +585,7 @@ const Game = (() => {
     const hint = document.getElementById('event-tap-hint');
     if (hint) hint.textContent = '';
     const hintTimer = setTimeout(() => {
-      if (hint && !dismissed) hint.textContent = 'Tap to continue';
+      if (hint && !dismissed) hint.textContent = t('event.tap_hint');
     }, 550);
     // M5: delay tap listener so accidental finger-still-on-screen doesn't dismiss
     const tapEnableTimer = setTimeout(() => {
@@ -640,7 +643,7 @@ const Game = (() => {
     if (_turnAnnounceTimer) { clearTimeout(_turnAnnounceTimer); _turnAnnounceTimer = null; }
 
     avatar.textContent = player.character;
-    text.textContent   = player.isBot ? `${player.name}'s turn` : `${player.name} — YOUR TURN!`;
+    text.textContent   = player.isBot ? t('game.bots_turn', { name: player.name }) : t('game.your_turn', { name: player.name });
     banner.style.borderLeft = `4px solid ${player.color}`;
 
     banner.classList.remove('hidden');
@@ -673,7 +676,7 @@ const Game = (() => {
       playerName: winner.name,
       character: winner.character,
       turns: winner.turns,
-      boardName: state.board.name || 'Custom Board',
+      boardName: state.board.name || t('misc.unnamed_board'),
     });
 
     setTimeout(() => {
@@ -707,7 +710,7 @@ const Game = (() => {
       avatar.style.boxShadow = `0 0 0 2px ${player.color}`;
     }
     if (name) {
-      name.textContent = `${player.name}'s turn`;
+      name.textContent = t('game.turn_label', { name: player.name });
     }
 
     // Floating dice state
@@ -724,7 +727,7 @@ const Game = (() => {
       gameScreen.classList.toggle('human-turn', canRoll);
     }
     if (tapLabel) {
-      tapLabel.innerHTML = canRoll ? 'Tap to roll!' : isBotTurn ? '<span class="bot-thinking-label">🤖 Bot thinking…</span>' : '';
+      tapLabel.innerHTML = canRoll ? t('game.tap_to_roll') : isBotTurn ? `<span class="bot-thinking-label">${t('game.bot_thinking')}</span>` : '';
       // L1: re-animate label each time it becomes active so kids notice it
       if (canRoll) {
         tapLabel.classList.remove('tap-ready');
@@ -757,7 +760,7 @@ const Game = (() => {
         <span class="chip-avatar">${almostThere ? '🏁' : p.character}</span>
         <div>
           <div class="chip-name" style="color:${p.color}">${p.isBot ? '🤖 ' : ''}${p.name}</div>
-          <div class="chip-pos">${p.position === 0 ? 'Start' : p.finished ? '🏁 Done!' : almostThere ? `${total - p.position} to go!` : `Sq. ${p.position}`}</div>
+          <div class="chip-pos">${p.position === 0 ? t('game.position_start') : p.finished ? t('game.position_done') : almostThere ? t('game.position_to_go', { n: total - p.position }) : t('game.position_sq', { n: p.position })}</div>
         </div>
       </div>
     `}).join('');
