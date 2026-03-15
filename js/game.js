@@ -324,7 +324,7 @@ const Game = (() => {
     // Build path of cells to traverse
     const path = [];
     if (fromPos === 0) {
-      path.push(toPos);
+      for (let i = 1; i <= toPos; i++) path.push(i);
     } else if (overPos && overPos > total) {
       // Bounce: animate forward through finish line, then back to toPos
       for (let i = fromPos + 1; i <= total; i++) path.push(i);
