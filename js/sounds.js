@@ -71,9 +71,10 @@ const Sounds = (() => {
       playNoise(t, 0.045, fadeGain, 350 + Math.random() * 700);
       playTone(130 + Math.random() * 280, 'square', t, 0.03, 0.1);
     }
-    // Final clunk settling
-    playNoise(now + 0.62, 0.09, 0.28, 180);
-    playTone(110, 'sine', now + 0.62, 0.14, 0.18, 75);
+    // Final clunk settling — punchy thud + crisp high click
+    playNoise(now + 0.62, 0.09, 0.38, 180);
+    playTone(110, 'sine', now + 0.62, 0.14, 0.28, 72);
+    playNoise(now + 0.62, 0.014, 0.20, 4800);
   }
 
   function moveStep() {
@@ -95,6 +96,20 @@ const Sounds = (() => {
     playTone(350, 'sawtooth', now, 0.4, 0.25, 120);
     playTone(180, 'sine', now + 0.2, 0.35, 0.15, 80);
     playTone(80, 'sine', now + 0.4, 0.25, 0.1, 40);
+  }
+
+  function landBounce() {
+    if (muted) return;
+    const c = getCtx();
+    const now = c.currentTime;
+    // Thud impact at the wall
+    playNoise(now, 0.07, 0.4, 100);
+    playTone(180, 'sine', now, 0.09, 0.28, 90);
+    // Spring bounce-back: ascending chirp
+    playTone(260, 'triangle', now + 0.10, 0.22, 0.20, 520);
+    playTone(520, 'triangle', now + 0.24, 0.18, 0.14, 320);
+    // Sad descending slide to reinforce "nope, not yet"
+    playTone(500, 'sine', now + 0.42, 0.30, 0.18, 220);
   }
 
   function landLadder() {
@@ -152,10 +167,37 @@ const Sounds = (() => {
     playTone(440, 'sine', c.currentTime, 0.08, 0.2, 550);
   }
 
+  // L5: ascending chime when a player enters "almost there" zone
+  function almostThere() {
+    if (muted) return;
+    const c = getCtx();
+    const now = c.currentTime;
+    // Three rising notes: E5 → G5 → C6 — bright and exciting
+    playTone(659, 'triangle', now,        0.18, 0.22);
+    playTone(784, 'triangle', now + 0.14, 0.18, 0.26);
+    playTone(1047,'triangle', now + 0.28, 0.30, 0.30);
+    // Sparkle shimmer on top
+    playNoise(now + 0.28, 0.12, 0.06, 6000);
+  }
+
+  // L7: short error buzz for invalid designer placement
+  function errorBuzz() {
+    if (muted) return;
+    const c = getCtx();
+    const now = c.currentTime;
+    playNoise(now, 0.04, 0.18, 90);
+    playTone(110, 'sawtooth', now, 0.04, 0.15, 80);
+  }
+
   // ---- Themed player sounds ----
 
+  let _lastThemedSoundAt = 0;
   function playThemedSound(theme, soundId) {
     if (muted) return;
+    // L12: debounce rapid character tapping — ignore if < 350ms since last sound
+    const perfNow = performance.now();
+    if (perfNow - _lastThemedSoundAt < 350) return;
+    _lastThemedSoundAt = perfNow;
     const c = getCtx();
     const now = c.currentTime;
 
@@ -369,53 +411,206 @@ const Sounds = (() => {
     else playerMove(soundId);
   }
 
-  // ---- Background Music ----
+  // ---- Background Music (lookahead scheduler — multi-voice, per-theme) ----
+  //
+  // Each theme is a 16-step sequencer at 8th-note resolution with independent
+  // tracks: melody, bass, kick drum, hi-hat, optional clap.
+  // The scheduler runs every 25ms and schedules notes 120ms ahead using
+  // AudioContext.currentTime for sample-accurate, drift-free timing.
 
-  const MUSIC_PATTERNS = {
-    jungle: {
-      notes: [261, 293, 329, 261, 220, 261, 293, 220],
-      tempo: 0.55,
-      type: 'triangle',
-      gain: 0.055,
-    },
-    space: {
-      notes: [196, 0, 220, 0, 196, 0, 175, 0, 220, 0, 246, 0],
-      tempo: 0.7,
-      type: 'sine',
-      gain: 0.05,
-    },
-    ocean: {
-      notes: [293, 329, 349, 392, 440, 392, 349, 329],
-      tempo: 0.42,
-      type: 'sine',
-      gain: 0.055,
-    },
-    fantasy: {
-      notes: [523, 659, 784, 880, 784, 659, 523, 440],
-      tempo: 0.38,
-      type: 'triangle',
-      gain: 0.055,
-    },
+  const MUSIC = {
+    // ── CARTOON ── bouncy C-major, 138 BPM ──────────────────────────────
     cartoon: {
-      notes: [523, 659, 784, 880, 784, 659, 784, 523],
-      tempo: 0.25,
-      type: 'triangle',
-      gain: 0.06,
+      bpm: 138, steps: 16,
+      tracks: [
+        { kind:'tone',  wave:'triangle', gain:0.088, dur:0.86,
+          notes:[523,659,784,523,494,392,440,0,  523,587,659,784,880,784,659,0] },
+        { kind:'tone',  wave:'square',   gain:0.038, dur:0.38,
+          notes:[130,0,196,0,130,0,175,0,          130,0,196,0,220,0,196,0] },
+        { kind:'kick',  gain:0.50,
+          steps:[1,0,0,0,1,0,0,0,                  1,0,0,0,1,0,0,0] },
+        { kind:'hihat', gain:0.028,
+          steps:[1,1,1,1,1,1,1,1,                  1,1,1,1,1,1,1,1] },
+      ],
+    },
+    // ── JUNGLE ── D-minor pentatonic, tribal groove, 108 BPM ────────────
+    jungle: {
+      bpm: 108, steps: 16,
+      tracks: [
+        { kind:'tone',  wave:'triangle', gain:0.076, dur:0.82,
+          notes:[293,0,349,392,440,0,523,440,       587,0,523,440,392,349,293,0] },
+        { kind:'tone',  wave:'sine',     gain:0.068, dur:0.50,
+          notes:[147,0,0,147,0,110,0,0,             147,0,0,130,0,98,0,0] },
+        { kind:'kick',  gain:0.46,
+          steps:[1,0,1,0,1,0,0,1,                   1,0,1,0,0,1,0,0] },
+        { kind:'clap',  gain:0.20,
+          steps:[0,0,0,0,1,0,0,0,                   0,0,0,0,1,0,0,0] },
+        { kind:'hihat', gain:0.020,
+          steps:[0,1,0,1,0,1,0,1,                   0,1,0,1,0,1,0,1] },
+      ],
+    },
+    // ── SPACE ── D-minor, floaty pads + sparse melody, 76 BPM ───────────
+    space: {
+      bpm: 76, steps: 16,
+      tracks: [
+        { kind:'tone',  wave:'sine', gain:0.068, dur:0.88,
+          notes:[293,0,0,0,440,0,0,0,               349,0,0,0,392,0,440,0] },
+        { kind:'tone',  wave:'sine', gain:0.052, dur:0.75,
+          notes:[147,0,0,0,110,0,0,0,               175,0,0,0,130,0,0,0] },
+        // Long pad notes (dur > 1 step = legato chord tones)
+        { kind:'tone',  wave:'sine', gain:0.024, dur:3.2,
+          notes:[220,0,0,0,165,0,0,0,               175,0,0,0,196,0,0,0] },
+        { kind:'hihat', gain:0.015,
+          steps:[0,0,1,0,0,0,1,0,                   0,0,1,0,0,0,0,1] },
+      ],
+    },
+    // ── OCEAN ── flowing C-major arpeggios, 104 BPM ──────────────────────
+    ocean: {
+      bpm: 104, steps: 16,
+      tracks: [
+        { kind:'tone',  wave:'sine', gain:0.076, dur:0.88,
+          notes:[261,329,392,440,392,329,349,440,    523,440,392,329,293,349,329,261] },
+        { kind:'tone',  wave:'sine', gain:0.056, dur:0.52,
+          notes:[130,0,0,196,0,0,175,0,             0,130,0,0,196,0,0,0] },
+        { kind:'kick',  gain:0.30,
+          steps:[1,0,0,0,1,0,0,0,                   1,0,0,0,1,0,0,0] },
+        { kind:'hihat', gain:0.017,
+          steps:[0,0,1,0,0,0,1,0,                   0,0,1,0,0,0,1,0] },
+      ],
+    },
+    // ── FANTASY ── C-major harp arpeggios, magical, 122 BPM ─────────────
+    fantasy: {
+      bpm: 122, steps: 16,
+      tracks: [
+        { kind:'tone',  wave:'triangle', gain:0.082, dur:0.85,
+          notes:[523,392,659,784,659,494,392,440,    523,659,784,880,784,659,587,523] },
+        { kind:'tone',  wave:'triangle', gain:0.042, dur:0.52,
+          notes:[130,0,196,0,130,0,175,0,            130,0,165,0,196,0,220,0] },
+        { kind:'hihat', gain:0.018,
+          steps:[1,0,1,0,1,0,1,0,                   1,0,1,0,1,0,1,0] },
+        { kind:'kick',  gain:0.26,
+          steps:[0,0,0,0,1,0,0,0,                   0,0,0,0,1,0,0,0] },
+      ],
     },
   };
 
-  let musicTimer = null;
-  let musicPattern = null;
-  let musicStep = 0;
+  // ── Scheduler state ─────────────────────────────────────────────────────
+  const _LOOKAHEAD = 0.12;   // schedule 120ms ahead (seconds)
+  const _TICK_MS   = 25;     // scheduler interval (ms)
+  let _sched       = null;   // setTimeout handle
+  let _stepTime    = 0;      // AudioContext time of next scheduled step
+  let _stepIdx     = 0;      // index into the 16-step pattern
+  let _stepDur     = 0;      // duration of one 8th-note step (seconds)
+  let _activeTheme = null;   // theme key currently playing
   let currentMusicTheme = null;
+  let _hihatBuf    = null;   // reusable white-noise buffer for hi-hat
 
+  // ── Percussion synthesis ─────────────────────────────────────────────────
+  function _playKick(time, gain) {
+    const c = getCtx();
+    const osc = c.createOscillator();
+    const g   = c.createGain();
+    osc.connect(g); g.connect(c.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(155, time);
+    osc.frequency.exponentialRampToValueAtTime(44, time + 0.11);
+    g.gain.setValueAtTime(gain, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
+    osc.start(time); osc.stop(time + 0.20);
+  }
+
+  function _playHihat(time, gain) {
+    const c = getCtx();
+    // Create/reuse the noise buffer
+    if (!_hihatBuf) {
+      const len = Math.floor(c.sampleRate * 0.06);
+      _hihatBuf = c.createBuffer(1, len, c.sampleRate);
+      const d = _hihatBuf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    }
+    const src    = c.createBufferSource();
+    src.buffer   = _hihatBuf;
+    const filter = c.createBiquadFilter();
+    filter.type  = 'highpass';
+    filter.frequency.value = 9000;
+    const g = c.createGain();
+    src.connect(filter); filter.connect(g); g.connect(c.destination);
+    g.gain.setValueAtTime(gain, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+    src.start(time); src.stop(time + 0.06);
+  }
+
+  function _playClap(time, gain) {
+    const c   = getCtx();
+    const len = Math.floor(c.sampleRate * 0.08);
+    const buf = c.createBuffer(1, len, c.sampleRate);
+    const d   = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    const src    = c.createBufferSource();
+    src.buffer   = buf;
+    const filter = c.createBiquadFilter();
+    filter.type  = 'bandpass';
+    filter.frequency.value = 1200;
+    filter.Q.value = 0.7;
+    const g = c.createGain();
+    src.connect(filter); filter.connect(g); g.connect(c.destination);
+    g.gain.setValueAtTime(gain, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
+    src.start(time); src.stop(time + 0.10);
+  }
+
+  // ── Tonal note with attack/sustain/release envelope ─────────────────────
+  function _playMusicNote(freq, wave, time, dur, gain) {
+    const c   = getCtx();
+    const osc = c.createOscillator();
+    const g   = c.createGain();
+    osc.connect(g); g.connect(c.destination);
+    osc.type = wave;
+    osc.frequency.value = freq;
+    const atk = Math.min(0.012, dur * 0.1);
+    const rel = dur * 0.28;
+    g.gain.setValueAtTime(0, time);
+    g.gain.linearRampToValueAtTime(gain, time + atk);
+    g.gain.setValueAtTime(gain, time + dur - rel);
+    g.gain.linearRampToValueAtTime(0, time + dur);
+    osc.start(time); osc.stop(time + dur + 0.01);
+  }
+
+  // ── Core scheduler ───────────────────────────────────────────────────────
+  function _scheduleStep(theme, idx, time) {
+    for (const tr of theme.tracks) {
+      if (tr.kind === 'tone') {
+        const note = tr.notes[idx];
+        if (note > 0) _playMusicNote(note, tr.wave, time, _stepDur * tr.dur, tr.gain);
+      } else if (tr.kind === 'kick')  { if (tr.steps[idx]) _playKick(time, tr.gain); }
+        else if (tr.kind === 'hihat') { if (tr.steps[idx]) _playHihat(time, tr.gain); }
+        else if (tr.kind === 'clap')  { if (tr.steps[idx]) _playClap(time, tr.gain); }
+    }
+  }
+
+  function _musicTick() {
+    if (!_activeTheme || musicMuted) return;
+    const c     = getCtx();
+    const theme = MUSIC[_activeTheme];
+    while (_stepTime < c.currentTime + _LOOKAHEAD) {
+      _scheduleStep(theme, _stepIdx, _stepTime);
+      _stepIdx  = (_stepIdx + 1) % theme.steps;
+      _stepTime += _stepDur;
+    }
+    _sched = setTimeout(_musicTick, _TICK_MS);
+  }
+
+  // ── Public music controls ────────────────────────────────────────────────
   function startMusic(theme) {
     stopMusic();
-    currentMusicTheme = theme || null;
+    currentMusicTheme = theme || 'cartoon';
     if (musicMuted) return;
-    musicPattern = MUSIC_PATTERNS[theme] || MUSIC_PATTERNS.cartoon;
-    musicStep = 0;
-    playMusicStep();
+    _activeTheme = currentMusicTheme;
+    const td  = MUSIC[_activeTheme] || MUSIC.cartoon;
+    _stepDur  = 60 / td.bpm / 2;            // one 8th note in seconds
+    _stepIdx  = 0;
+    _stepTime = getCtx().currentTime + 0.05; // start 50ms from now
+    _musicTick();
   }
 
   // Restart the last-playing theme — called on app foreground resume.
@@ -423,21 +618,9 @@ const Sounds = (() => {
     if (currentMusicTheme && !musicMuted) startMusic(currentMusicTheme);
   }
 
-  function playMusicStep() {
-    if (!musicPattern || musicMuted) return;
-    const c = getCtx();
-    const note = musicPattern.notes[musicStep % musicPattern.notes.length];
-    const gain = musicPattern.gain || 0.06;
-    if (note > 0) {
-      playTone(note, musicPattern.type, c.currentTime, musicPattern.tempo * 0.8, gain);
-    }
-    musicStep++;
-    musicTimer = setTimeout(playMusicStep, musicPattern.tempo * 1000);
-  }
-
   function stopMusic() {
-    if (musicTimer) { clearTimeout(musicTimer); musicTimer = null; }
-    musicPattern = null;
+    if (_sched) { clearTimeout(_sched); _sched = null; }
+    _activeTheme = null;
   }
 
   // Toggle ALL sound (SFX + music) with one button
@@ -445,12 +628,23 @@ const Sounds = (() => {
     muted = !muted;
     musicMuted = muted;
     if (muted) stopMusic();
+    else if (currentMusicTheme) startMusic(currentMusicTheme);
     return muted;
   }
 
+  // Toggle SFX only — music unaffected
+  function toggleSfx() {
+    // L4: play a confirm click while still unmuted so there's audio feedback
+    if (!muted) button();
+    muted = !muted;
+    return muted;
+  }
+
+  // Toggle music only — SFX unaffected
   function toggleMusic() {
     musicMuted = !musicMuted;
     if (musicMuted) stopMusic();
+    else if (currentMusicTheme) startMusic(currentMusicTheme);
     return musicMuted;
   }
 
@@ -463,9 +657,9 @@ const Sounds = (() => {
   function isMusicMuted() { return musicMuted; }
 
   return {
-    rollDice, moveStep, landSnake, landLadder, win, playerMove, button,
+    rollDice, moveStep, landSnake, landBounce, landLadder, win, playerMove, button, errorBuzz, almostThere,
     playThemedSound,
-    startMusic, stopMusic, resumeMusic, toggleMute, toggleMusic,
+    startMusic, stopMusic, resumeMusic, toggleMute, toggleSfx, toggleMusic,
     setMuted, isMuted, isMusicMuted,
   };
 })();

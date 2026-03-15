@@ -56,13 +56,19 @@ const Components = (() => {
   // chars: array of { emoji, name, sound }
   // selectedEmoji: currently selected emoji
   // playerIdx: player index (used in onclick callback)
-  function AvatarSelector(chars, selectedEmoji, playerIdx) {
-    const buttons = chars.map(c => `
+  // takenEmojis: array of emojis claimed by other players (greyed out)
+  function AvatarSelector(chars, selectedEmoji, playerIdx, takenEmojis = []) {
+    const buttons = chars.map(c => {
+      const taken = takenEmojis.includes(c.emoji);
+      const cls = `char-btn${c.emoji === selectedEmoji ? ' selected' : ''}${taken ? ' taken' : ''}`;
+      return `
       <button
-        class="char-btn${c.emoji === selectedEmoji ? ' selected' : ''}"
+        class="${cls}"
         onclick="App.selectChar(${playerIdx}, '${esc(c.emoji)}', '${esc(c.sound)}')"
-        title="${esc(c.name)}"
-      >${c.emoji}</button>`).join('');
+        title="${taken ? 'Taken' : esc(c.name)}"
+        ${taken ? 'aria-disabled="true"' : ''}
+      ><span class="char-btn-emoji">${c.emoji}</span><span class="char-btn-name">${esc(c.name)}</span>${taken ? '<span class="char-taken-badge">✕</span>' : ''}</button>`;
+    }).join('');
     return `<div class="char-picker">${buttons}</div>`;
   }
 

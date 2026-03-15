@@ -9,10 +9,12 @@ const Game = (() => {
   let shakeTimeout = null;
   let lastShake = 0;
   let currentTheme = 'cartoon';
+  let _almostNotified = new Set(); // player IDs that have heard the almost-there chime
 
   // ---- State ----
 
   function init(boardConfig, players) {
+    _almostNotified = new Set();
     currentTheme = boardConfig.theme || 'cartoon';
     state = {
       board: boardConfig,
@@ -69,16 +71,30 @@ const Game = (() => {
     }
   }
 
+  // ---- Visual flash overlay ----
+
+  function flashCanvas(type) {
+    const el = document.getElementById('canvas-flash');
+    if (!el) return;
+    el.classList.remove('flash-snake'); // reset
+    void el.offsetWidth; // force reflow to restart animation
+    if (type === 'snake') el.classList.add('flash-snake');
+  }
+
   // ---- Dice ----
 
   function rollDice() {
     if (!state || state.phase !== 'rolling' || animating) return;
+
+    dismissTurnBanner(); // B4: dismiss banner as soon as player rolls
 
     const value = randomInt(1, 6);
     state.diceValue = value;
     state.phase = 'animating';
     animating = true;
 
+    // M8: haptic on Android
+    if (navigator.vibrate) navigator.vibrate(80);
     Sounds.rollDice();
     animateDice(value, () => {
       showDiceResult(value, () => {
@@ -177,24 +193,68 @@ const Game = (() => {
     const total = state.board.total;
 
     let oldPos = player.position;
-    let newPos = oldPos === 0 ? steps : oldPos + steps;
+    const rawNew = oldPos === 0 ? steps : oldPos + steps;
 
-    // Can't go past the end
-    if (newPos > total) {
-      const over = newPos - total;
-      newPos = total - over;
-    }
+    // Detect bounce before clamping
+    const bounced = rawNew > total;
+    let newPos = bounced ? total - (rawNew - total) : rawNew;
 
     // Zoom board toward the player's current token position
     zoomBoard(oldPos > 0 ? oldPos : newPos);
 
-    // Animate movement step by step
     animateMove(player, oldPos, newPos, () => {
       player.position = newPos;
       player.turns++;
       state.turn++;
 
       Sounds.playThemedSound(currentTheme, player.sound);
+
+      // Bounce — player rolled past the finish line
+      if (bounced) {
+        Board.redrawGame(state.board, state.players, null);
+        updateGameUI();
+        Sounds.landBounce();
+        unzoomBoard(() => {
+          showEventBrief('bounce', player, {
+            rolled: steps,
+            needed: total - oldPos,
+            newPos,
+          }, () => {
+            // After bounce card, check if landing square has a snake or ladder
+            const snake = state.board.snakes.find(s => s.head === newPos);
+            if (snake) {
+              zoomBoard(newPos);
+              Sounds.landSnake();
+              flashCanvas('snake');
+              animateAlongSnake(player, snake, () => {
+                player.position = snake.tail;
+                player.snakeBites++;
+                state.turn++;
+                Board.redrawGame(state.board, state.players, null);
+                updateGameUI();
+                unzoomBoard(() => showEventBrief('snake', player, snake, () => nextTurn()));
+              });
+              return;
+            }
+            const ladder = state.board.ladders.find(l => l.bottom === newPos);
+            if (ladder) {
+              zoomBoard(newPos);
+              Sounds.landLadder();
+              animateAlongLadder(player, ladder, () => {
+                player.position = ladder.top;
+                player.laddersClimbed++;
+                state.turn++;
+                Board.redrawGame(state.board, state.players, null);
+                updateGameUI();
+                unzoomBoard(() => showEventBrief('ladder', player, ladder, () => nextTurn()));
+              });
+              return;
+            }
+            nextTurn();
+          });
+        });
+        return;
+      }
 
       // Check for win first
       if (newPos === total) {
@@ -214,6 +274,7 @@ const Game = (() => {
       const snake = state.board.snakes.find(s => s.head === newPos);
       if (snake) {
         Sounds.landSnake();
+        flashCanvas('snake');
         // Animate along snake bezier (stay zoomed), then zoom out → event card
         animateAlongSnake(player, snake, () => {
           player.position = snake.tail;
@@ -253,10 +314,10 @@ const Game = (() => {
       Board.redrawGame(state.board, state.players, null);
       updateGameUI();
       unzoomBoard(nextTurn);
-    });
+    }, bounced ? rawNew : undefined);
   }
 
-  function animateMove(player, fromPos, toPos, onDone) {
+  function animateMove(player, fromPos, toPos, onDone, overPos) {
     const board = state.board;
     const total = board.total;
 
@@ -264,13 +325,12 @@ const Game = (() => {
     const path = [];
     if (fromPos === 0) {
       path.push(toPos);
+    } else if (overPos && overPos > total) {
+      // Bounce: animate forward through finish line, then back to toPos
+      for (let i = fromPos + 1; i <= total; i++) path.push(i);
+      for (let i = total - 1; i >= toPos; i--) path.push(i);
     } else {
       for (let i = fromPos + 1; i <= toPos; i++) path.push(i);
-      // Bounce case
-      if (toPos < fromPos) {
-        for (let i = fromPos + 1; i <= total; i++) path.push(i);
-        for (let i = total - 1; i >= toPos; i--) path.push(i);
-      }
     }
 
     if (path.length === 0) { onDone(); return; }
@@ -372,10 +432,60 @@ const Game = (() => {
     const confettiCanvas = document.getElementById('event-confetti-canvas');
 
     // Reset classes
-    overlay.classList.remove('snake-event', 'ladder-event');
-    card.classList.remove('snake-card', 'ladder-card');
+    overlay.classList.remove('snake-event', 'ladder-event', 'bounce-event');
+    card.classList.remove('snake-card', 'ladder-card', 'bounce-card');
 
-    if (type === 'snake') {
+    if (type === 'bounce') {
+      emoji.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="wc">
+            <rect x="72" y="12" width="20" height="76" rx="3"/>
+          </clipPath>
+        </defs>
+        <!-- Faded dashed forward arc (where the player tried to go) -->
+        <path d="M18 75 Q36 22 64 48" fill="none" stroke="#F97316" stroke-width="2.5"
+              stroke-dasharray="4 3" stroke-linecap="round" opacity="0.35"/>
+        <!-- Finish wall -->
+        <rect x="72" y="12" width="20" height="76" rx="3" fill="#1e293b"/>
+        <g clip-path="url(#wc)">
+          <rect x="72" y="12" width="10" height="13" fill="white" opacity="0.88"/>
+          <rect x="82" y="25" width="10" height="13" fill="white" opacity="0.88"/>
+          <rect x="72" y="38" width="10" height="13" fill="white" opacity="0.88"/>
+          <rect x="82" y="51" width="10" height="13" fill="white" opacity="0.88"/>
+          <rect x="72" y="64" width="10" height="13" fill="white" opacity="0.88"/>
+          <rect x="82" y="77" width="10" height="11" fill="white" opacity="0.88"/>
+        </g>
+        <rect x="72" y="12" width="20" height="76" rx="3" fill="none" stroke="#475569" stroke-width="1.5"/>
+        <!-- Sparkle impact lines -->
+        <line x1="68" y1="35" x2="62" y2="29" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="70" y1="47" x2="62" y2="45" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="67" y1="59" x2="62" y2="65" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="71" cy="43" r="2" fill="#FCD34D" opacity="0.65"/>
+        <!-- Bounce-back arc (solid red with arrow) -->
+        <path d="M64 48 Q70 63 61 72 Q46 82 18 75"
+              fill="none" stroke="#EF4444" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M23 70 L18 75 L24 79" fill="none" stroke="#EF4444" stroke-width="3.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Token drop shadow -->
+        <circle cx="65" cy="50" r="13" fill="#7c2d12" opacity="0.22"/>
+        <!-- Token body -->
+        <circle cx="64" cy="48" r="13" fill="#F97316" stroke="#C2410C" stroke-width="2.5"/>
+        <!-- Surprised face: wide eyes -->
+        <circle cx="59" cy="45" r="2.8" fill="white"/>
+        <circle cx="69" cy="45" r="2.8" fill="white"/>
+        <circle cx="59.5" cy="45.8" r="1.4" fill="#1e293b"/>
+        <circle cx="69.5" cy="45.8" r="1.4" fill="#1e293b"/>
+        <!-- Surprised open mouth -->
+        <ellipse cx="64" cy="53" rx="3.5" ry="2.8" fill="#7c2d12"/>
+        <!-- Gloss highlight -->
+        <ellipse cx="60" cy="43" rx="3.5" ry="2" fill="white" opacity="0.3" transform="rotate(-20,60,43)"/>
+      </svg>`;
+      title.textContent = 'Bounced Back!';
+      desc.textContent = `${player.name} needed ${data.needed} — rolled ${data.rolled}!`;
+      overlay.classList.add('bounce-event');
+      card.classList.add('bounce-card');
+      Particles.stop();
+    } else if (type === 'snake') {
       emoji.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <path d="M20 88 Q14 60 28 44 Q44 28 42 12" fill="none" stroke="#1e6b2a" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M20 88 Q14 60 28 44 Q44 28 42 12" fill="none" stroke="#4CD964" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
@@ -392,7 +502,7 @@ const Game = (() => {
       overlay.classList.add('snake-event');
       card.classList.add('snake-card');
       Particles.stop();
-    } else {
+    } else if (type === 'ladder') {
       emoji.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <line x1="22" y1="6" x2="22" y2="94" stroke="#8d4e00" stroke-width="10" stroke-linecap="round"/>
         <line x1="78" y1="6" x2="78" y2="94" stroke="#8d4e00" stroke-width="10" stroke-linecap="round"/>
@@ -422,13 +532,27 @@ const Game = (() => {
       if (dismissed) return;
       dismissed = true;
       clearTimeout(timer);
+      clearTimeout(tapEnableTimer);
+      clearTimeout(hintTimer);
       Particles.stop();
+      const hint = document.getElementById('event-tap-hint');
+      if (hint) hint.textContent = '';
       overlay.classList.add('hidden');
       overlay.removeEventListener('click', dismiss);
       if (cb) cb();
     };
-    overlay.addEventListener('click', dismiss);
-    const timer = setTimeout(dismiss, 1800);
+    // B3: show "Tap to continue" hint after tap is enabled
+    const hint = document.getElementById('event-tap-hint');
+    if (hint) hint.textContent = '';
+    const hintTimer = setTimeout(() => {
+      if (hint && !dismissed) hint.textContent = 'Tap to continue';
+    }, 550);
+    // M5: delay tap listener so accidental finger-still-on-screen doesn't dismiss
+    const tapEnableTimer = setTimeout(() => {
+      overlay.addEventListener('click', dismiss);
+    }, 500);
+    // M1: auto-dismiss after 4s
+    const timer = setTimeout(dismiss, 4000);
   }
 
   // Legacy showEvent for compatibility
@@ -453,13 +577,55 @@ const Game = (() => {
     }
     state.currentIndex = next;
     updateGameUI();
+    showTurnAnnounce(state.players[next]);
+    Storage.saveGameState(state);
 
     // Auto-roll for bot
     scheduleBotTurn();
   }
 
+  let _turnAnnounceTimer = null;
+
+  function dismissTurnBanner() {
+    const banner = document.getElementById('turn-announce');
+    if (!banner) return;
+    if (_turnAnnounceTimer) { clearTimeout(_turnAnnounceTimer); _turnAnnounceTimer = null; }
+    banner.classList.remove('show');
+    setTimeout(() => banner.classList.add('hidden'), 300);
+  }
+
+  function showTurnAnnounce(player) {
+    const banner  = document.getElementById('turn-announce');
+    const avatar  = document.getElementById('turn-announce-avatar');
+    const text    = document.getElementById('turn-announce-text');
+    if (!banner || !avatar || !text) return;
+
+    if (_turnAnnounceTimer) { clearTimeout(_turnAnnounceTimer); _turnAnnounceTimer = null; }
+
+    avatar.textContent = player.character;
+    text.textContent   = player.isBot ? `${player.name}'s turn` : `${player.name} — YOUR TURN!`;
+    banner.style.borderLeft = `4px solid ${player.color}`;
+
+    banner.classList.remove('hidden');
+    // Force reflow so transition fires
+    banner.getBoundingClientRect();
+    banner.classList.add('show');
+
+    // B4: for bot turns auto-dismiss; for human turns keep visible until they roll
+    if (player.isBot) {
+      _turnAnnounceTimer = setTimeout(() => {
+        banner.classList.remove('show');
+        _turnAnnounceTimer = setTimeout(() => {
+          banner.classList.add('hidden');
+        }, 300);
+      }, 2800);
+    }
+    // human banner is dismissed by dismissTurnBanner() called from rollDice()
+  }
+
   function endGame() {
     state.phase = 'done';
+    Storage.clearGameState(); // game over — no need to resume
     Sounds.stopMusic();
     Sounds.win();
     const winner = state.rankings[0] || state.players[0];
@@ -500,13 +666,28 @@ const Game = (() => {
     }
 
     // Floating dice state
-    const diceEl   = document.getElementById('dice');
-    const tapLabel = document.getElementById('dice-tap-label');
-    const canRoll  = state.phase === 'rolling' && !player.isBot;
-    if (diceEl) diceEl.classList.toggle('dice-disabled', !canRoll);
+    const diceEl      = document.getElementById('dice');
+    const tapLabel    = document.getElementById('dice-tap-label');
+    const gameScreen  = document.getElementById('screen-game');
+    const canRoll     = state.phase === 'rolling' && !player.isBot;
+    const isBotTurn   = player.isBot && state.phase === 'rolling';
+    if (diceEl) {
+      diceEl.classList.toggle('dice-disabled', !canRoll);
+      diceEl.classList.toggle('bot-thinking', isBotTurn);
+    }
+    if (gameScreen) {
+      gameScreen.classList.toggle('human-turn', canRoll);
+    }
     if (tapLabel) {
-      tapLabel.textContent = canRoll ? 'Tap to roll!' :
-        (player.isBot && state.phase === 'rolling') ? 'Bot thinking...' : '';
+      tapLabel.innerHTML = canRoll ? 'Tap to roll!' : isBotTurn ? '<span class="bot-thinking-label">🤖 Bot thinking…</span>' : '';
+      // L1: re-animate label each time it becomes active so kids notice it
+      if (canRoll) {
+        tapLabel.classList.remove('tap-ready');
+        tapLabel.getBoundingClientRect(); // force reflow
+        tapLabel.classList.add('tap-ready');
+      } else {
+        tapLabel.classList.remove('tap-ready');
+      }
     }
 
     updatePlayersStatus();
@@ -517,16 +698,24 @@ const Game = (() => {
     const container = document.getElementById('players-status');
     if (!container) return;
 
-    container.innerHTML = state.players.map((p, i) => `
-      <div class="player-chip ${i === state.currentIndex ? 'active-chip' : ''}"
+    const total = state.board.total || 100;
+    container.innerHTML = state.players.map((p, i) => {
+      const almostThere = !p.finished && p.position > 0 && (total - p.position) <= 10;
+      // L5: play chime once per player on first entry into almost-there zone
+      if (almostThere && !_almostNotified.has(p.id)) {
+        _almostNotified.add(p.id);
+        setTimeout(() => Sounds.almostThere(), 350); // slight delay after landing sound
+      }
+      return `
+      <div class="player-chip ${i === state.currentIndex ? 'active-chip' : ''} ${almostThere ? 'chip-almost' : ''}"
            style="border-color: ${i === state.currentIndex ? p.color : 'transparent'}">
-        <span class="chip-avatar">${p.character}</span>
+        <span class="chip-avatar">${almostThere ? '🏁' : p.character}</span>
         <div>
           <div class="chip-name" style="color:${p.color}">${p.isBot ? '🤖 ' : ''}${p.name}</div>
-          <div class="chip-pos">${p.position === 0 ? 'Start' : p.finished ? '🏁 Done!' : `Sq. ${p.position}`}</div>
+          <div class="chip-pos">${p.position === 0 ? 'Start' : p.finished ? '🏁 Done!' : almostThere ? `${total - p.position} to go!` : `Sq. ${p.position}`}</div>
         </div>
       </div>
-    `).join('');
+    `}).join('');
   }
 
   // ---- Shake detection ----
@@ -555,5 +744,34 @@ const Game = (() => {
     Sounds.stopMusic();
   }
 
-  return { init, getState, rollDice, cleanup };
+  function restoreGame(snapshot) {
+    currentTheme = snapshot.board.theme || 'cartoon';
+    state = {
+      board:        snapshot.board,
+      players:      snapshot.players,
+      currentIndex: snapshot.currentIndex,
+      turn:         snapshot.turn,
+      phase:        'rolling',
+      diceValue:    null,
+      winner:       null,
+      rankings:     snapshot.rankings || [],
+    };
+
+    Board.initGameCanvas(
+      document.getElementById('game-canvas'),
+      state.board,
+      state.players
+    );
+    Board.redrawGame(state.board, state.players, null);
+
+    const initFace = document.querySelector('.dice-face');
+    if (initFace) renderDiceFace(initFace, 6);
+
+    Sounds.startMusic(state.board.theme);
+    setupShakeDetection();
+    updateGameUI();
+    scheduleBotTurn();
+  }
+
+  return { init, getState, rollDice, cleanup, restoreGame };
 })();

@@ -36,10 +36,10 @@ const THEMES = {
     cellOdd: '#100830',
     tilePalette: ['#8B5CF6', '#3B82F6', '#06B6D4', '#7C3AED', '#2563EB'],
     cellBorder: '#4a2080',
-    snakeBody: '#9e9e9e',
-    snakeHead: '#616161',
-    ladderRail: '#b0bec5',
-    ladderRung: '#90a4ae',
+    snakeBody: '#D46BFF',
+    snakeHead: '#9B1DCC',
+    ladderRail: '#7dd3fc',
+    ladderRung: '#38bdf8',
     headerGrad: ['#0a0015','#4a2080'],
     bgMusic: 'space',
     boardPatternColors: ['#0d0020','#1a003a'],  // near-black deep purple grid border
@@ -211,6 +211,86 @@ const THEME_SOUNDS = {
     { id: 'zap',      label: '⚡ Zap',      emoji: '⚡' },
   ],
 };
+
+// ---- Built-in starter boards (always available, never deleted) ----
+
+const DEFAULT_BOARDS = [
+  {
+    id:        'default-small',
+    name:      'Cartoon Starter',
+    preset:    'small',
+    cols:      5,
+    rows:      5,
+    total:     25,
+    theme:     'cartoon',
+    isDefault: true,
+    createdAt: 0,
+    // 3 snakes: head > tail   |   3 ladders: bottom < top
+    // 5×5 boustrophedon: row1(bottom)=1–5 L→R, row2=6–10 R→L, row3=11–15 L→R, row4=16–20 R→L, row5=21–25 L→R
+    snakes:  [ { head: 17, tail: 4 }, { head: 22, tail: 9 }, { head: 13, tail: 7 } ],
+    ladders: [ { bottom: 2, top: 16 }, { bottom: 8, top: 20 }, { bottom: 11, top: 23 } ],
+  },
+  {
+    id:        'default-medium',
+    name:      'Cosmic Quest',
+    preset:    'medium',
+    cols:      8,
+    rows:      8,
+    total:     64,
+    theme:     'space',
+    isDefault: true,
+    createdAt: 0,
+    // 5 snakes  |  5 ladders
+    // 8×8 boustrophedon: row1=1–8 L→R, row2=9–16 R→L, row3=17–24 L→R, row4=25–32 R→L,
+    //                    row5=33–40 L→R, row6=41–48 R→L, row7=49–56 L→R, row8=57–64 R→L
+    snakes:  [
+      { head: 16, tail:  3 },
+      { head: 29, tail: 11 },
+      { head: 43, tail: 23 },
+      { head: 51, tail: 32 },
+      { head: 57, tail: 36 },
+    ],
+    ladders: [
+      { bottom:  4, top: 22 },
+      { bottom: 13, top: 37 },
+      { bottom: 26, top: 45 },
+      { bottom: 39, top: 54 },
+      { bottom: 48, top: 62 },
+    ],
+  },
+  {
+    id:        'default-large',
+    name:      'Ocean Adventure',
+    preset:    'large',
+    cols:      10,
+    rows:      8,
+    total:     80,
+    theme:     'ocean',
+    isDefault: true,
+    createdAt: 0,
+    // 7 snakes  |  7 ladders
+    // 10×8 boustrophedon: row1=1–10 L→R, row2=11–20 R→L, row3=21–30 L→R, row4=31–40 R→L,
+    //                     row5=41–50 L→R, row6=51–60 R→L, row7=61–70 L→R, row8=71–80 R→L
+    snakes:  [
+      { head: 17, tail:  5 },
+      { head: 35, tail: 13 },
+      { head: 44, tail: 26 },
+      { head: 55, tail: 37 },
+      { head: 63, tail: 47 },
+      { head: 72, tail: 58 },
+      { head: 79, tail: 61 },
+    ],
+    ladders: [
+      { bottom:  3, top: 24 },
+      { bottom: 12, top: 33 },
+      { bottom: 22, top: 48 },
+      { bottom: 32, top: 52 },
+      { bottom: 43, top: 65 },
+      { bottom: 54, top: 74 },
+      { bottom: 66, top: 77 },
+    ],
+  },
+];
 
 const DICE_FACES = ['⚀','⚁','⚂','⚃','⚄','⚅'];
 

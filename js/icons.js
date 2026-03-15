@@ -8,20 +8,17 @@ const Icons = (() => {
 
     dice: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
   <!-- Shadow -->
-  <rect x="5" y="7" width="28" height="28" rx="6" ry="6" fill="rgba(0,0,0,0.15)"/>
+  <rect x="6" y="8" width="28" height="28" rx="7" ry="7" fill="rgba(0,0,0,0.18)"/>
   <!-- Die face -->
-  <rect x="4" y="4" width="28" height="28" rx="6" ry="6" fill="white" stroke="#3CB4FF" stroke-width="2.5"/>
-  <!-- Dots: standard 5-pattern -->
-  <!-- top-left -->
-  <circle cx="11.5" cy="11.5" r="3" fill="#FF6B6B"/>
-  <!-- top-right -->
-  <circle cx="24.5" cy="11.5" r="3" fill="#FF6B6B"/>
-  <!-- center -->
-  <circle cx="18" cy="18" r="3" fill="#3CB4FF"/>
-  <!-- bottom-left -->
-  <circle cx="11.5" cy="24.5" r="3" fill="#4CD964"/>
-  <!-- bottom-right -->
-  <circle cx="24.5" cy="24.5" r="3" fill="#4CD964"/>
+  <rect x="5" y="5" width="28" height="28" rx="7" ry="7" fill="white"/>
+  <!-- Top highlight -->
+  <rect x="7" y="7" width="24" height="11" rx="5" ry="5" fill="rgba(255,255,255,0.7)"/>
+  <!-- Dots: standard 5-pattern, dark navy to match in-game die -->
+  <circle cx="12.5" cy="12.5" r="3" fill="#1A1A2E"/>
+  <circle cx="25.5" cy="12.5" r="3" fill="#1A1A2E"/>
+  <circle cx="19" cy="19" r="3" fill="#1A1A2E"/>
+  <circle cx="12.5" cy="25.5" r="3" fill="#1A1A2E"/>
+  <circle cx="25.5" cy="25.5" r="3" fill="#1A1A2E"/>
 </svg>`,
 
     snake: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
@@ -110,6 +107,19 @@ const Icons = (() => {
   <!-- Sound waves -->
   <path d="M23 14 Q28 20 23 26" fill="none" stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
   <path d="M26 11 Q34 20 26 29" fill="none" stroke="#FFD93D" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+</svg>`,
+
+    music: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <!-- Stem -->
+  <line x1="28" y1="7" x2="28" y2="26" stroke="#A78BFA" stroke-width="3" stroke-linecap="round"/>
+  <!-- Beam to second note -->
+  <line x1="16" y1="11" x2="28" y2="7" stroke="#A78BFA" stroke-width="3" stroke-linecap="round"/>
+  <!-- Second stem -->
+  <line x1="16" y1="11" x2="16" y2="30" stroke="#A78BFA" stroke-width="3" stroke-linecap="round"/>
+  <!-- Note head 1 (right) -->
+  <ellipse cx="26" cy="28" rx="5" ry="3.5" fill="#A78BFA" transform="rotate(-15,26,28)"/>
+  <!-- Note head 2 (left) -->
+  <ellipse cx="14" cy="32" rx="5" ry="3.5" fill="#A78BFA" transform="rotate(-15,14,32)"/>
 </svg>`,
 
     palette: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
