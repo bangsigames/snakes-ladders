@@ -654,12 +654,23 @@ body.theme-cartoon .home-bg {
   display: flex; align-items: center; gap: 16px;
   padding: 0 16px;
   min-height: 56px;
-  background: var(--surface);
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  background: rgba(0,0,0,0.36);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06);
   flex-shrink: 0; z-index: 10;
   position: relative;
 }
+.screen-header .screen-title {
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.25);
+}
+.screen-header .btn-ghost-dk {
+  color: rgba(255,255,255,0.90) !important;
+  background: rgba(255,255,255,0.13) !important;
+}
+.screen-header .btn-ghost-dk:active { background: rgba(255,255,255,0.22) !important; }
 
 /* .btn-back — replaced by .btn.btn-sm.btn-ghost-dk */
 .btn-back { flex-shrink: 0; }
