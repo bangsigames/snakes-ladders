@@ -84,6 +84,14 @@
 
   <!-- ===== SAVED BOARDS SCREEN ===== -->
   <div id="screen-saved-boards" class="screen">
+    <div class="boards-floaters">
+      <div class="boards-floater">🎲</div>
+      <div class="boards-floater">🐍</div>
+      <div class="boards-floater">🪜</div>
+      <div class="boards-floater">⭐</div>
+      <div class="boards-floater">🎯</div>
+      <div class="boards-floater">🏆</div>
+    </div>
     <div class="screen-header">
       <button class="btn-back" id="btn-saved-back">← Back</button>
       <h2 class="screen-title">Choose a Board</h2>
@@ -92,9 +100,10 @@
       <!-- Boards injected here -->
     </div>
     <div class="saved-boards-empty" id="saved-boards-empty" style="display:none;">
-      <div class="empty-icon">🎨</div>
-      <p>No saved boards yet!</p>
-      <button class="btn-primary" id="btn-go-design">🎨 Design a board</button>
+      <div class="empty-bounce">🎨</div>
+      <div class="empty-title">No boards yet!</div>
+      <div class="empty-sub">Create your first adventure below 👇</div>
+      <button class="btn-primary" id="btn-go-design">🎨 Design a Board</button>
     </div>
   </div>
 
@@ -128,74 +137,51 @@
     <!-- Step 1: Grid Size -->
     <div class="designer-step" id="designer-step-1">
 
-      <!-- Progress journey indicator -->
-      <div class="size-journey">
-        <div class="jstep jactive">
-          <div class="jnum">1</div>
-          <div class="jlabel">Board Size</div>
-        </div>
-        <div class="jline"></div>
-        <div class="jstep">
-          <div class="jnum">2</div>
-          <div class="jlabel">Theme</div>
-        </div>
-        <div class="jline"></div>
-        <div class="jstep">
-          <div class="jnum">3</div>
-          <div class="jlabel">Customize</div>
-        </div>
-      </div>
-
-      <h3 class="step-heading">Pick Your Board!</h3>
+<h3 class="step-heading">Pick Your Board!</h3>
 
       <div class="grid-size-options">
 
-        <!-- Small -->
+        <!-- Small 5×5 -->
         <button class="size-card" data-size="small">
-          <div class="sc-deco sc-deco-ladder">
-            <svg viewBox="0 0 24 36" width="20" height="30"><line x1="6" y1="2" x2="6" y2="34" stroke="#8B5E14" stroke-width="3" stroke-linecap="round"/><line x1="18" y1="2" x2="18" y2="34" stroke="#8B5E14" stroke-width="3" stroke-linecap="round"/><line x1="6" y1="8"  x2="18" y2="8"  stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"/><line x1="6" y1="16" x2="18" y2="16" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round"/><line x1="6" y1="24" x2="18" y2="24" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round"/><line x1="6" y1="32" x2="18" y2="32" stroke="#A855F7" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <div class="size-mini-svg" aria-hidden="true"></div>
+          <div class="size-card-info">
+            <span class="size-card-name">Small</span>
+            <span class="size-card-dim">5 × 5 grid</span>
+            <div class="size-dots">
+              <span class="size-dot"></span>
+            </div>
           </div>
-          <div class="size-preview size-small"></div>
-          <div class="size-label">Small Board</div>
-          <div class="size-sublabel">Quick Game!</div>
-          <div class="size-desc">50 squares</div>
-          <div class="sc-sparkle"></div>
+          <div class="size-check-badge">✓</div>
         </button>
 
-        <!-- Medium -->
+        <!-- Medium 8×8 -->
         <button class="size-card" data-size="medium">
-          <div class="sc-deco sc-deco-dice">
-            <svg viewBox="0 0 28 28" width="26" height="26"><rect x="1" y="1" width="26" height="26" rx="5" fill="white" stroke="#3B82F6" stroke-width="2"/><circle cx="8"  cy="8"  r="3" fill="#3B82F6"/><circle cx="20" cy="8"  r="3" fill="#3B82F6"/><circle cx="14" cy="14" r="3" fill="#60A5FA"/><circle cx="8"  cy="20" r="3" fill="#3B82F6"/><circle cx="20" cy="20" r="3" fill="#3B82F6"/></svg>
+          <div class="size-mini-svg" aria-hidden="true"></div>
+          <div class="size-card-info">
+            <span class="size-card-name">Medium</span>
+            <span class="size-card-dim">8 × 8 grid</span>
+            <div class="size-dots">
+              <span class="size-dot"></span>
+              <span class="size-dot"></span>
+            </div>
           </div>
-          <div class="size-preview size-medium"></div>
-          <div class="size-label">Medium Board</div>
-          <div class="size-sublabel">Normal Game</div>
-          <div class="size-desc">64 squares</div>
-          <div class="sc-sparkle"></div>
+          <div class="size-check-badge">✓</div>
         </button>
 
-        <!-- Large -->
-        <button class="size-card" data-size="large">
-          <div class="sc-deco sc-deco-snake">
-            <svg viewBox="0 0 28 36" width="22" height="28"><path d="M14 34 Q4 26 8 18 Q12 10 20 10 Q26 10 24 4" fill="none" stroke="#1e6b2a" stroke-width="5" stroke-linecap="round"/><path d="M14 34 Q4 26 8 18 Q12 10 20 10 Q26 10 24 4" fill="none" stroke="#4CD964" stroke-width="3.5" stroke-linecap="round"/><circle cx="24" cy="3.5" r="4" fill="#1e6b2a"/><circle cx="24" cy="3" r="3.5" fill="#4CD964"/><circle cx="22.5" cy="2" r="1.2" fill="white"/><circle cx="25.5" cy="2" r="1.2" fill="white"/><circle cx="23" cy="2" r="0.7" fill="#111"/><circle cx="26" cy="2" r="0.7" fill="#111"/></svg>
-          </div>
-          <div class="size-preview size-large"></div>
-          <div class="size-label">Big Board</div>
-          <div class="size-sublabel">Long Game</div>
-          <div class="size-desc">80 squares</div>
-          <div class="sc-sparkle"></div>
-        </button>
-
-        <!-- Classic -->
+        <!-- Classic 10×10 -->
         <button class="size-card selected" data-size="classic">
-          <div class="sc-deco sc-deco-star">
-            <svg viewBox="0 0 28 28" width="26" height="26"><polygon points="14,1 17.5,10.5 28,10.5 19.5,16.5 22.5,27 14,21 5.5,27 8.5,16.5 0,10.5 10.5,10.5" fill="#FFB700" stroke="#FF9F00" stroke-width="1"/></svg>
+          <div class="size-mini-svg" aria-hidden="true"></div>
+          <div class="size-card-info">
+            <span class="size-card-name">Classic</span>
+            <span class="size-card-dim">10 × 10 grid</span>
+            <span class="size-card-badge">The Original</span>
+            <div class="size-dots">
+              <span class="size-dot"></span>
+              <span class="size-dot"></span>
+              <span class="size-dot"></span>
+            </div>
           </div>
-          <div class="size-preview size-classic"></div>
-          <div class="size-label">Classic Board</div>
-          <div class="size-sublabel">Big Adventure!</div>
-          <div class="size-desc">100 squares</div>
-          <div class="sc-sparkle"></div>
+          <div class="size-check-badge">✓</div>
         </button>
 
       </div>

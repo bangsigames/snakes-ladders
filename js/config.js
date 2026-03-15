@@ -3,7 +3,7 @@
    ============================================================ */
 
 const GRID_PRESETS = {
-  small:   { cols: 10, rows: 5,  total: 50,  label: 'Small',   desc: '5×10' },
+  small:   { cols: 5,  rows: 5,  total: 25,  label: 'Small',   desc: '5×5' },
   medium:  { cols: 8,  rows: 8,  total: 64,  label: 'Medium',  desc: '8×8' },
   large:   { cols: 10, rows: 8,  total: 80,  label: 'Large',   desc: '8×10' },
   classic: { cols: 10, rows: 10, total: 100, label: 'Classic', desc: '10×10' },
