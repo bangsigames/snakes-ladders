@@ -1145,14 +1145,18 @@ body.theme-cartoon .home-bg {
 /* Dark canvas so world cards pop */
 #designer-step-2 {
   background: #0a0614;
-  padding-bottom: 0; /* sticky nav handles bottom space */
+  padding: 16px 16px 0;
+  gap: 14px;
 }
 
-/* Vertical list of full-width world cards */
+/* 2×2+1 grid: 4 themes in two columns, last one full-width */
 .theme-options {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.theme-card:last-child {
+  grid-column: 1 / -1;
 }
 
 /* World card — full width, tall, no internal dividers */
@@ -1182,11 +1186,11 @@ body.theme-cartoon .home-bg {
 .theme-card[data-theme="fantasy"].selected { border-color: #a855f7; box-shadow: 0 0 0 5px rgba(168,85,247,0.3),  0 16px 48px rgba(168,85,247,0.3); }
 .theme-card[data-theme="cartoon"].selected { border-color: #f43f5e; box-shadow: 0 0 0 5px rgba(244,63,94,0.3),   0 16px 48px rgba(244,63,94,0.3); }
 
-/* Scene fills the entire card — 175px tall */
+/* Scene fills the entire card */
 .theme-scene {
   position: relative;
   width: 100%;
-  height: 175px;
+  height: 130px;
   overflow: hidden;
   display: block;
 }
