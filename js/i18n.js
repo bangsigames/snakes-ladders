@@ -265,7 +265,7 @@ const TRANSLATIONS = {
       tagline: 'Conçois ton plateau. Évite les serpents. Atteins le sommet !',
       btn_play: 'JOUER',
       btn_my_boards: 'CRÉER UN PLATEAU',
-      btn_high_scores: 'TABLEAU D\'HONNEUR',
+      btn_high_scores: 'PALMARÈS',
       btn_howto: '❓ COMMENT JOUER',
     },
     resume: {
