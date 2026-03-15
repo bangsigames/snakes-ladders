@@ -1158,6 +1158,10 @@ body.theme-cartoon .home-bg {
 .theme-card:last-child {
   grid-column: 1 / -1;
 }
+.theme-card:last-child .theme-scene {
+  aspect-ratio: 8 / 3;
+  max-height: 160px;
+}
 
 /* World card — full width, tall, no internal dividers */
 .theme-card {
@@ -1186,11 +1190,13 @@ body.theme-cartoon .home-bg {
 .theme-card[data-theme="fantasy"].selected { border-color: #a855f7; box-shadow: 0 0 0 5px rgba(168,85,247,0.3),  0 16px 48px rgba(168,85,247,0.3); }
 .theme-card[data-theme="cartoon"].selected { border-color: #f43f5e; box-shadow: 0 0 0 5px rgba(244,63,94,0.3),   0 16px 48px rgba(244,63,94,0.3); }
 
-/* Scene fills the entire card */
+/* Scene fills the entire card — aspect-ratio drives height, no cropping */
 .theme-scene {
   position: relative;
   width: 100%;
-  height: 130px;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  max-height: 160px;
   overflow: hidden;
   display: block;
 }
@@ -2277,6 +2283,17 @@ body.theme-cartoon .home-bg {
   display: flex; align-items: center; justify-content: center;
   padding: 8px 12px;
   position: relative;
+}
+#board-anim-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+#game-canvas {
+  position: relative;
+  z-index: 1;
 }
 .canvas-flash {
   position: absolute; inset: 0;

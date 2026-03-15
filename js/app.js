@@ -84,6 +84,7 @@ const App = (() => {
       close();
       applyTheme(theme);
       showScreen('screen-game');
+      Board.startBoardAnim(theme);
       Game.restoreGame(saved);
     }, { once: true });
     modal.querySelector('#resume-btn-new').addEventListener('click', () => {
@@ -230,6 +231,7 @@ const App = (() => {
     }
     Board.designer.setMode('snake-head');
     setSnakeGuideStep(1);
+    updateSnakeHintIcon(theme);
     updateSnakeList();
   }
 
@@ -604,6 +606,7 @@ const App = (() => {
 
     // Update theme background art
     updateThemeBgArt(currentBoard.theme);
+    Board.startBoardAnim(currentBoard.theme);
 
     setTimeout(() => {
       Game.init(currentBoard, players);
@@ -618,6 +621,7 @@ const App = (() => {
     applyTheme(_lastGameBoard.theme);
     showScreen('screen-game');
     updateThemeBgArt(_lastGameBoard.theme);
+    Board.startBoardAnim(_lastGameBoard.theme);
     setTimeout(() => {
       Game.init(_lastGameBoard, _lastGamePlayers);
     }, 100);
@@ -659,6 +663,7 @@ const App = (() => {
   // ============================================================
 
   function showWinner(gameState, canContinue = false) {
+    Board.stopBoardAnim();
     const winner = gameState.winner || gameState.rankings[gameState.rankings.length - 1];
     const players = gameState.players;
 
@@ -706,7 +711,9 @@ const App = (() => {
 
     const continueBtn = document.getElementById('btn-continue-place');
     if (continueBtn) {
-      if (canContinue) {
+      const unfinishedHumans = gameState.players.filter(p => !p.finished && !p.isBot);
+      const shouldShow = canContinue && unfinishedHumans.length >= 2;
+      if (shouldShow) {
         const contKeys = { 2: 'winner.btn_continue_2nd', 3: 'winner.btn_continue_3rd', 4: 'winner.btn_continue_4th' };
         continueBtn.textContent = t(contKeys[place + 1] || 'winner.btn_continue_2nd');
         continueBtn.classList.remove('hidden');
@@ -982,6 +989,7 @@ const App = (() => {
         Storage.clearGameState();
         Game.cleanup();
         Particles.stop();
+        Board.stopBoardAnim();
         showHome();
       }, { confirmLabel: t('misc.confirm_quit_label'), cancelLabel: t('misc.confirm_stay_label'), danger: true });
     });
@@ -1080,6 +1088,33 @@ const App = (() => {
 })();
 
 // ---- Guide step helpers (global so board.js can call them) ----
+function updateSnakeHintIcon(theme) {
+  const iconEl = document.querySelector('#sg-step-1 .sh-icon');
+  if (!iconEl) return;
+  const spriteSrc = `img/snake-head-${theme}.png`;
+  // Check if sprite file exists by trying to load it
+  const testImg = new Image();
+  testImg.onload = () => {
+    iconEl.innerHTML = `<img src="${spriteSrc}" style="width:40px;height:40px;object-fit:contain;display:block;">`;
+  };
+  testImg.onerror = () => {
+    // No sprite for this theme — keep the default SVG (already in HTML)
+    iconEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+      <ellipse cx="16" cy="15" rx="13" ry="12" fill="#1e6b2a"/>
+      <ellipse cx="16" cy="14" rx="12" ry="11" fill="#4CD964"/>
+      <circle cx="11" cy="11.5" r="3.2" fill="white"/>
+      <circle cx="21" cy="11.5" r="3.2" fill="white"/>
+      <circle cx="11.7" cy="11.8" r="1.7" fill="#111"/>
+      <circle cx="21.7" cy="11.8" r="1.7" fill="#111"/>
+      <path d="M13 18.5 Q16 21 19 18.5" fill="none" stroke="#1e6b2a" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="16" y1="24.5" x2="16" y2="29" stroke="#FF4444" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="16" y1="29" x2="13.2" y2="32" stroke="#FF4444" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="16" y1="29" x2="18.8" y2="32" stroke="#FF4444" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>`;
+  };
+  testImg.src = spriteSrc;
+}
+
 function setSnakeGuideStep(step) {
   const s1 = document.getElementById('sg-step-1');
   const s2 = document.getElementById('sg-step-2');
