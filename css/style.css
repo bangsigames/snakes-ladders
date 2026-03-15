@@ -534,13 +534,17 @@ body.theme-cartoon .home-bg {
   -webkit-text-stroke: 1px rgba(0,0,0,0.12);
 }
 
-.logo-amp {
-  font-family: var(--font-display);
-  font-size: clamp(0.9rem, 3vw, 1.2rem);
-  color: var(--accent);
-  text-shadow: 0 2px 0 rgba(0,0,0,0.1), 0 4px 24px rgba(255,190,11,0.5);
-  line-height: 1;
-  font-weight: 800;
+.logo-usp {
+  margin-top: 6px;
+  display: inline-block;
+  background: rgba(255,255,255,0.18);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: clamp(0.72rem, 2.2vw, 0.85rem);
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
+  letter-spacing: 0.3px;
 }
 
 .logo-tagline {
