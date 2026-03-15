@@ -36,6 +36,9 @@ jobs:
       - name: Sync web assets
         run: npx cap sync android
 
+      - name: Install ImageMagick
+        run: sudo apt-get install -y imagemagick
+
       - name: Generate app icons with ImageMagick
         run: |
           for entry in "48:mdpi" "72:hdpi" "96:xhdpi" "144:xxhdpi" "192:xxxhdpi"; do
