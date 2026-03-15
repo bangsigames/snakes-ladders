@@ -270,7 +270,7 @@ const Game = (() => {
         // AND at least 1 of those is human (no value in watching bots race)
         const unfinishedPlayers = state.players.filter(p => !p.finished);
         const unfinishedHumans = unfinishedPlayers.filter(p => !p.isBot);
-        const canContinue = state.players.length >= 3 && unfinishedPlayers.length > 1 && unfinishedHumans.length > 0;
+        const canContinue = state.players.length >= 3 && unfinishedPlayers.length > 1 && unfinishedHumans.length > 1;
 
         if (allPlayersFinished() || !canContinue) {
           endGame();

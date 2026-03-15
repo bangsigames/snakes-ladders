@@ -1289,10 +1289,18 @@ const Board = (() => {
     ctx.lineWidth = Math.max(1.5, radius * 0.15);
     ctx.stroke();
 
-    ctx.font = `${radius * 1.1}px serif`;
+    // Render emoji at minimum 28px then scale down for crisp quality on small cells
+    const emojiDisplay = radius * 1.1;
+    const emojiRender = Math.max(emojiDisplay, 28);
+    const emojiScale = emojiDisplay / emojiRender;
+    ctx.save();
+    ctx.translate(x, y + radius * 0.05);
+    ctx.scale(emojiScale, emojiScale);
+    ctx.font = `${emojiRender}px serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(player.character, x, y + radius * 0.05);
+    ctx.fillText(player.character, 0, 0);
+    ctx.restore();
 
     // Number badge — helps colour-blind players identify their token
     const badgeR = Math.max(5, radius * 0.38);
