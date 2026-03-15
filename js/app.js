@@ -1057,3 +1057,13 @@ function escHtml(str) {
 
 // ---- Boot ----
 document.addEventListener('DOMContentLoaded', () => App.init());
+
+// Pause music when the app is backgrounded (Android home button, task switcher, etc.)
+// Resume when the player comes back, but only if music wasn't manually muted.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    Sounds.stopMusic();
+  } else {
+    Sounds.resumeMusic();
+  }
+});

@@ -407,13 +407,20 @@ const Sounds = (() => {
   let musicTimer = null;
   let musicPattern = null;
   let musicStep = 0;
+  let currentMusicTheme = null;
 
   function startMusic(theme) {
     stopMusic();
+    currentMusicTheme = theme || null;
     if (musicMuted) return;
     musicPattern = MUSIC_PATTERNS[theme] || MUSIC_PATTERNS.cartoon;
     musicStep = 0;
     playMusicStep();
+  }
+
+  // Restart the last-playing theme — called on app foreground resume.
+  function resumeMusic() {
+    if (currentMusicTheme && !musicMuted) startMusic(currentMusicTheme);
   }
 
   function playMusicStep() {
@@ -458,7 +465,7 @@ const Sounds = (() => {
   return {
     rollDice, moveStep, landSnake, landLadder, win, playerMove, button,
     playThemedSound,
-    startMusic, stopMusic, toggleMute, toggleMusic,
+    startMusic, stopMusic, resumeMusic, toggleMute, toggleMusic,
     setMuted, isMuted, isMusicMuted,
   };
 })();
