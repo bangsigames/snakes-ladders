@@ -47,6 +47,8 @@ jobs:
             convert resources/icon.png -resize ${size}x${size} android/app/src/main/res/mipmap-${dpi}/ic_launcher.png
             convert resources/icon.png -resize ${size}x${size} android/app/src/main/res/mipmap-${dpi}/ic_launcher_round.png
           done
+          # Remove adaptive icon XMLs (API 26+) so all devices use our PNGs
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26
 
       - name: Decode keystore
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/snakesladders-release.jks
