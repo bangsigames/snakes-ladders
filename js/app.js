@@ -437,7 +437,7 @@ const App = (() => {
       const existing = playerSetups[i];
       const forceBot = (playerCount === 1 && i === 1);
       const defaultChar = themeChars[i % themeChars.length];
-      const defaultName = forceBot ? `Bot ${i}` : (getNameSets()[i] || getNameSets()[0])[0];
+      const defaultName = (getNameSets()[i] || getNameSets()[0])[0];
       return existing ? {
         ...existing,
         isBot: forceBot ? true : (existing.isBot || false),
@@ -581,12 +581,15 @@ const App = (() => {
 
     // Collect player data
     const players = playerSetups.slice(0, displayCount).map((p, i) => ({
-      name: p.name || (p.isBot ? `Bot ${i}` : `Player ${i+1}`),
+      name: p.name || (p.isBot ? (getNameSets()[i] || getNameSets()[0])[0] : `Player ${i+1}`),
       character: p.character,
       color: p.color,
       sound: p.sound,
       isBot: p.isBot || false,
     }));
+
+    _lastGamePlayers = players;
+    _lastGameBoard   = currentBoard;
 
     applyTheme(currentBoard.theme);
     showScreen('screen-game');
@@ -596,6 +599,19 @@ const App = (() => {
 
     setTimeout(() => {
       Game.init(currentBoard, players);
+    }, 100);
+  }
+
+  let _lastGamePlayers = null;
+  let _lastGameBoard   = null;
+
+  function startGameWithCurrentSetup() {
+    if (!_lastGamePlayers || !_lastGameBoard) { showPlayerSetup(); return; }
+    applyTheme(_lastGameBoard.theme);
+    showScreen('screen-game');
+    updateThemeBgArt(_lastGameBoard.theme);
+    setTimeout(() => {
+      Game.init(_lastGameBoard, _lastGamePlayers);
     }, 100);
   }
 
@@ -944,6 +960,12 @@ const App = (() => {
     });
 
     // Winner screen
+    document.getElementById('btn-play-again-same').addEventListener('click', () => {
+      Sounds.button();
+      Particles.stop();
+      Game.cleanup();
+      startGameWithCurrentSetup();
+    });
     document.getElementById('btn-play-again').addEventListener('click', () => {
       Sounds.button();
       Particles.stop();

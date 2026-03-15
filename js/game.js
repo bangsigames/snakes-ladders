@@ -230,6 +230,7 @@ const Game = (() => {
                 player.position = snake.tail;
                 player.snakeBites++;
                 state.turn++;
+                if (snake.tail <= state.board.total - 10) _almostNotified.delete(player.id);
                 Board.redrawGame(state.board, state.players, null);
                 updateGameUI();
                 unzoomBoard(() => showEventBrief('snake', player, snake, () => nextTurn()));
@@ -280,6 +281,8 @@ const Game = (() => {
           player.position = snake.tail;
           player.snakeBites++;
           state.turn++;
+          // If snake pushes player back below almost-there zone, let chime play again
+          if (snake.tail <= state.board.total - 10) _almostNotified.delete(player.id);
           Board.redrawGame(state.board, state.players, null);
           updateGameUI();
           unzoomBoard(() => {
@@ -575,8 +578,8 @@ const Game = (() => {
     const tapEnableTimer = setTimeout(() => {
       overlay.addEventListener('click', dismiss);
     }, 500);
-    // M1: auto-dismiss after 4s
-    const timer = setTimeout(dismiss, 4000);
+    // auto-dismiss after 6s (kids need more reading time)
+    const timer = setTimeout(dismiss, 6000);
   }
 
   // Legacy showEvent for compatibility
