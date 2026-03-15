@@ -1061,101 +1061,11 @@ const App = (() => {
   // ============================================================
 
   function drawMiniBoards() {
-    const R = n => Math.round(n * 10) / 10;
-
-    // ── Ladder: two brown rails + rungs, slightly tilted ─────────────
-    function ldr(x1, y1, x2, y2, rungs) {
-      const dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx * dx + dy * dy);
-      const nx = (-dy / len) * 13, ny = (dx / len) * 13;
-      let s = '';
-      for (const sg of [-1, 1]) {
-        s += `<line x1="${R(x1+nx*sg)}" y1="${R(y1+ny*sg)}" x2="${R(x2+nx*sg)}" y2="${R(y2+ny*sg)}" stroke="#5C3A1A" stroke-width="9" stroke-linecap="round"/>`;
-        s += `<line x1="${R(x1+nx*sg)}" y1="${R(y1+ny*sg)}" x2="${R(x2+nx*sg)}" y2="${R(y2+ny*sg)}" stroke="#B07030" stroke-width="6" stroke-linecap="round"/>`;
-      }
-      for (let i = 1; i <= rungs; i++) {
-        const t = i / (rungs + 1);
-        const cx = R(x1 + dx * t), cy = R(y1 + dy * t);
-        s += `<line x1="${R(cx+nx*1.1)}" y1="${R(cy+ny*1.1)}" x2="${R(cx-nx*1.1)}" y2="${R(cy-ny*1.1)}" stroke="#5C3A1A" stroke-width="7" stroke-linecap="round"/>`;
-        s += `<line x1="${R(cx+nx*1.1)}" y1="${R(cy+ny*1.1)}" x2="${R(cx-nx*1.1)}" y2="${R(cy-ny*1.1)}" stroke="#D4924A" stroke-width="5" stroke-linecap="round"/>`;
-      }
-      return s;
-    }
-
-    // ── Snake: icon-style cartoon body, big eyes, forked tongue ──────
-    function snk(path, hx, hy, dir) {
-      const perp = dir + Math.PI / 2;
-      const ex1 = R(hx + Math.cos(perp) * 9), ey1 = R(hy + Math.sin(perp) * 9 - 3);
-      const ex2 = R(hx - Math.cos(perp) * 9), ey2 = R(hy - Math.sin(perp) * 9 - 3);
-      const tSx = R(hx + Math.cos(dir) * 20), tSy = R(hy + Math.sin(dir) * 20);
-      const tMx = R(hx + Math.cos(dir) * 28), tMy = R(hy + Math.sin(dir) * 28);
-      const tEx = R(hx + Math.cos(dir) * 36), tEy = R(hy + Math.sin(dir) * 36);
-      const fx1 = R(tEx + Math.cos(dir + Math.PI / 2) * 7), fy1 = R(tEy + Math.sin(dir + Math.PI / 2) * 7);
-      const fx2 = R(tEx + Math.cos(dir - Math.PI / 2) * 7), fy2 = R(tEy + Math.sin(dir - Math.PI / 2) * 7);
-      return `
-        <path d="${path}" fill="none" stroke="#1A3A00" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="${path}" fill="none" stroke="#5CBF2A" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="${R(hx)}" cy="${R(hy)}" r="21" fill="#1A3A00"/>
-        <circle cx="${R(hx)}" cy="${R(hy)}" r="18" fill="#5CBF2A"/>
-        <circle cx="${R(hx-4)}" cy="${R(hy-5)}" r="7" fill="#88E050" opacity="0.4"/>
-        <circle cx="${ex1}" cy="${ey1}" r="6.5" fill="white"/>
-        <circle cx="${ex2}" cy="${ey2}" r="6.5" fill="white"/>
-        <circle cx="${R(ex1+0.5)}" cy="${R(ey1+0.5)}" r="4.2" fill="#111"/>
-        <circle cx="${R(ex2+0.5)}" cy="${R(ey2+0.5)}" r="4.2" fill="#111"/>
-        <circle cx="${R(ex1-1.8)}" cy="${R(ey1-1.8)}" r="1.6" fill="white"/>
-        <circle cx="${R(ex2-1.8)}" cy="${R(ey2-1.8)}" r="1.6" fill="white"/>
-        <line x1="${tSx}" y1="${tSy}" x2="${tMx}" y2="${tMy}" stroke="#FF2244" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="${tMx}" y1="${tMy}" x2="${fx1}" y2="${fy1}" stroke="#FF2244" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="${tMx}" y1="${tMy}" x2="${fx2}" y2="${fy2}" stroke="#FF2244" stroke-width="3.5" stroke-linecap="round"/>`;
-    }
-
-    // ── 4-pointed sparkle star ────────────────────────────────────────
-    function star(x, y, s, op) {
-      return `<path d="M ${x},${y-s} L ${x+s*.28},${y-s*.28} L ${x+s},${y} L ${x+s*.28},${y+s*.28} L ${x},${y+s} L ${x-s*.28},${y+s*.28} L ${x-s},${y} L ${x-s*.28},${y-s*.28} Z" fill="#FFE566" opacity="${op}"/>`;
-    }
-
-    // ── SMALL (5×5): warm orange, baby snake, short ladder ───────────
-    const sm = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style="width:100%;height:100%;display:block;">
-      <defs><linearGradient id="bgsm" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FF9A4E"/><stop offset="100%" stop-color="#D84315"/></linearGradient></defs>
-      <rect width="200" height="200" rx="16" fill="url(#bgsm)"/>
-      <ellipse cx="100" cy="115" rx="74" ry="62" fill="rgba(255,255,255,0.07)"/>
-      ${ldr(148, 162, 130, 40, 3)}
-      ${snk('M 38,168 C 72,168 92,148 92,126 C 92,104 62,94 80,74 C 94,58 112,62 122,52', 122, 52, Math.atan2(-10, 10))}
-      ${star(28, 30, 8, 0.9)}${star(175, 26, 6, 0.8)}${star(55, 190, 5, 0.75)}
-    </svg>`;
-
-    // ── MEDIUM (8×8): ocean blue, energetic snake, medium ladder ─────
-    const md = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style="width:100%;height:100%;display:block;">
-      <defs><linearGradient id="bgmd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#29B6F6"/><stop offset="100%" stop-color="#0D47A1"/></linearGradient></defs>
-      <rect width="200" height="200" rx="16" fill="url(#bgmd)"/>
-      <ellipse cx="100" cy="112" rx="76" ry="64" fill="rgba(255,255,255,0.07)"/>
-      ${ldr(155, 168, 137, 28, 5)}
-      ${snk('M 28,175 C 68,175 95,152 95,128 C 95,104 58,93 78,70 C 95,51 118,55 128,42', 128, 42, Math.atan2(-13, 10))}
-      ${star(26, 28, 7, 0.85)}${star(178, 30, 5.5, 0.8)}${star(50, 192, 5, 0.7)}${star(175, 185, 4.5, 0.7)}
-    </svg>`;
-
-    // ── CLASSIC (10×10): royal purple, crown snake, tall ladder, stars
-    const clHx = 126, clHy = 40;
-    const crY = clHy - 24;
-    const crown = `
-      <path d="M ${clHx-16},${crY+12} L ${clHx-16},${crY} L ${clHx-8},${crY+7} L ${clHx},${crY-5} L ${clHx+8},${crY+7} L ${clHx+16},${crY} L ${clHx+16},${crY+12} Z" fill="#FFD700" stroke="#A07800" stroke-width="2.5" stroke-linejoin="round"/>
-      <circle cx="${clHx-16}" cy="${crY}" r="3.2" fill="#FF4455"/>
-      <circle cx="${clHx}" cy="${crY-5}" r="3.2" fill="#44DDFF"/>
-      <circle cx="${clHx+16}" cy="${crY}" r="3.2" fill="#FF4455"/>`;
-    const cl = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style="width:100%;height:100%;display:block;">
-      <defs><linearGradient id="bgcl" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9C27B0"/><stop offset="100%" stop-color="#3D0066"/></linearGradient></defs>
-      <rect width="200" height="200" rx="16" fill="url(#bgcl)"/>
-      <ellipse cx="100" cy="112" rx="78" ry="66" fill="rgba(255,255,255,0.07)"/>
-      ${ldr(165, 178, 147, 22, 7)}
-      ${snk('M 22,178 C 65,178 92,152 92,122 C 92,92 50,82 74,57 C 92,38 118,48 126,40', clHx, clHy, Math.atan2(-8, 8))}
-      ${crown}
-      ${star(24, 28, 9, 0.9)}${star(178, 24, 7, 0.85)}${star(50, 194, 5.5, 0.75)}${star(178, 184, 5, 0.75)}${star(98, 192, 4, 0.7)}
-    </svg>`;
-
+    const images = { small: 'img/board-small.png', medium: 'img/board-medium.png', classic: 'img/board-classic.png' };
     document.querySelectorAll('.size-card').forEach(card => {
       const container = card.querySelector('.size-mini-svg');
-      if (!container) return;
-      const svgs = { small: sm, medium: md, classic: cl };
-      if (svgs[card.dataset.size]) container.innerHTML = svgs[card.dataset.size];
+      if (!container || !images[card.dataset.size]) return;
+      container.innerHTML = `<img src="${images[card.dataset.size]}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">`;
     });
   }
 
