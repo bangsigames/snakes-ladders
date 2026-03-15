@@ -1,5 +1,5 @@
 {
-  "appId": "com.mysnakesladders.app",
+  "appId": "com.bangsigames.snakesladders",
   "appName": "My Snakes & Ladders",
   "webDir": ".",
   "plugins": {
