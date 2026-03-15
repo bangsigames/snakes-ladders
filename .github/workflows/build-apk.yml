@@ -42,12 +42,30 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x android/gradlew
 
-      - name: Build debug APK
-        run: cd android && ./gradlew assembleDebug --no-daemon
+      - name: Decode keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/snakesladders-release.jks
 
-      - name: Upload APK
+      - name: Build signed release APK
+        run: cd android && ./gradlew assembleRelease --no-daemon
+        env:
+          KEYSTORE_PATH: snakesladders-release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: snakesladders
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Sign APK
+        run: |
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | tail -1)/apksigner sign \
+            --ks android/app/snakesladders-release.jks \
+            --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
+            --key-pass pass:${{ secrets.KEY_PASSWORD }} \
+            --ks-key-alias snakesladders \
+            --out snakesladders-release-signed.apk \
+            android/app/build/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Upload signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: snakes-ladders-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
+          name: snakesladders-release
+          path: snakesladders-release-signed.apk
+          retention-days: 30
