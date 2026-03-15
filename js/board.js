@@ -714,206 +714,115 @@ const Board = (() => {
     const cp2x = hx - dx * 0.25 + dy * 0.2;
     const cp2y = hy - dy * 0.25 - dx * 0.2;
 
-    const lineW = Math.min(head.w * 0.18, 12);
+    const lineW = Math.min(head.w * 0.22, 16);
+
+    // Per-theme palette: dark outline, body mid, belly, scale overlay
+    const palettes = {
+      jungle:  { dark:'#1b5e20', mid:'#4caf50', light:'#a5d6a7', belly:'rgba(200,230,170,0.70)', scale:'rgba(27,94,32,0.50)'   },
+      space:   { dark:'#4A0080', mid:'#C060FF', light:'#E0A0FF', belly:'rgba(235,205,255,0.62)', scale:'rgba(55,0,100,0.46)'    },
+      ocean:   { dark:'#004d40', mid:'#00acc1', light:'#80deea', belly:'rgba(180,240,245,0.65)', scale:'rgba(0,77,64,0.50)'     },
+      fantasy: { dark:'#4a148c', mid:'#8e24aa', light:'#ce93d8', belly:'rgba(230,195,235,0.65)', scale:'rgba(74,20,140,0.48)'   },
+      cartoon: { dark:'#7f1d1d', mid:'#ef4444', light:'#fca5a5', belly:'rgba(255,215,185,0.75)', scale:'rgba(80,10,10,0.40)'    },
+    };
+    const pal = palettes[theme] || palettes.cartoon;
 
     ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
-    // Theme-specific snake rendering
-    if (theme === 'jungle') {
-      // Green python with brown diamond patterns
-      ctx.shadowColor = '#1b5e20';
-      ctx.shadowBlur = 8;
-      const grad = ctx.createLinearGradient(tx, ty, hx, hy);
-      grad.addColorStop(0, '#2e7d32');
-      grad.addColorStop(0.5, '#388e3c');
-      grad.addColorStop(1, '#1b5e20');
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = lineW + 2;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+    // 1. Deep shadow outline (all themes)
+    ctx.shadowColor = pal.dark;
+    ctx.shadowBlur = 10;
+    ctx.strokeStyle = pal.dark;
+    ctx.lineWidth = lineW + 6;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, hx, hy);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // 2. Body gradient
+    const grad = ctx.createLinearGradient(tx, ty, hx, hy);
+    grad.addColorStop(0,    pal.dark);
+    grad.addColorStop(0.45, pal.mid);
+    grad.addColorStop(1,    pal.dark);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = lineW + 2;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, hx, hy);
+    ctx.stroke();
+
+    // 3. Scale arcs perpendicular to bezier tangent
+    const dist = Math.hypot(dx, dy);
+    const numScales = Math.max(6, Math.floor(dist / (lineW * 2.0)));
+    for (let i = 1; i < numScales; i++) {
+      const t = i / numScales;
+      const bx  = cubicBezierPoint(tx, cp1x, cp2x, hx, t);
+      const by  = cubicBezierPoint(ty, cp1y, cp2y, hy, t);
+      const t2  = Math.min(t + 0.05, 1);
+      const angle = Math.atan2(
+        cubicBezierPoint(ty, cp1y, cp2y, hy, t2) - by,
+        cubicBezierPoint(tx, cp1x, cp2x, hx, t2) - bx
+      );
+      ctx.save();
+      ctx.translate(bx, by);
+      ctx.rotate(angle + Math.PI / 2);
       ctx.beginPath();
-      ctx.moveTo(tx, ty);
-      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, hx, hy);
-      ctx.stroke();
+      ctx.arc(0, 0, lineW * 0.54, 0, Math.PI);
+      ctx.fillStyle = pal.scale;
+      ctx.fill();
+      ctx.restore();
+    }
 
-      // Brown diamond pattern overlay
-      ctx.strokeStyle = '#4e342e';
-      ctx.lineWidth = lineW * 0.3;
-      ctx.globalAlpha = 0.5;
-      for (let t = 0.1; t < 0.9; t += 0.18) {
-        const bx = cubicBezierPoint(tx, cp1x, cp2x, hx, t);
-        const by = cubicBezierPoint(ty, cp1y, cp2y, hy, t);
-        ctx.beginPath();
-        ctx.save();
-        ctx.translate(bx, by);
-        ctx.rotate(t * Math.PI);
-        ctx.rect(-lineW * 0.2, -lineW * 0.35, lineW * 0.4, lineW * 0.7);
-        ctx.stroke();
-        ctx.restore();
-      }
-      ctx.globalAlpha = 1;
-      ctx.shadowBlur = 0;
-
-    } else if (theme === 'space') {
-      // Metallic silver/grey body
-      ctx.shadowColor = '#9e9e9e';
-      ctx.shadowBlur = 10;
-      const grad = ctx.createLinearGradient(tx, ty, hx, hy);
-      grad.addColorStop(0, '#757575');
-      grad.addColorStop(0.5, '#bdbdbd');
-      grad.addColorStop(1, '#9e9e9e');
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = lineW + 2;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.beginPath();
-      ctx.moveTo(tx, ty);
-      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, hx, hy);
-      ctx.stroke();
-
-      // Metallic shine stripe
-      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-      ctx.lineWidth = lineW * 0.25;
-      ctx.beginPath();
-      ctx.moveTo(tx, ty);
-      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, hx, hy);
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-
-    } else if (theme === 'ocean') {
-      // Teal/blue sea serpent with scale hints
-      ctx.shadowColor = '#006064';
-      ctx.shadowBlur = 8;
-      const grad = ctx.createLinearGradient(tx, ty, hx, hy);
-      grad.addColorStop(0, '#00838f');
-      grad.addColorStop(0.5, '#26c6da');
-      grad.addColorStop(1, '#006064');
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = lineW + 2;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.beginPath();
-      ctx.moveTo(tx, ty);
-      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, hx, hy);
-      ctx.stroke();
-
-      // Scale dots — blue tinted
-      for (let t = 0.1; t < 0.9; t += 0.15) {
-        const bx = cubicBezierPoint(tx, cp1x, cp2x, hx, t);
-        const by = cubicBezierPoint(ty, cp1y, cp2y, hy, t);
-        ctx.fillStyle = 'rgba(0,100,120,0.4)';
-        ctx.beginPath();
-        ctx.arc(bx, by, lineW * 0.32, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Dorsal fin hint
-      ctx.strokeStyle = 'rgba(0,188,212,0.6)';
-      ctx.lineWidth = lineW * 0.4;
-      ctx.globalAlpha = 0.7;
-      ctx.beginPath();
-      const fmx = cubicBezierPoint(tx, cp1x, cp2x, hx, 0.5);
-      const fmy = cubicBezierPoint(ty, cp1y, cp2y, hy, 0.5);
-      ctx.moveTo(fmx, fmy);
-      ctx.lineTo(fmx + 6, fmy - lineW);
-      ctx.lineTo(fmx + lineW * 0.5, fmy);
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-      ctx.shadowBlur = 0;
-
-    } else if (theme === 'fantasy') {
-      // Purple dragon-like with gold spine dots
-      ctx.shadowColor = '#4a148c';
-      ctx.shadowBlur = 12;
-      const grad = ctx.createLinearGradient(tx, ty, hx, hy);
-      grad.addColorStop(0, '#7b1fa2');
-      grad.addColorStop(0.5, '#9c27b0');
-      grad.addColorStop(1, '#4a148c');
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = lineW + 2;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.beginPath();
-      ctx.moveTo(tx, ty);
-      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, hx, hy);
-      ctx.stroke();
-
-      // Gold spine dots
-      for (let t = 0.08; t < 0.92; t += 0.12) {
+    // Fantasy bonus: gold spine dots on top of scales
+    if (theme === 'fantasy') {
+      for (let i = 1; i < numScales; i++) {
+        const t = i / numScales;
         const bx = cubicBezierPoint(tx, cp1x, cp2x, hx, t);
         const by = cubicBezierPoint(ty, cp1y, cp2y, hy, t);
         ctx.fillStyle = '#ffd700';
         ctx.shadowColor = '#ffd700';
-        ctx.shadowBlur = 4;
+        ctx.shadowBlur = 3;
         ctx.beginPath();
-        ctx.arc(bx, by, lineW * 0.28, 0, Math.PI * 2);
+        ctx.arc(bx, by, lineW * 0.18, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
       }
-      ctx.shadowBlur = 0;
-
-    } else {
-      // Cartoon: bright red/orange with thick outline
-      ctx.shadowColor = '#c0392b';
-      ctx.shadowBlur = 6;
-      const grad = ctx.createLinearGradient(tx, ty, hx, hy);
-      grad.addColorStop(0, '#ff4757');
-      grad.addColorStop(0.5, '#ff7675');
-      grad.addColorStop(1, '#c0392b');
-      // Outline first
-      ctx.strokeStyle = '#1a1a1a';
-      ctx.lineWidth = lineW + 4;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.beginPath();
-      ctx.moveTo(tx, ty);
-      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, hx, hy);
-      ctx.stroke();
-      // Coloured body
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = lineW + 2;
-      ctx.beginPath();
-      ctx.moveTo(tx, ty);
-      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, hx, hy);
-      ctx.stroke();
-      ctx.shadowBlur = 0;
     }
 
-    // Inner lighter stripe (all themes)
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = lineW * 0.35;
-    ctx.globalAlpha = 0.4;
+    // 4. Belly ventral stripe
+    ctx.globalAlpha = 0.72;
+    ctx.strokeStyle = pal.belly;
+    ctx.lineWidth = lineW * 0.44;
     ctx.beginPath();
     ctx.moveTo(tx, ty);
     ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, hx, hy);
     ctx.stroke();
     ctx.globalAlpha = 1;
 
-    // Head circle
-    const headR = lineW * 0.9;
-    const headColor = T.snakeHead;
-    ctx.fillStyle = headColor;
-    ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 6;
+    // 5. Head
+    const headR = lineW * 1.35;
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = pal.dark;
+    ctx.beginPath();
+    ctx.arc(hx, hy, headR + 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = T.snakeHead;
     ctx.beginPath();
     ctx.arc(hx, hy, headR, 0, Math.PI * 2);
     ctx.fill();
+    // Head gloss
+    ctx.fillStyle = 'rgba(255,255,255,0.20)';
+    ctx.beginPath();
+    ctx.arc(hx - headR * 0.28, hy - headR * 0.32, headR * 0.50, 0, Math.PI * 2);
+    ctx.fill();
 
-    // Cartoon: big white cartoon eyes
-    if (theme === 'cartoon') {
-      const eyeOffset = headR * 0.5;
-      const eyeR = headR * 0.38;
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = 'white';
-      ctx.strokeStyle = '#1a1a1a';
-      ctx.lineWidth = Math.max(1, eyeR * 0.3);
-      ctx.beginPath(); ctx.arc(hx - eyeOffset, hy - eyeOffset * 0.3, eyeR, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.arc(hx + eyeOffset, hy - eyeOffset * 0.3, eyeR, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = '#1a1a1a';
-      ctx.beginPath(); ctx.arc(hx - eyeOffset + eyeR * 0.2, hy - eyeOffset * 0.3, eyeR * 0.5, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(hx + eyeOffset + eyeR * 0.2, hy - eyeOffset * 0.3, eyeR * 0.5, 0, Math.PI * 2); ctx.fill();
-    } else if (theme === 'space') {
+    // 6. Eyes
+    if (theme === 'space') {
       // Astronaut helmet: white circle with dark visor
-      ctx.shadowBlur = 0;
       ctx.fillStyle = 'white';
       ctx.strokeStyle = '#e0e0e0';
       ctx.lineWidth = Math.max(1, headR * 0.12);
@@ -921,39 +830,54 @@ const Board = (() => {
       ctx.arc(hx, hy, headR, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
-      // Dark visor rectangle inside helmet
       ctx.fillStyle = '#212121';
       const visorW = headR * 1.1;
       const visorH = headR * 0.6;
       ctx.beginPath();
       ctx.roundRect(hx - visorW * 0.5, hy - visorH * 0.5, visorW, visorH, visorH * 0.4);
       ctx.fill();
-      // Visor shine
       ctx.fillStyle = 'rgba(255,255,255,0.25)';
       ctx.beginPath();
       ctx.roundRect(hx - visorW * 0.35, hy - visorH * 0.35, visorW * 0.4, visorH * 0.3, 3);
       ctx.fill();
+    } else if (theme === 'cartoon') {
+      const eyeOffset = headR * 0.50;
+      const eyeR      = headR * 0.42;
+      ctx.fillStyle = 'white';
+      ctx.strokeStyle = pal.dark;
+      ctx.lineWidth = Math.max(1, eyeR * 0.28);
+      ctx.beginPath(); ctx.arc(hx - eyeOffset, hy - eyeOffset * 0.3, eyeR, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.arc(hx + eyeOffset, hy - eyeOffset * 0.3, eyeR, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#1a1a1a';
+      ctx.beginPath(); ctx.arc(hx - eyeOffset + eyeR * 0.2, hy - eyeOffset * 0.3, eyeR * 0.52, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(hx + eyeOffset + eyeR * 0.2, hy - eyeOffset * 0.3, eyeR * 0.52, 0, Math.PI * 2); ctx.fill();
+      // Eye shine
+      ctx.fillStyle = 'white';
+      ctx.beginPath(); ctx.arc(hx - eyeOffset + eyeR * 0.55, hy - eyeOffset * 0.58, eyeR * 0.20, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(hx + eyeOffset + eyeR * 0.55, hy - eyeOffset * 0.58, eyeR * 0.20, 0, Math.PI * 2); ctx.fill();
     } else {
-      // Standard eyes
-      ctx.shadowBlur = 0;
-      const eyeOffset = headR * 0.45;
-      const eyeR = headR * 0.28;
+      const eyeOffset = headR * 0.47;
+      const eyeR      = headR * 0.30;
       ctx.fillStyle = 'white';
       ctx.beginPath(); ctx.arc(hx - eyeOffset, hy - eyeOffset * 0.3, eyeR, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(hx + eyeOffset, hy - eyeOffset * 0.3, eyeR, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#1a1a1a';
-      ctx.beginPath(); ctx.arc(hx - eyeOffset + eyeR*0.2, hy - eyeOffset * 0.3, eyeR * 0.55, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(hx + eyeOffset + eyeR*0.2, hy - eyeOffset * 0.3, eyeR * 0.55, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(hx - eyeOffset + eyeR * 0.2, hy - eyeOffset * 0.3, eyeR * 0.58, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(hx + eyeOffset + eyeR * 0.2, hy - eyeOffset * 0.3, eyeR * 0.58, 0, Math.PI * 2); ctx.fill();
+      // Eye shine
+      ctx.fillStyle = 'white';
+      ctx.beginPath(); ctx.arc(hx - eyeOffset + eyeR * 0.55, hy - eyeOffset * 0.58, eyeR * 0.22, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(hx + eyeOffset + eyeR * 0.55, hy - eyeOffset * 0.58, eyeR * 0.22, 0, Math.PI * 2); ctx.fill();
     }
 
-    // Tongue (not on space snake which has helmet)
+    // 7. Tongue (not space — has helmet)
     if (theme !== 'space') {
       const tongueColor = theme === 'jungle' ? '#ff8f00' : '#ff1744';
       ctx.strokeStyle = tongueColor;
-      ctx.lineWidth = Math.max(1, lineW * 0.15);
+      ctx.lineWidth = Math.max(1.5, lineW * 0.17);
       ctx.lineCap = 'round';
       const tongueDir = Math.atan2(hy - ty, hx - tx);
-      const tLen = headR * 0.9;
+      const tLen  = headR * 1.05;
       const tTipX = hx + Math.cos(tongueDir) * (headR + tLen);
       const tTipY = hy + Math.sin(tongueDir) * (headR + tLen);
       const tMidX = hx + Math.cos(tongueDir) * (headR + tLen * 0.5);
@@ -964,23 +888,27 @@ const Board = (() => {
       ctx.stroke();
       ctx.beginPath();
       ctx.moveTo(tMidX, tMidY);
-      ctx.lineTo(tTipX + Math.cos(tongueDir + Math.PI/2) * headR*0.25,
-                 tTipY + Math.sin(tongueDir + Math.PI/2) * headR*0.25);
+      ctx.lineTo(tTipX + Math.cos(tongueDir + Math.PI / 2) * headR * 0.28,
+                 tTipY + Math.sin(tongueDir + Math.PI / 2) * headR * 0.28);
       ctx.stroke();
       ctx.beginPath();
       ctx.moveTo(tMidX, tMidY);
-      ctx.lineTo(tTipX + Math.cos(tongueDir - Math.PI/2) * headR*0.25,
-                 tTipY + Math.sin(tongueDir - Math.PI/2) * headR*0.25);
+      ctx.lineTo(tTipX + Math.cos(tongueDir - Math.PI / 2) * headR * 0.28,
+                 tTipY + Math.sin(tongueDir - Math.PI / 2) * headR * 0.28);
       ctx.stroke();
     }
 
     ctx.restore();
 
-    // Tail tip
+    // Tail tip (tapered)
     ctx.save();
+    ctx.fillStyle = pal.dark;
+    ctx.beginPath();
+    ctx.arc(tx, ty, lineW * 0.52, 0, Math.PI * 2);
+    ctx.fill();
     ctx.fillStyle = T.snakeBody;
     ctx.beginPath();
-    ctx.arc(tx, ty, lineW * 0.4, 0, Math.PI * 2);
+    ctx.arc(tx, ty, lineW * 0.36, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }

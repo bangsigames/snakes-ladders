@@ -487,15 +487,39 @@ const Game = (() => {
       Particles.stop();
     } else if (type === 'snake') {
       emoji.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 88 Q14 60 28 44 Q44 28 42 12" fill="none" stroke="#1e6b2a" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M20 88 Q14 60 28 44 Q44 28 42 12" fill="none" stroke="#4CD964" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="45" cy="9" r="13" fill="#1e6b2a"/>
-        <circle cx="45" cy="8" r="12" fill="#4CD964"/>
-        <circle cx="40" cy="5" r="4" fill="white"/><circle cx="50" cy="5" r="4" fill="white"/>
-        <circle cx="41" cy="5.5" r="2.2" fill="#111"/><circle cx="51" cy="5.5" r="2.2" fill="#111"/>
-        <line x1="45" y1="19" x2="45" y2="28" stroke="#FF4444" stroke-width="3" stroke-linecap="round"/>
-        <line x1="45" y1="28" x2="39" y2="36" stroke="#FF4444" stroke-width="3" stroke-linecap="round"/>
-        <line x1="45" y1="28" x2="51" y2="36" stroke="#FF4444" stroke-width="3" stroke-linecap="round"/>
+        <!-- Body shadow/outline -->
+        <path d="M18 92 Q6 68 18 50 Q30 32 50 30 Q70 28 64 10"
+              fill="none" stroke="#1b5e20" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Body -->
+        <path d="M18 92 Q6 68 18 50 Q30 32 50 30 Q70 28 64 10"
+              fill="none" stroke="#4CAF50" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Belly stripe -->
+        <path d="M18 92 Q6 68 18 50 Q30 32 50 30 Q70 28 64 10"
+              fill="none" stroke="rgba(200,240,175,0.68)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Scale arcs along body (manually placed) -->
+        <ellipse cx="19" cy="78" rx="8" ry="5" fill="rgba(20,80,20,0.48)" transform="rotate(-55 19 78)"/>
+        <ellipse cx="12" cy="62" rx="8" ry="5" fill="rgba(20,80,20,0.48)" transform="rotate(-35 12 62)"/>
+        <ellipse cx="17" cy="47" rx="8" ry="5" fill="rgba(20,80,20,0.48)" transform="rotate(5 17 47)"/>
+        <ellipse cx="33" cy="34" rx="8" ry="5" fill="rgba(20,80,20,0.48)" transform="rotate(40 33 34)"/>
+        <ellipse cx="52" cy="27" rx="8" ry="5" fill="rgba(20,80,20,0.48)" transform="rotate(5 52 27)"/>
+        <!-- Head shadow -->
+        <circle cx="66" cy="9" r="20" fill="#1b5e20"/>
+        <!-- Head -->
+        <circle cx="66" cy="8" r="18" fill="#4CAF50"/>
+        <!-- Head gloss -->
+        <ellipse cx="57" cy="2" rx="7" ry="4.5" fill="rgba(255,255,255,0.22)" transform="rotate(-20 57 2)"/>
+        <!-- Eyes — wide and alarmed -->
+        <circle cx="56" cy="3"  r="6" fill="white"/>
+        <circle cx="76" cy="3"  r="6" fill="white"/>
+        <circle cx="57" cy="4"  r="3.4" fill="#111"/>
+        <circle cx="77" cy="4"  r="3.4" fill="#111"/>
+        <!-- Eye shine -->
+        <circle cx="55.5" cy="2.2" r="1.4" fill="white"/>
+        <circle cx="75.5" cy="2.2" r="1.4" fill="white"/>
+        <!-- Tongue -->
+        <line x1="66" y1="25" x2="66" y2="36" stroke="#FF1744" stroke-width="3.2" stroke-linecap="round"/>
+        <line x1="66" y1="36" x2="59" y2="43" stroke="#FF1744" stroke-width="3.2" stroke-linecap="round"/>
+        <line x1="66" y1="36" x2="73" y2="43" stroke="#FF1744" stroke-width="3.2" stroke-linecap="round"/>
       </svg>`;
       title.textContent = 'Oh no!';
       desc.textContent = `${player.name} hit a snake!`;
