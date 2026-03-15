@@ -21,11 +21,8 @@ const Board = (() => {
     const cellW = w / cols;
     const cellH = h / rows;
 
-    // Background — rich themed gradient
-    const bgGrad = ctx.createLinearGradient(0, 0, w, h);
-    bgGrad.addColorStop(0, T.boardPatternColors[0]);
-    bgGrad.addColorStop(1, T.boardPatternColors[1]);
-    ctx.fillStyle = bgGrad;
+    // Background — neutral dark so tile gaps read as thin lines, not coloured borders
+    ctx.fillStyle = 'rgba(10,10,15,0.55)';
     ctx.fillRect(0, 0, w, h);
 
     // Theme canvas background art (drawn before cells)
@@ -482,7 +479,7 @@ const Board = (() => {
 
 
   function drawCell(ctx, r, cellNum, isEven, T, cellW, cellH, theme, total) {
-    const gap = 2;
+    const gap = 1;
     const cx = r.x + gap, cy = r.y + gap;
     const cw = r.w - gap * 2, ch = r.h - gap * 2;
     const rr = Math.min(cw, ch) * 0.22;

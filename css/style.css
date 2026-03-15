@@ -2775,8 +2775,19 @@ body.theme-cartoon .home-bg {
 .score-entry-meta { font-size: 0.85rem; color: var(--text-light); font-weight: 700; }
 .score-entry-turns { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: var(--primary); }
 
-/* .btn-clear-scores — replaced by .btn.btn-md.btn-danger-ghost */
-.btn-clear-scores { margin: 0 20px 20px; flex-shrink: 0; }
+.scores-note {
+  text-align: center; font-size: 0.78rem;
+  color: var(--text-muted, rgba(0,0,0,0.38));
+  margin: -4px 20px 8px; flex-shrink: 0;
+}
+.btn-clear-scores-link {
+  background: none; border: none; cursor: pointer;
+  font-size: 0.75rem; color: rgba(0,0,0,0.28);
+  text-decoration: underline; text-underline-offset: 2px;
+  padding: 8px 20px 20px; margin: 0 auto; display: block;
+  flex-shrink: 0;
+}
+.btn-clear-scores-link:hover { color: rgba(200,50,50,0.6); }
 
 /* ============================================================
    HOW TO PLAY SCREEN
