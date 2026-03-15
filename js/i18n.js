@@ -215,6 +215,7 @@ const TRANSLATIONS = {
       bot_name: 'Bot {n}',
       player_fallback: 'Player {n}',
       squares_abbr: 'sq.',
+      privacy_policy: 'Privacy Policy',
     },
     // Themes
     themes: {
@@ -459,6 +460,7 @@ const TRANSLATIONS = {
       bot_name: 'Bot {n}',
       player_fallback: 'Joueur {n}',
       squares_abbr: 'cases',
+      privacy_policy: 'Politique de confidentialité',
     },
     themes: {
       cartoon: 'Dessin animé',
@@ -704,6 +706,7 @@ const TRANSLATIONS = {
       bot_name: 'Bot {n}',
       player_fallback: 'Spieler {n}',
       squares_abbr: 'Felder',
+      privacy_policy: 'Datenschutzerklärung',
     },
     themes: {
       cartoon: 'Cartoon',
@@ -947,6 +950,7 @@ const TRANSLATIONS = {
       bot_name: 'Bot {n}',
       player_fallback: 'Giocatore {n}',
       squares_abbr: 'caselle',
+      privacy_policy: 'Informativa sulla privacy',
     },
     themes: {
       cartoon: 'Cartone',
@@ -1190,6 +1194,7 @@ const TRANSLATIONS = {
       bot_name: 'Bot {n}',
       player_fallback: 'Jugador {n}',
       squares_abbr: 'casillas',
+      privacy_policy: 'Política de privacidad',
     },
     themes: {
       cartoon: 'Cartoon',
@@ -1433,6 +1438,7 @@ const TRANSLATIONS = {
       bot_name: 'Bot {n}',
       player_fallback: 'Jogador {n}',
       squares_abbr: 'casas',
+      privacy_policy: 'Política de privacidade',
     },
     themes: {
       cartoon: 'Cartoon',

@@ -3163,3 +3163,48 @@ body.theme-cartoon .home-bg {
   background: rgba(255,255,255,0.28);
   box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
 }
+
+.privacy-link {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.35);
+  font-size: 0.72rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  padding: 4px 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+.privacy-link:hover { color: rgba(255,255,255,0.6); }
+
+/* ---- Privacy Policy Screen ---- */
+.privacy-scroll {
+  flex: 1; overflow-y: auto; padding: 24px 24px 40px;
+}
+.privacy-body {
+  max-width: 560px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.privacy-app {
+  font-family: var(--font-display);
+  font-size: 1.1rem; font-weight: 800;
+  color: var(--text);
+}
+.privacy-updated {
+  font-size: 0.82rem; color: var(--text-light);
+  margin-top: -10px;
+}
+.privacy-body h3 {
+  font-family: var(--font-display);
+  font-size: 0.95rem; font-weight: 800;
+  color: var(--text);
+  margin-bottom: -8px;
+}
+.privacy-body p {
+  font-size: 0.9rem; color: var(--text-light);
+  font-weight: 600; line-height: 1.55;
+}
+.privacy-email {
+  color: var(--text); font-weight: 700;
+}

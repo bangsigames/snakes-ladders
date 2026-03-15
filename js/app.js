@@ -782,6 +782,8 @@ const App = (() => {
     document.getElementById('btn-home-scores')?.addEventListener('click', () => { Sounds.button(); showScores(); });
     document.getElementById('btn-home-howto')?.addEventListener('click', () => { Sounds.button(); showScreen('screen-how-to-play'); });
     document.getElementById('btn-howto-back')?.addEventListener('click', () => { Sounds.button(); showHome(); });
+    document.getElementById('btn-home-privacy')?.addEventListener('click', () => showScreen('screen-privacy'));
+    document.getElementById('btn-privacy-back')?.addEventListener('click', () => showHome());
     document.getElementById('btn-howto-play')?.addEventListener('click', () => { Sounds.button(); showBoardSelect(); });
 
     // Saved boards
