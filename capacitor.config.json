@@ -1,7 +1,7 @@
 {
   "appId": "com.bangsigames.snakesladders",
   "appName": "My Snakes & Ladders",
-  "webDir": ".",
+  "webDir": "www",
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 1800,
