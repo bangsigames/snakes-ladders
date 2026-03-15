@@ -1061,195 +1061,102 @@ const App = (() => {
   // ============================================================
 
   function drawMiniBoards() {
-    const configs = {
-      small: {
-        cols: 5, rows: 5, bgColor: '#E65100',
-        cellA: '#FFFDE7', cellB: '#FFE0B2',
-        snake:  { hc: 3, hr: 0, tc: 0, tr: 3 },
-        ladder: { bc: 4, br: 4, tc: 4, tr: 1 },
-      },
-      medium: {
-        cols: 8, rows: 8, bgColor: '#01579B',
-        cellA: '#E1F5FE', cellB: '#B3E5FC',
-        snake:  { hc: 6, hr: 1, tc: 2, tr: 5 },
-        ladder: { bc: 0, br: 7, tc: 0, tr: 2 },
-      },
-      classic: {
-        cols: 10, rows: 10, bgColor: '#4A148C',
-        cellA: '#F3E5F5', cellB: '#E1BEE7',
-        snake:  { hc: 8, hr: 1, tc: 3, tr: 6 },
-        ladder: { bc: 1, br: 9, tc: 1, tr: 4 },
-      },
-    };
+    const R = n => Math.round(n * 10) / 10;
+
+    // ── Ladder: two brown rails + rungs, slightly tilted ─────────────
+    function ldr(x1, y1, x2, y2, rungs) {
+      const dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx * dx + dy * dy);
+      const nx = (-dy / len) * 13, ny = (dx / len) * 13;
+      let s = '';
+      for (const sg of [-1, 1]) {
+        s += `<line x1="${R(x1+nx*sg)}" y1="${R(y1+ny*sg)}" x2="${R(x2+nx*sg)}" y2="${R(y2+ny*sg)}" stroke="#5C3A1A" stroke-width="9" stroke-linecap="round"/>`;
+        s += `<line x1="${R(x1+nx*sg)}" y1="${R(y1+ny*sg)}" x2="${R(x2+nx*sg)}" y2="${R(y2+ny*sg)}" stroke="#B07030" stroke-width="6" stroke-linecap="round"/>`;
+      }
+      for (let i = 1; i <= rungs; i++) {
+        const t = i / (rungs + 1);
+        const cx = R(x1 + dx * t), cy = R(y1 + dy * t);
+        s += `<line x1="${R(cx+nx*1.1)}" y1="${R(cy+ny*1.1)}" x2="${R(cx-nx*1.1)}" y2="${R(cy-ny*1.1)}" stroke="#5C3A1A" stroke-width="7" stroke-linecap="round"/>`;
+        s += `<line x1="${R(cx+nx*1.1)}" y1="${R(cy+ny*1.1)}" x2="${R(cx-nx*1.1)}" y2="${R(cy-ny*1.1)}" stroke="#D4924A" stroke-width="5" stroke-linecap="round"/>`;
+      }
+      return s;
+    }
+
+    // ── Snake: icon-style cartoon body, big eyes, forked tongue ──────
+    function snk(path, hx, hy, dir) {
+      const perp = dir + Math.PI / 2;
+      const ex1 = R(hx + Math.cos(perp) * 9), ey1 = R(hy + Math.sin(perp) * 9 - 3);
+      const ex2 = R(hx - Math.cos(perp) * 9), ey2 = R(hy - Math.sin(perp) * 9 - 3);
+      const tSx = R(hx + Math.cos(dir) * 20), tSy = R(hy + Math.sin(dir) * 20);
+      const tMx = R(hx + Math.cos(dir) * 28), tMy = R(hy + Math.sin(dir) * 28);
+      const tEx = R(hx + Math.cos(dir) * 36), tEy = R(hy + Math.sin(dir) * 36);
+      const fx1 = R(tEx + Math.cos(dir + Math.PI / 2) * 7), fy1 = R(tEy + Math.sin(dir + Math.PI / 2) * 7);
+      const fx2 = R(tEx + Math.cos(dir - Math.PI / 2) * 7), fy2 = R(tEy + Math.sin(dir - Math.PI / 2) * 7);
+      return `
+        <path d="${path}" fill="none" stroke="#1A3A00" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="${path}" fill="none" stroke="#5CBF2A" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="${R(hx)}" cy="${R(hy)}" r="21" fill="#1A3A00"/>
+        <circle cx="${R(hx)}" cy="${R(hy)}" r="18" fill="#5CBF2A"/>
+        <circle cx="${R(hx-4)}" cy="${R(hy-5)}" r="7" fill="#88E050" opacity="0.4"/>
+        <circle cx="${ex1}" cy="${ey1}" r="6.5" fill="white"/>
+        <circle cx="${ex2}" cy="${ey2}" r="6.5" fill="white"/>
+        <circle cx="${R(ex1+0.5)}" cy="${R(ey1+0.5)}" r="4.2" fill="#111"/>
+        <circle cx="${R(ex2+0.5)}" cy="${R(ey2+0.5)}" r="4.2" fill="#111"/>
+        <circle cx="${R(ex1-1.8)}" cy="${R(ey1-1.8)}" r="1.6" fill="white"/>
+        <circle cx="${R(ex2-1.8)}" cy="${R(ey2-1.8)}" r="1.6" fill="white"/>
+        <line x1="${tSx}" y1="${tSy}" x2="${tMx}" y2="${tMy}" stroke="#FF2244" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="${tMx}" y1="${tMy}" x2="${fx1}" y2="${fy1}" stroke="#FF2244" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="${tMx}" y1="${tMy}" x2="${fx2}" y2="${fy2}" stroke="#FF2244" stroke-width="3.5" stroke-linecap="round"/>`;
+    }
+
+    // ── 4-pointed sparkle star ────────────────────────────────────────
+    function star(x, y, s, op) {
+      return `<path d="M ${x},${y-s} L ${x+s*.28},${y-s*.28} L ${x+s},${y} L ${x+s*.28},${y+s*.28} L ${x},${y+s} L ${x-s*.28},${y+s*.28} L ${x-s},${y} L ${x-s*.28},${y-s*.28} Z" fill="#FFE566" opacity="${op}"/>`;
+    }
+
+    // ── SMALL (5×5): warm orange, baby snake, short ladder ───────────
+    const sm = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style="width:100%;height:100%;display:block;">
+      <defs><linearGradient id="bgsm" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FF9A4E"/><stop offset="100%" stop-color="#D84315"/></linearGradient></defs>
+      <rect width="200" height="200" rx="16" fill="url(#bgsm)"/>
+      <ellipse cx="100" cy="115" rx="74" ry="62" fill="rgba(255,255,255,0.07)"/>
+      ${ldr(148, 162, 130, 40, 3)}
+      ${snk('M 38,168 C 72,168 92,148 92,126 C 92,104 62,94 80,74 C 94,58 112,62 122,52', 122, 52, Math.atan2(-10, 10))}
+      ${star(28, 30, 8, 0.9)}${star(175, 26, 6, 0.8)}${star(55, 190, 5, 0.75)}
+    </svg>`;
+
+    // ── MEDIUM (8×8): ocean blue, energetic snake, medium ladder ─────
+    const md = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style="width:100%;height:100%;display:block;">
+      <defs><linearGradient id="bgmd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#29B6F6"/><stop offset="100%" stop-color="#0D47A1"/></linearGradient></defs>
+      <rect width="200" height="200" rx="16" fill="url(#bgmd)"/>
+      <ellipse cx="100" cy="112" rx="76" ry="64" fill="rgba(255,255,255,0.07)"/>
+      ${ldr(155, 168, 137, 28, 5)}
+      ${snk('M 28,175 C 68,175 95,152 95,128 C 95,104 58,93 78,70 C 95,51 118,55 128,42', 128, 42, Math.atan2(-13, 10))}
+      ${star(26, 28, 7, 0.85)}${star(178, 30, 5.5, 0.8)}${star(50, 192, 5, 0.7)}${star(175, 185, 4.5, 0.7)}
+    </svg>`;
+
+    // ── CLASSIC (10×10): royal purple, crown snake, tall ladder, stars
+    const clHx = 126, clHy = 40;
+    const crY = clHy - 24;
+    const crown = `
+      <path d="M ${clHx-16},${crY+12} L ${clHx-16},${crY} L ${clHx-8},${crY+7} L ${clHx},${crY-5} L ${clHx+8},${crY+7} L ${clHx+16},${crY} L ${clHx+16},${crY+12} Z" fill="#FFD700" stroke="#A07800" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="${clHx-16}" cy="${crY}" r="3.2" fill="#FF4455"/>
+      <circle cx="${clHx}" cy="${crY-5}" r="3.2" fill="#44DDFF"/>
+      <circle cx="${clHx+16}" cy="${crY}" r="3.2" fill="#FF4455"/>`;
+    const cl = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style="width:100%;height:100%;display:block;">
+      <defs><linearGradient id="bgcl" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9C27B0"/><stop offset="100%" stop-color="#3D0066"/></linearGradient></defs>
+      <rect width="200" height="200" rx="16" fill="url(#bgcl)"/>
+      <ellipse cx="100" cy="112" rx="78" ry="66" fill="rgba(255,255,255,0.07)"/>
+      ${ldr(165, 178, 147, 22, 7)}
+      ${snk('M 22,178 C 65,178 92,152 92,122 C 92,92 50,82 74,57 C 92,38 118,48 126,40', clHx, clHy, Math.atan2(-8, 8))}
+      ${crown}
+      ${star(24, 28, 9, 0.9)}${star(178, 24, 7, 0.85)}${star(50, 194, 5.5, 0.75)}${star(178, 184, 5, 0.75)}${star(98, 192, 4, 0.7)}
+    </svg>`;
 
     document.querySelectorAll('.size-card').forEach(card => {
-      const key = card.dataset.size;
-      const cfg = configs[key];
-      if (!cfg) return;
       const container = card.querySelector('.size-mini-svg');
       if (!container) return;
-      container.innerHTML = buildMiniBoardSVG(key, cfg);
+      const svgs = { small: sm, medium: md, classic: cl };
+      if (svgs[card.dataset.size]) container.innerHTML = svgs[card.dataset.size];
     });
-  }
-
-  // Builds a resolution-independent SVG mini-board matching the game's art style.
-  function buildMiniBoardSVG(id, cfg) {
-    const { cols, rows, bgColor, cellA, cellB, snake, ladder } = cfg;
-    // Square viewBox — CSS sets different physical sizes per board,
-    // so the board naturally appears small/medium/large without any tricks.
-    const W = 200, H = 200;
-    const r1 = n => Math.round(n * 10) / 10;  // 1-decimal precision
-
-    // All boards use the same cell size — what differs is the number of cells,
-    // which gives each board a naturally different area inside the square viewBox.
-    const cellSize = 16;
-    const gap      = 2;
-    const stride   = cellSize + gap;
-    const gridW    = cols * stride - gap;
-    const gridH    = rows * stride - gap;
-    const x0 = Math.round((W - gridW) / 2);
-    const y0 = Math.round((H - gridH) / 2);
-
-    const el = [];
-
-    // ── Background ───────────────────────────────────────────────────
-    el.push(`<rect width="${W}" height="${H}" fill="${bgColor}"/>`);
-
-    // ── White board panel (drop-shadow via filter) ───────────────────
-    const pp = 10;
-    el.push(
-      `<rect x="${x0-pp}" y="${y0-pp}" width="${gridW+pp*2}" height="${gridH+pp*2}" ` +
-      `rx="10" fill="white" filter="url(#sh-${id})"/>`
-    );
-
-    // ── Grid cells ───────────────────────────────────────────────────
-    const cr = r1(Math.max(1.5, cellSize * 0.13));
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const fill = (row + col) % 2 === 0 ? cellA : cellB;
-        const cx = x0 + col * stride;
-        const cy = y0 + row * stride;
-        el.push(
-          `<rect x="${cx}" y="${cy}" width="${cellSize}" height="${cellSize}" ` +
-          `rx="${cr}" fill="${fill}"/>`
-        );
-      }
-    }
-
-    // ── Cell-centre helper ───────────────────────────────────────────
-    const cc = (col, row) => ({
-      x: r1(x0 + col * stride + cellSize / 2),
-      y: r1(y0 + row * stride + cellSize / 2),
-    });
-
-    // ── Ladder (jungle-style: brown rails + lighter rungs) ───────────
-    if (ladder) {
-      const { bc, br, tc, tr } = ladder;
-      const b = cc(bc, br), t = cc(tc, tr);
-      const dx = t.x - b.x, dy = t.y - b.y;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      if (len > 1) {
-        const nx = -dy / len, ny = dx / len;
-        const ro  = r1(Math.max(3, cellSize * 0.26));
-        const rlw = r1(Math.max(1.5, cellSize * 0.12));
-        const gw  = r1(Math.max(1,   cellSize * 0.09));
-
-        // Rails
-        for (const s of [-1, 1]) {
-          el.push(
-            `<line x1="${r1(b.x+nx*ro*s)}" y1="${r1(b.y+ny*ro*s)}" ` +
-            `x2="${r1(t.x+nx*ro*s)}" y2="${r1(t.y+ny*ro*s)}" ` +
-            `stroke="#8d6e63" stroke-width="${rlw}" stroke-linecap="round"/>`
-          );
-        }
-
-        // Rungs
-        const numRungs = Math.max(2, Math.abs(br - tr) - 1);
-        for (let i = 1; i <= numRungs; i++) {
-          const tf = i / (numRungs + 1);
-          const rx = r1(b.x + tf * dx), ry = r1(b.y + tf * dy);
-          el.push(
-            `<line x1="${r1(rx-nx*ro)}" y1="${r1(ry-ny*ro)}" ` +
-            `x2="${r1(rx+nx*ro)}" y2="${r1(ry+ny*ro)}" ` +
-            `stroke="#bcaaa4" stroke-width="${gw}" stroke-linecap="round"/>`
-          );
-        }
-      }
-    }
-
-    // ── Snake (matches board.js art: bezier body, white eyes, forked tongue) ──
-    if (snake) {
-      const { hc, hr, tc, tr } = snake;
-      const head = cc(hc, hr), tail = cc(tc, tr);
-      const hx = head.x, hy = head.y;
-      const tx = tail.x, ty = tail.y;
-
-      // Same bezier control-point formula as board.js drawSnake()
-      const dx = hx - tx, dy = hy - ty;
-      const cp1x = r1(tx + dx * 0.25 + dy * 0.3);
-      const cp1y = r1(ty + dy * 0.25 - dx * 0.3);
-      const cp2x = r1(hx - dx * 0.25 + dy * 0.2);
-      const cp2y = r1(hy - dy * 0.25 - dx * 0.2);
-
-      const lineW  = r1(Math.min(cellSize * 0.44, 8));
-      const headR  = r1(lineW * 0.9);
-      const bodyD  = `M ${tx} ${ty} C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${hx} ${hy}`;
-
-      // Body shadow
-      el.push(
-        `<path d="${bodyD}" fill="none" stroke="rgba(0,0,0,0.18)" ` +
-        `stroke-width="${r1(lineW+2)}" stroke-linecap="round" stroke-linejoin="round"/>`
-      );
-      // Body
-      el.push(
-        `<path d="${bodyD}" fill="none" stroke="#388e3c" ` +
-        `stroke-width="${lineW}" stroke-linecap="round" stroke-linejoin="round"/>`
-      );
-      // Tail tip
-      el.push(`<circle cx="${tx}" cy="${ty}" r="${r1(lineW*0.4)}" fill="#1b5e20"/>`);
-      // Head
-      el.push(`<circle cx="${hx}" cy="${hy}" r="${headR}" fill="#2e7d32"/>`);
-
-      // Two white eyes + black pupils (identical to board.js standard eyes)
-      const eyeOff = r1(headR * 0.45);
-      const eyeR   = r1(headR * 0.28);
-      const eyeY   = r1(hy - eyeOff * 0.3);
-      el.push(`<circle cx="${r1(hx-eyeOff)}" cy="${eyeY}" r="${eyeR}" fill="white"/>`);
-      el.push(`<circle cx="${r1(hx+eyeOff)}" cy="${eyeY}" r="${eyeR}" fill="white"/>`);
-      el.push(`<circle cx="${r1(hx-eyeOff+eyeR*0.2)}" cy="${eyeY}" r="${r1(eyeR*0.55)}" fill="#1a1a1a"/>`);
-      el.push(`<circle cx="${r1(hx+eyeOff+eyeR*0.2)}" cy="${eyeY}" r="${r1(eyeR*0.55)}" fill="#1a1a1a"/>`);
-
-      // Forked tongue — Y-shape, identical to board.js
-      const tDir   = Math.atan2(hy - ty, hx - tx);
-      const tLen   = headR * 0.9;
-      const tSx    = r1(hx + Math.cos(tDir) * headR);
-      const tSy    = r1(hy + Math.sin(tDir) * headR);
-      const tMx    = r1(hx + Math.cos(tDir) * (headR + tLen * 0.5));
-      const tMy    = r1(hy + Math.sin(tDir) * (headR + tLen * 0.5));
-      const tTx    = r1(hx + Math.cos(tDir) * (headR + tLen));
-      const tTy    = r1(hy + Math.sin(tDir) * (headR + tLen));
-      const fSprd  = headR * 0.25;
-      const fx1    = r1(tTx + Math.cos(tDir + Math.PI/2) * fSprd);
-      const fy1    = r1(tTy + Math.sin(tDir + Math.PI/2) * fSprd);
-      const fx2    = r1(tTx + Math.cos(tDir - Math.PI/2) * fSprd);
-      const fy2    = r1(tTy + Math.sin(tDir - Math.PI/2) * fSprd);
-      const tw     = r1(Math.max(0.8, lineW * 0.15));
-      el.push(`<line x1="${tSx}" y1="${tSy}" x2="${tMx}" y2="${tMy}" stroke="#ff1744" stroke-width="${tw}" stroke-linecap="round"/>`);
-      el.push(`<line x1="${tMx}" y1="${tMy}" x2="${fx1}" y2="${fy1}" stroke="#ff1744" stroke-width="${tw}" stroke-linecap="round"/>`);
-      el.push(`<line x1="${tMx}" y1="${tMy}" x2="${fx2}" y2="${fy2}" stroke="#ff1744" stroke-width="${tw}" stroke-linecap="round"/>`);
-    }
-
-    return (
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" ` +
-      `preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block;">` +
-      `<defs>` +
-      `<filter id="sh-${id}" x="-20%" y="-20%" width="140%" height="140%">` +
-      `<feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="rgba(0,0,0,0.3)"/>` +
-      `</filter>` +
-      `</defs>` +
-      el.join('') +
-      `</svg>`
-    );
   }
 
   return {
