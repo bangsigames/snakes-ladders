@@ -27,11 +27,15 @@ const App = (() => {
     checkResumeGame();
   }
 
+  let _resumePrompted = false;
+
   function checkResumeGame() {
+    if (_resumePrompted) return;
     const saved = Storage.loadGameState();
     if (!saved) return;
     const age = Date.now() - (saved.savedAt || 0);
     if (age > 7 * 24 * 60 * 60 * 1000) { Storage.clearGameState(); return; }
+    _resumePrompted = true;
     showResumeModal(saved);
   }
 
