@@ -265,12 +265,21 @@ const Game = (() => {
         state.rankings.push(player);
         unzoomBoard(null);
 
-        // Can remaining players continue racing?
-        // Yes if: at least 2 players still unfinished (otherwise last place is decided
-        // automatically, no race left) AND at least 1 of those is human.
         const unfinishedPlayers = state.players.filter(p => !p.finished);
         const unfinishedHumans = unfinishedPlayers.filter(p => !p.isBot);
-        const canContinue = unfinishedPlayers.length >= 2 && unfinishedHumans.length >= 1;
+
+        // Decide whether to continue race for next place.
+        let canContinue = false;
+        if (unfinishedPlayers.length <= 1) {
+          // 0 or 1 player left — last place is automatic, nothing to race for
+          canContinue = false;
+        } else if (unfinishedHumans.length === 0) {
+          // 2+ left but all bots — no human cares, end it
+          canContinue = false;
+        } else {
+          // 2+ left and at least one is human — keep racing
+          canContinue = true;
+        }
 
         if (allPlayersFinished() || !canContinue) {
           endGame();

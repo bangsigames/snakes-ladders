@@ -726,8 +726,7 @@ const App = (() => {
 
     const continueBtn = document.getElementById('btn-continue-place');
     if (continueBtn) {
-      const unfinishedHumans = gameState.players.filter(p => !p.finished && !p.isBot);
-      const shouldShow = canContinue && unfinishedHumans.length >= 1;
+      const shouldShow = canContinue;
       if (shouldShow) {
         const contKeys = { 2: 'winner.btn_continue_2nd', 3: 'winner.btn_continue_3rd', 4: 'winner.btn_continue_4th' };
         continueBtn.textContent = t(contKeys[place + 1] || 'winner.btn_continue_2nd');
