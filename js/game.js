@@ -461,50 +461,7 @@ const Game = (() => {
     card.classList.remove('snake-card', 'ladder-card', 'bounce-card');
 
     if (type === 'bounce') {
-      emoji.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <clipPath id="wc">
-            <rect x="72" y="12" width="20" height="76" rx="3"/>
-          </clipPath>
-        </defs>
-        <!-- Faded dashed forward arc (where the player tried to go) -->
-        <path d="M18 75 Q36 22 64 48" fill="none" stroke="#F97316" stroke-width="2.5"
-              stroke-dasharray="4 3" stroke-linecap="round" opacity="0.35"/>
-        <!-- Finish wall -->
-        <rect x="72" y="12" width="20" height="76" rx="3" fill="#1e293b"/>
-        <g clip-path="url(#wc)">
-          <rect x="72" y="12" width="10" height="13" fill="white" opacity="0.88"/>
-          <rect x="82" y="25" width="10" height="13" fill="white" opacity="0.88"/>
-          <rect x="72" y="38" width="10" height="13" fill="white" opacity="0.88"/>
-          <rect x="82" y="51" width="10" height="13" fill="white" opacity="0.88"/>
-          <rect x="72" y="64" width="10" height="13" fill="white" opacity="0.88"/>
-          <rect x="82" y="77" width="10" height="11" fill="white" opacity="0.88"/>
-        </g>
-        <rect x="72" y="12" width="20" height="76" rx="3" fill="none" stroke="#475569" stroke-width="1.5"/>
-        <!-- Sparkle impact lines -->
-        <line x1="68" y1="35" x2="62" y2="29" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="70" y1="47" x2="62" y2="45" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="67" y1="59" x2="62" y2="65" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/>
-        <circle cx="71" cy="43" r="2" fill="#FCD34D" opacity="0.65"/>
-        <!-- Bounce-back arc (solid red with arrow) -->
-        <path d="M64 48 Q70 63 61 72 Q46 82 18 75"
-              fill="none" stroke="#EF4444" stroke-width="3.5" stroke-linecap="round"/>
-        <path d="M23 70 L18 75 L24 79" fill="none" stroke="#EF4444" stroke-width="3.5"
-              stroke-linecap="round" stroke-linejoin="round"/>
-        <!-- Token drop shadow -->
-        <circle cx="65" cy="50" r="13" fill="#7c2d12" opacity="0.22"/>
-        <!-- Token body -->
-        <circle cx="64" cy="48" r="13" fill="#F97316" stroke="#C2410C" stroke-width="2.5"/>
-        <!-- Surprised face: wide eyes -->
-        <circle cx="59" cy="45" r="2.8" fill="white"/>
-        <circle cx="69" cy="45" r="2.8" fill="white"/>
-        <circle cx="59.5" cy="45.8" r="1.4" fill="#1e293b"/>
-        <circle cx="69.5" cy="45.8" r="1.4" fill="#1e293b"/>
-        <!-- Surprised open mouth -->
-        <ellipse cx="64" cy="53" rx="3.5" ry="2.8" fill="#7c2d12"/>
-        <!-- Gloss highlight -->
-        <ellipse cx="60" cy="43" rx="3.5" ry="2" fill="white" opacity="0.3" transform="rotate(-20,60,43)"/>
-      </svg>`;
+      emoji.innerHTML = `<img src="img/bounce-event.png" alt="bounce" style="width:100%;height:100%;object-fit:contain;">`;
       title.textContent = t('event.bounce_title');
       desc.textContent = t('event.bounce_desc', { name: player.name, needed: data.needed, rolled: data.rolled });
       overlay.classList.add('bounce-event');
