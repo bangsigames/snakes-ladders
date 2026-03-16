@@ -106,6 +106,18 @@ const App = (() => {
     return [...DEFAULT_BOARDS, ...userBoards];
   }
 
+  function startQuickPlay() {
+    Sounds.button();
+    const sizes = ['default-small', 'default-medium', 'default-large'];
+    const themes = ['jungle', 'space', 'ocean', 'fantasy', 'cartoon'];
+    const baseId = sizes[Math.floor(Math.random() * sizes.length)];
+    const theme = themes[Math.floor(Math.random() * themes.length)];
+    const base = DEFAULT_BOARDS.find(b => b.id === baseId);
+    currentBoard = { ...base, theme, id: 'quick-' + Storage.generateId(), name: '' };
+    applyTheme(theme);
+    showPlayerSetup();
+  }
+
   function showBoardSelect() {
     Sounds.button();
     const boards = getAllBoards();
@@ -769,6 +781,8 @@ const App = (() => {
 
   function init() {
     // Inject SVG icons
+    const iconQuickPlay = document.querySelector('#btn-home-quick-play .home-btn-icon');
+    if (iconQuickPlay) iconQuickPlay.innerHTML = Icons.get('dice', 36);
     const iconPlay = document.querySelector('#btn-home-play .home-btn-icon');
     if (iconPlay) iconPlay.innerHTML = Icons.get('play', 36);
     const iconPalette = document.querySelector('#btn-home-design .home-btn-icon');
@@ -782,7 +796,8 @@ const App = (() => {
     updateSoundBtnIcons();
 
     // Home buttons
-    document.getElementById('btn-home-play').addEventListener('click', () => showBoardSelect());
+    document.getElementById('btn-home-quick-play').addEventListener('click', () => startQuickPlay());
+    document.getElementById('btn-home-play').addEventListener('click', () => { Sounds.button(); showBoardSelect(); });
     document.getElementById('btn-home-design').addEventListener('click', () => showDesigner());
     document.getElementById('btn-home-scores')?.addEventListener('click', () => { Sounds.button(); showScores(); });
     document.getElementById('btn-home-howto')?.addEventListener('click', () => { Sounds.button(); showScreen('screen-how-to-play'); });
@@ -1074,7 +1089,7 @@ const App = (() => {
   }
 
   return {
-    init, showHome, showBoardSelect, showDesigner,
+    init, showHome, startQuickPlay, showBoardSelect, showDesigner,
     showPlayerSetup, showWinner, showScores,
     selectBoard, deleteBoard,
     selectChar, selectColor,
