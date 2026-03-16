@@ -587,6 +587,8 @@ body.theme-cartoon .home-bg {
 
 .home-btn-icon  { font-size: 2rem; flex-shrink: 0; }
 .home-btn-label { font-size: clamp(1.05rem, 3.5vw, 1.4rem); flex: none; color: white; }
+.home-btn-sub   { font-size: 0.72rem; font-weight: 700; opacity: 0.72; letter-spacing: 0.04em; text-transform: uppercase; }
+#btn-home-quick-play { flex-direction: column; gap: 2px; }
 
 /* PRIMARY — Play Game: yellow candy */
 .btn-play {
