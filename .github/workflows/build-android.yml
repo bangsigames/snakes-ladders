@@ -48,6 +48,19 @@ jobs:
       - name: Sync web assets
         run: npx cap sync android
 
+      - name: Install ImageMagick
+        run: sudo apt-get install -y imagemagick
+
+      - name: Generate app icons
+        run: |
+          for entry in "48:mdpi" "72:hdpi" "96:xhdpi" "144:xxhdpi" "192:xxxhdpi"; do
+            size="${entry%%:*}"
+            dpi="${entry##*:}"
+            convert resources/icon.png -resize ${size}x${size} android/app/src/main/res/mipmap-${dpi}/ic_launcher.png
+            convert resources/icon.png -resize ${size}x${size} android/app/src/main/res/mipmap-${dpi}/ic_launcher_round.png
+          done
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26
+
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
