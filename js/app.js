@@ -5,7 +5,6 @@
 const App = (() => {
 
   let currentBoard = null; // board config selected for play
-  let _lastGamePlayers = null; // players from most recent finished game
 
   // ============================================================
   // SCREEN MANAGEMENT
