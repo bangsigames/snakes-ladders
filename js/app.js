@@ -135,7 +135,7 @@ const App = (() => {
         const snakeIcon = Icons.get('snake', 14);
         const ladderIcon = Icons.get('ladder', 14);
         return `
-          <div class="saved-board-card">
+          <div class="saved-board-card" onclick="App.selectBoard('${b.id}')">
             <div class="card-hero" style="background-image:url('img/theme-${b.theme}.png');background-size:cover;background-position:center;">
               ${deleteBtn}
             </div>
@@ -146,7 +146,7 @@ const App = (() => {
                 <span class="stat-chip">${ladderIcon} ${b.ladders.length} ${t('designer.ladders_stat').toLowerCase()}</span>
                 <span class="stat-chip">${squares} ${t('misc.squares_abbr')}</span>
               </div>
-              <button class="btn-board-play" style="background:${playStyle}" onclick="App.selectBoard('${b.id}')">${t('designer.btn_play')}</button>
+              <button class="btn-board-play" style="background:${playStyle}" onclick="event.stopPropagation();App.selectBoard('${b.id}')">${t('designer.btn_play')}</button>
             </div>
           </div>`;
       }).join('');
@@ -710,7 +710,7 @@ const App = (() => {
     const continueBtn = document.getElementById('btn-continue-place');
     if (continueBtn) {
       const unfinishedHumans = gameState.players.filter(p => !p.finished && !p.isBot);
-      const shouldShow = canContinue && unfinishedHumans.length >= 2;
+      const shouldShow = canContinue && gameState.players.length >= 3 && unfinishedHumans.length >= 2;
       if (shouldShow) {
         const contKeys = { 2: 'winner.btn_continue_2nd', 3: 'winner.btn_continue_3rd', 4: 'winner.btn_continue_4th' };
         continueBtn.textContent = t(contKeys[place + 1] || 'winner.btn_continue_2nd');

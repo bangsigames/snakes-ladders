@@ -749,7 +749,7 @@ const Game = (() => {
       return `
       <div class="player-chip ${isActive ? 'active-chip' : ''} ${almostThere ? 'chip-almost' : ''}"
            style="border-color: ${isActive ? p.color : 'transparent'}">
-        <span class="chip-avatar">${almostThere ? '🏁' : p.character}</span>
+        <span class="chip-avatar">${p.character}</span>
         <div>
           <div class="chip-name" style="color:${p.color}">${p.isBot ? '🤖 ' : ''}${p.name}</div>
           <div class="chip-pos">${p.position === 0 ? t('game.position_start') : p.finished ? t('game.position_done') : almostThere ? t('game.position_to_go', { n: total - p.position }) : t('game.position_sq', { n: p.position })}</div>

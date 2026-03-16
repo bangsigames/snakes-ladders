@@ -1496,6 +1496,7 @@ body.theme-cartoon .home-bg {
 .snake-actions-row {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
@@ -2681,7 +2682,8 @@ body.theme-cartoon .home-bg {
     radial-gradient(ellipse 100% 80% at 20% 80%, rgba(255,77,109,0.25) 0%, transparent 60%),
     radial-gradient(ellipse 80% 60% at 80% 50%, rgba(76,201,240,0.18) 0%, transparent 60%),
     var(--bg-deep, #0D0120);
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: flex-start; justify-content: center;
+  overflow-y: auto;
 }
 
 .confetti-canvas {
