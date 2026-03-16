@@ -800,7 +800,7 @@ body.theme-cartoon .home-bg {
 .btn-card-delete {
   position: absolute; top: 8px; right: 8px;
   width: 44px; height: 44px; border-radius: 50%;
-  background: rgba(0,0,0,0.28); color: white;
+  background: #EF4444; color: white;
   border: none; font-size: 1rem; font-weight: 900;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: background 0.15s, transform 0.15s;
@@ -838,7 +838,9 @@ body.theme-cartoon .home-bg {
   background: #f3f4f6; border-radius: 20px;
   padding: 3px 9px; font-size: 0.78rem; font-weight: 800;
   color: #374151; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 4px;
 }
+.stat-chip svg { flex-shrink: 0; }
 
 .btn-board-play {
   width: 100%; border: none; border-radius: 16px;
@@ -2284,16 +2286,16 @@ body.theme-cartoon .home-bg {
   padding: 8px 12px;
   position: relative;
 }
+#game-canvas {
+  position: relative;
+  z-index: 1;
+}
 #board-anim-canvas {
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 100%;
   pointer-events: none;
-  z-index: 0;
-}
-#game-canvas {
-  position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 .canvas-flash {
   position: absolute; inset: 0;

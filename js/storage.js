@@ -13,6 +13,8 @@ const Storage = (() => {
     } catch { return []; }
   }
 
+  const MAX_USER_BOARDS = 20;
+
   function saveBoard(board) {
     const boards = loadBoards();
     const existing = boards.findIndex(b => b.id === board.id);
@@ -21,7 +23,7 @@ const Storage = (() => {
     } else {
       boards.unshift(board);
     }
-    localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
+    localStorage.setItem(BOARDS_KEY, JSON.stringify(boards.slice(0, MAX_USER_BOARDS)));
   }
 
   function deleteBoard(id) {
@@ -78,5 +80,5 @@ const Storage = (() => {
   }
 
   return { loadBoards, saveBoard, deleteBoard, loadScores, saveScore, clearScores,
-           saveGameState, loadGameState, clearGameState, generateId };
+           saveGameState, loadGameState, clearGameState, generateId, MAX_USER_BOARDS };
 })();

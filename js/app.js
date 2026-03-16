@@ -119,13 +119,6 @@ const App = (() => {
     } else {
       list.style.display = 'grid';
       empty.style.display = 'none';
-      const heroGrads = {
-        jungle:  'linear-gradient(135deg, #4ade80 0%, #15803d 100%)',
-        space:   'linear-gradient(135deg, #818cf8 0%, #1e1b4b 100%)',
-        ocean:   'linear-gradient(135deg, #38bdf8 0%, #0369a1 100%)',
-        fantasy: 'linear-gradient(135deg, #c084fc 0%, #6d28d9 100%)',
-        cartoon: 'linear-gradient(135deg, #fb7185 0%, #c026d3 100%)',
-      };
       const playGrads = {
         jungle:  'linear-gradient(135deg,#22c55e,#15803d); box-shadow:0 5px 0 #14532d',
         space:   'linear-gradient(135deg,#818cf8,#4338ca); box-shadow:0 5px 0 #312e81',
@@ -134,25 +127,24 @@ const App = (() => {
         cartoon: 'linear-gradient(135deg,#fb7185,#e11d48); box-shadow:0 5px 0 #9f1239',
       };
       list.innerHTML = boards.map(b => {
-        const T = THEMES[b.theme] || THEMES.cartoon;
-        const heroGrad = heroGrads[b.theme] || heroGrads.cartoon;
         const playStyle = playGrads[b.theme] || playGrads.cartoon;
         const squares = (b.cols || 10) * (b.rows || 10);
         const deleteBtn = b.isDefault
           ? `<span class="card-default-badge">${t('designer.builtin_badge')}</span>`
           : `<button class="btn-card-delete" onclick="event.stopPropagation();App.deleteBoard('${b.id}')">✕</button>`;
+        const snakeIcon = Icons.get('snake', 14);
+        const ladderIcon = Icons.get('ladder', 14);
         return `
           <div class="saved-board-card">
-            <div class="card-hero" style="background:${heroGrad}">
-              <span class="card-hero-emoji">${T.emoji}</span>
+            <div class="card-hero" style="background-image:url('img/theme-${b.theme}.png');background-size:cover;background-position:center;">
               ${deleteBtn}
             </div>
             <div class="card-content">
               <div class="card-name">${b.isDefault ? t(`designer.default_${b.preset}_name`) : escHtml(b.name || t('misc.unnamed_board'))}</div>
               <div class="card-stats">
-                <span class="stat-chip">🐍 ${b.snakes.length} ${t('designer.snakes_stat').toLowerCase()}</span>
-                <span class="stat-chip">🪜 ${b.ladders.length} ${t('designer.ladders_stat').toLowerCase()}</span>
-                <span class="stat-chip">🎯 ${squares} ${t('misc.squares_abbr')}</span>
+                <span class="stat-chip">${snakeIcon} ${b.snakes.length} ${t('designer.snakes_stat').toLowerCase()}</span>
+                <span class="stat-chip">${ladderIcon} ${b.ladders.length} ${t('designer.ladders_stat').toLowerCase()}</span>
+                <span class="stat-chip">${squares} ${t('misc.squares_abbr')}</span>
               </div>
               <button class="btn-board-play" style="background:${playStyle}" onclick="App.selectBoard('${b.id}')">${t('designer.btn_play')}</button>
             </div>
@@ -312,6 +304,12 @@ const App = (() => {
 
     if (config.snakes.length === 0 && config.ladders.length === 0) {
       showToast(t('misc.need_snake_ladder'));
+      return null;
+    }
+
+    const userBoards = Storage.loadBoards();
+    if (userBoards.length >= Storage.MAX_USER_BOARDS) {
+      showToast(`Board limit reached (${Storage.MAX_USER_BOARDS} max) — delete one first`);
       return null;
     }
 
@@ -842,7 +840,6 @@ const App = (() => {
     document.getElementById('btn-auto-snakes').addEventListener('click', () => {
       Sounds.button();
       Board.designer.autoPlaceSnakes();
-      Board.designer.setMode('idle');
       setSnakeGuideStep(1);
     });
 
@@ -882,7 +879,6 @@ const App = (() => {
     document.getElementById('btn-auto-ladders').addEventListener('click', () => {
       Sounds.button();
       Board.designer.autoPlaceLadders();
-      Board.designer.setMode('idle');
       setLadderGuideStep(1);
     });
 

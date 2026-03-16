@@ -734,42 +734,6 @@ const Board = (() => {
       ctx.save(); rRect(cx, cy, cw, faceH);
       ctx.strokeStyle = accentColor; ctx.lineWidth = 1.2; ctx.globalAlpha = 0.5; ctx.stroke(); ctx.restore();
 
-      // Star field on every cell
-      const sp1 = ((cellNum * 6133) % 100) / 100;
-      const sp2 = ((cellNum * 4871 + 500) % 100) / 100;
-      const sp3 = ((cellNum * 3557 + 250) % 100) / 100;
-      ctx.save(); ctx.globalAlpha = 0.40; ctx.fillStyle = 'white';
-      [[sp1*0.85, sp2*0.85, 0.9], [(sp1+0.4)%1*0.85, (sp2+0.32)%1*0.85, 0.65], [(sp3+0.55)%1*0.85, (sp1+0.6)%1*0.85, 1.1]].forEach(([sx,sy,sr]) => {
-        ctx.beginPath(); ctx.arc(cx + cw*sx + cw*0.07, cy + faceH*sy + faceH*0.07, sr, 0, Math.PI*2); ctx.fill();
-      });
-      ctx.restore();
-      if (cellNum % 7 === 3) {
-        const pk = Math.min(cw, faceH) * 0.28;
-        const px2 = cx + cw*0.78, py2 = cy + faceH*0.24;
-        if (!_drawCellSprite(ctx, 'cell-space-planet', px2, py2, pk*2, 1.0)) {
-          ctx.save(); ctx.globalAlpha = 0.65;
-          ctx.strokeStyle = accentColor; ctx.lineWidth = pk*0.22;
-          ctx.beginPath(); ctx.ellipse(px2, py2+pk*0.1, pk*1.5, pk*0.32, -0.2, Math.PI*0.55, Math.PI*1.45); ctx.stroke();
-          const pg = ctx.createRadialGradient(px2-pk*0.2, py2-pk*0.2, pk*0.1, px2, py2, pk);
-          pg.addColorStop(0, lightenColor(accentColor, 30)); pg.addColorStop(1, shadeColor(accentColor, -30));
-          ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(px2, py2, pk, 0, Math.PI*2); ctx.fill();
-          ctx.restore();
-        }
-      }
-      if (cellNum % 9 === 5) {
-        const ck = Math.min(cw, faceH) * 0.28;
-        const cx3 = cx + cw*0.76, cy3 = cy + faceH*0.24;
-        if (!_drawCellSprite(ctx, 'cell-space-comet', cx3, cy3, ck*2, 0.85)) {
-          ctx.save(); ctx.globalAlpha = 0.60;
-          ctx.fillStyle = 'rgba(255,255,255,0.95)';
-          ctx.beginPath(); ctx.arc(cx3, cy3, ck*0.65, 0, Math.PI*2); ctx.fill();
-          const tg = ctx.createLinearGradient(cx3, cy3, cx3-ck*3.2, cy3+ck*1.8);
-          tg.addColorStop(0, 'rgba(200,220,255,0.75)'); tg.addColorStop(1, 'transparent');
-          ctx.fillStyle = tg;
-          ctx.beginPath(); ctx.moveTo(cx3-ck*0.4, cy3-ck*0.32); ctx.lineTo(cx3-ck*3.2, cy3+ck*1.8); ctx.lineTo(cx3-ck*0.4, cy3+ck*0.32); ctx.closePath(); ctx.fill();
-          ctx.restore();
-        }
-      }
 
     } else if (theme === 'ocean') {
       // Deep underwater panels with caustic light
@@ -791,43 +755,6 @@ const Board = (() => {
       ctx.save(); rRect(cx, cy, cw, faceH);
       ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1.1; ctx.globalAlpha = 0.4; ctx.stroke(); ctx.restore();
 
-      // Bubble dots on every cell
-      const ob1 = ((cellNum * 5923) % 100) / 100;
-      const ob2 = ((cellNum * 4211 + 400) % 100) / 100;
-      const ob3 = ((cellNum * 3677 + 200) % 100) / 100;
-      ctx.save(); ctx.globalAlpha = 0.32;
-      [[ob1*0.82+0.06, ob2*0.82+0.06, 2.0], [(ob1+0.42)%1*0.82+0.06, (ob2+0.33)%1*0.82+0.06, 1.5], [(ob3+0.58)%1*0.82+0.06, (ob1+0.52)%1*0.82+0.06, 2.5]].forEach(([bx,by,br]) => {
-        ctx.strokeStyle = '#7dd3fc'; ctx.lineWidth = 1.0;
-        ctx.beginPath(); ctx.arc(cx + cw*bx, cy + faceH*by, br, 0, Math.PI*2); ctx.stroke();
-        ctx.fillStyle = 'rgba(186,230,253,0.18)';
-        ctx.beginPath(); ctx.arc(cx + cw*bx - br*0.3, cy + faceH*by - br*0.3, br*0.45, 0, Math.PI*2); ctx.fill();
-      });
-      ctx.restore();
-      if (cellNum % 7 === 3) {
-        ctx.save(); ctx.globalAlpha = 0.62;
-        const fsk = Math.min(cw, faceH) * 0.14;
-        const fx3 = cx + cw*0.72, fy3 = cy + faceH*0.24;
-        const dir = (cellNum % 4 < 2) ? 1 : -1;
-        ctx.fillStyle = accentColor;
-        ctx.beginPath(); ctx.ellipse(fx3, fy3, fsk*0.90, fsk*0.48, 0, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(fx3 - dir*fsk*0.88, fy3); ctx.lineTo(fx3 - dir*fsk*1.52, fy3 - fsk*0.48); ctx.lineTo(fx3 - dir*fsk*1.52, fy3 + fsk*0.48); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.75)';
-        ctx.beginPath(); ctx.arc(fx3 + dir*fsk*0.38, fy3 - fsk*0.12, fsk*0.14, 0, Math.PI*2); ctx.fill();
-        ctx.restore();
-      }
-      if (cellNum % 9 === 5) {
-        ctx.save(); ctx.globalAlpha = 0.58;
-        const shk = Math.min(cw, faceH) * 0.12;
-        const shx = cx + cw*0.76, shy = cy + faceH*0.26;
-        ctx.fillStyle = '#f9a8d4';
-        ctx.beginPath(); ctx.arc(shx, shy, shk, -Math.PI*0.05, Math.PI*1.05, false); ctx.closePath(); ctx.fill();
-        ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 0.8;
-        for (let ri = 0; ri < 4; ri++) {
-          const ra = Math.PI * (0.12 + ri * 0.20);
-          ctx.beginPath(); ctx.moveTo(shx, shy); ctx.lineTo(shx + Math.cos(ra)*shk*0.9, shy - Math.sin(ra)*shk*0.85); ctx.stroke();
-        }
-        ctx.restore();
-      }
 
     } else if (theme === 'fantasy') {
       // Dark crystal gem cells with faceted highlight
@@ -851,36 +778,6 @@ const Board = (() => {
       ctx.save(); rRect(cx, cy, cw, faceH);
       ctx.strokeStyle = accentColor; ctx.lineWidth = 1.2; ctx.globalAlpha = 0.55; ctx.stroke(); ctx.restore();
 
-      // Sparkle dots on every cell
-      const fp1 = ((cellNum * 6841) % 100) / 100;
-      const fp2 = ((cellNum * 5237 + 300) % 100) / 100;
-      ctx.save(); ctx.globalAlpha = 0.38; ctx.fillStyle = '#fde68a';
-      [[fp1*0.80+0.08, fp2*0.80+0.08, 1.1], [(fp1+0.55)%1*0.80+0.08, (fp2+0.42)%1*0.80+0.08, 0.85]].forEach(([sx,sy,sr]) => {
-        ctx.beginPath(); ctx.arc(cx + cw*sx, cy + faceH*sy, sr, 0, Math.PI*2); ctx.fill();
-      });
-      ctx.restore();
-      if (cellNum % 7 === 3) {
-        ctx.save(); ctx.globalAlpha = 0.68;
-        const crk = Math.min(cw, faceH) * 0.14;
-        const crx = cx + cw*0.78, cry = cy + faceH*0.74;
-        ctx.fillStyle = accentColor;
-        ctx.beginPath(); ctx.moveTo(crx, cry-crk*2.0); ctx.lineTo(crx+crk*0.68, cry); ctx.lineTo(crx, cry-crk*0.28); ctx.lineTo(crx-crk*0.68, cry); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.38)';
-        ctx.beginPath(); ctx.moveTo(crx, cry-crk*2.0); ctx.lineTo(crx, cry-crk*0.28); ctx.lineTo(crx-crk*0.68, cry); ctx.closePath(); ctx.fill();
-        ctx.restore();
-      }
-      if (cellNum % 9 === 5) {
-        ctx.save(); ctx.globalAlpha = 0.68;
-        const stk = Math.min(cw, faceH) * 0.13;
-        const stx = cx + cw*0.76, sty = cy + faceH*0.24;
-        ctx.fillStyle = '#fde68a';
-        [0, Math.PI/4].forEach(ba => {
-          ctx.save(); ctx.translate(stx, sty); ctx.rotate(ba);
-          ctx.beginPath(); ctx.moveTo(0,-stk); ctx.lineTo(stk*0.22,-stk*0.22); ctx.lineTo(stk,0); ctx.lineTo(stk*0.22,stk*0.22); ctx.lineTo(0,stk); ctx.lineTo(-stk*0.22,stk*0.22); ctx.lineTo(-stk,0); ctx.lineTo(-stk*0.22,-stk*0.22); ctx.closePath(); ctx.fill();
-          ctx.restore();
-        });
-        ctx.restore();
-      }
 
     } else if (theme === 'jungle') {
       // Rich organic jungle tiles — earthy greens, leaf shapes, tiny creatures
@@ -924,35 +821,6 @@ const Board = (() => {
         ctx.beginPath(); ctx.arc(mx, my, mr, 0, Math.PI*2); ctx.fill();
       }
       ctx.restore();
-      // Tiny frog on every 7th cell
-      if (cellNum % 7 === 3) {
-        ctx.save(); ctx.globalAlpha = 0.55;
-        const fk = Math.min(cw, faceH) * 0.13;
-        const fx2 = cx + cw*0.78, fy2 = cy + faceH*0.22;
-        ctx.fillStyle = '#4ade80';
-        ctx.beginPath(); ctx.ellipse(fx2, fy2+fk*0.2, fk*1.1, fk*0.8, 0, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(fx2-fk*0.7, fy2-fk*0.5, fk*0.45, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(fx2+fk*0.7, fy2-fk*0.5, fk*0.45, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#166534';
-        ctx.beginPath(); ctx.arc(fx2-fk*0.7, fy2-fk*0.5, fk*0.20, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(fx2+fk*0.7, fy2-fk*0.5, fk*0.20, 0, Math.PI*2); ctx.fill();
-        ctx.restore();
-      }
-      // Tiny butterfly on every 9th cell
-      if (cellNum % 9 === 5) {
-        ctx.save(); ctx.globalAlpha = 0.52;
-        const bk = Math.min(cw, faceH) * 0.13;
-        const bx2 = cx + cw*0.76, by2 = cy + faceH*0.24;
-        ctx.fillStyle = '#fbbf24';
-        ctx.beginPath(); ctx.ellipse(bx2-bk*0.9, by2-bk*0.3, bk*1.0, bk*0.55, -0.5, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(bx2+bk*0.9, by2-bk*0.3, bk*1.0, bk*0.55, 0.5, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#d97706';
-        ctx.beginPath(); ctx.ellipse(bx2-bk*0.45, by2+bk*0.4, bk*0.55, bk*0.35, 0.3, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(bx2+bk*0.45, by2+bk*0.4, bk*0.55, bk*0.35, -0.3, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#78350f';
-        ctx.beginPath(); ctx.ellipse(bx2, by2, bk*0.14, bk*0.60, 0, 0, Math.PI*2); ctx.fill();
-        ctx.restore();
-      }
       // Earthy border
       ctx.save(); rRect(cx, cy, cw, faceH);
       ctx.strokeStyle = shadeColor(baseColor, -40); ctx.lineWidth = 1.5; ctx.globalAlpha = 0.65; ctx.stroke(); ctx.restore();
@@ -974,36 +842,6 @@ const Board = (() => {
       ctx.save(); rRect(cx, cy, cw, faceH);
       ctx.strokeStyle = shadeColor(baseColor, -24); ctx.lineWidth = 1.8; ctx.globalAlpha = 0.5; ctx.stroke(); ctx.restore();
 
-      // Tiny polka dot on every cell
-      const cp1 = ((cellNum * 7213) % 100) / 100;
-      const cp2 = ((cellNum * 5641 + 350) % 100) / 100;
-      ctx.save(); ctx.globalAlpha = 0.28; ctx.fillStyle = shadeColor(baseColor, -20);
-      ctx.beginPath(); ctx.arc(cx + cw*(0.12 + cp1*0.76), cy + faceH*(0.12 + cp2*0.76), Math.min(cw,faceH)*0.07, 0, Math.PI*2); ctx.fill();
-      ctx.restore();
-      if (cellNum % 7 === 3) {
-        ctx.save(); ctx.globalAlpha = 0.68;
-        const stk = Math.min(cw, faceH) * 0.14;
-        const stx = cx + cw*0.78, sty = cy + faceH*0.22;
-        ctx.fillStyle = '#fef08a';
-        [0, Math.PI/4].forEach(ba => {
-          ctx.save(); ctx.translate(stx, sty); ctx.rotate(ba);
-          ctx.beginPath(); ctx.moveTo(0,-stk); ctx.lineTo(stk*0.22,-stk*0.22); ctx.lineTo(stk,0); ctx.lineTo(stk*0.22,stk*0.22); ctx.lineTo(0,stk); ctx.lineTo(-stk*0.22,stk*0.22); ctx.lineTo(-stk,0); ctx.lineTo(-stk*0.22,-stk*0.22); ctx.closePath(); ctx.fill();
-          ctx.restore();
-        });
-        ctx.restore();
-      }
-      if (cellNum % 9 === 5) {
-        ctx.save(); ctx.globalAlpha = 0.65;
-        const hk = Math.min(cw, faceH) * 0.14;
-        const hx3 = cx + cw*0.77, hy3 = cy + faceH*0.28;
-        ctx.fillStyle = '#f43f5e';
-        ctx.beginPath();
-        ctx.moveTo(hx3, hy3 + hk*0.62);
-        ctx.bezierCurveTo(hx3 - hk*1.2, hy3, hx3 - hk*1.2, hy3 - hk*0.9, hx3, hy3 - hk*0.28);
-        ctx.bezierCurveTo(hx3 + hk*1.2, hy3 - hk*0.9, hx3 + hk*1.2, hy3, hx3, hy3 + hk*0.62);
-        ctx.closePath(); ctx.fill();
-        ctx.restore();
-      }
     }
 
     // ── Subtle themed decoration ──
@@ -1060,37 +898,38 @@ const Board = (() => {
       ctx.restore();
     }
 
-    // ── Number — big, bold, easy for kids to read ──
-    const fontSize = Math.max(Math.min(cellW * 0.44, cellH * 0.48, 24), 10);
-    ctx.font = `900 ${fontSize}px 'Baloo 2', 'Fredoka One', cursive`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    // ── Number — small, bottom-left corner ──
+    const fontSize = Math.max(Math.min(cellW * 0.26, cellH * 0.28, 13), 7);
+    ctx.font = `700 ${fontSize}px 'Baloo 2', 'Fredoka One', cursive`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
 
-    const numY = cy + faceH * 0.47;
+    const numX = cx + cw * 0.10;
+    const numY = cy + faceH - faceH * 0.08;
 
     let numFill, numShadow;
     if (theme === 'space') {
-      numFill = '#e0d4ff'; numShadow = 'rgba(5,0,20,0.98)';
+      numFill = '#c4b5fd'; numShadow = 'rgba(5,0,20,0.98)';
     } else if (theme === 'ocean') {
-      numFill = '#ffffff'; numShadow = 'rgba(0,40,80,0.96)';
+      numFill = '#bae6fd'; numShadow = 'rgba(0,40,80,0.96)';
     } else if (theme === 'fantasy') {
-      numFill = '#ffffff'; numShadow = 'rgba(60,0,100,0.92)';
+      numFill = '#e9d5ff'; numShadow = 'rgba(60,0,100,0.92)';
     } else if (theme === 'jungle') {
-      numFill = '#ffffff'; numShadow = 'rgba(20,50,20,0.96)';
+      numFill = '#bbf7d0'; numShadow = 'rgba(5,20,5,0.95)';
     } else {
       numFill = '#ffffff'; numShadow = 'rgba(20,20,40,0.96)';
     }
 
     ctx.shadowColor = numShadow;
-    ctx.shadowBlur = 6;
+    ctx.shadowBlur = 4;
     ctx.fillStyle = numFill;
-    ctx.fillText(cellNum, r.cx, numY);
+    ctx.fillText(cellNum, numX, numY);
     ctx.shadowBlur = 0;
     ctx.shadowColor = 'transparent';
   }
 
   function drawTileDecoration(ctx, cx, cy, cw, faceH, cellNum, theme) {
-    if (theme === 'jungle') return; // jungle cells have their own organic texture
+    return; // tile decorations removed
     const type = cellNum % 5;
     if (type === 0) return; // plain tile
 
@@ -1266,9 +1105,18 @@ const Board = (() => {
     const headR = lineW * 1.35;
     const headSprite = _sprites['head-' + theme];
     if (headSprite && headSprite.complete && headSprite.naturalWidth > 0) {
-      // Draw sprite centered on head point, rotated to face along snake direction
       const spriteSize = head.w * 1.3;
-      ctx.drawImage(headSprite, hx - spriteSize / 2, hy - spriteSize / 2, spriteSize, spriteSize);
+      // Tilt head slightly toward body direction, clamped to ±30°
+      const bodyAngle = Math.atan2(hy - cp2y, hx - cp2x);
+      let headRot = bodyAngle + Math.PI / 2;
+      while (headRot > Math.PI) headRot -= Math.PI * 2;
+      while (headRot < -Math.PI) headRot += Math.PI * 2;
+      headRot = Math.max(-Math.PI / 6, Math.min(Math.PI / 6, headRot));
+      ctx.save();
+      ctx.translate(hx, hy);
+      ctx.rotate(headRot);
+      ctx.drawImage(headSprite, -spriteSize / 2, -spriteSize / 2, spriteSize, spriteSize);
+      ctx.restore();
     } else {
     ctx.shadowColor = 'rgba(0,0,0,0.45)';
     ctx.shadowBlur = 8;
@@ -2329,7 +2177,7 @@ const Board = (() => {
       for (const l of this.config.ladders) { occupied.add(l.bottom); occupied.add(l.top); }
       for (const s of this.config.snakes) { occupied.add(s.head); occupied.add(s.tail); }
 
-      const target = Math.max(3, Math.round(total / 20));
+      const target = 3;
       const candidates = shuffle(Array.from({ length: total - 2 }, (_, i) => i + 2));
       let placed = 0, idx = 0;
       while (placed < target && idx + 1 < candidates.length) {
@@ -2352,7 +2200,7 @@ const Board = (() => {
       for (const s of this.config.snakes) { occupied.add(s.head); occupied.add(s.tail); }
       for (const l of this.config.ladders) { occupied.add(l.bottom); occupied.add(l.top); }
 
-      const target = Math.max(3, Math.round(total / 20));
+      const target = 3;
       const candidates = shuffle(Array.from({ length: total - 2 }, (_, i) => i + 2));
       let placed = 0, idx = 0;
       while (placed < target && idx + 1 < candidates.length) {
@@ -2458,28 +2306,28 @@ const Board = (() => {
   // BOARD PARTICLE ANIMATION
   // ============================================================
   let _animCanvas = null, _animCtx = null, _animRAF = null, _animTheme = null;
-  let _animParticles = [], _animTime = 0;
+  let _animParticles = [], _animTime = 0, _animW = 0, _animH = 0;
 
   function _makeParticle(theme, w, h) {
-    if (theme === 'space') return { x: Math.random()*w, y: Math.random()*h, r: Math.random()*1.5+0.5, phase: Math.random()*Math.PI*2, speed: Math.random()*0.8+0.3, color: Math.random()>0.85?'#a78bfa':'#ffffff' };
-    if (theme === 'ocean') return { x: Math.random()*w, y: h+Math.random()*h, r: Math.random()*4+2, speed: Math.random()*0.5+0.2, wobble: Math.random()*0.5+0.2, wPhase: Math.random()*Math.PI*2, alpha: Math.random()*0.4+0.15 };
-    if (theme === 'fantasy') return { x: Math.random()*w, y: Math.random()*h, life: Math.random(), maxLife: Math.random()*140+60, speed: Math.random()*0.35+0.1, size: Math.random()*5+2, color: ['#f9a8d4','#c4b5fd','#fde68a','#a5f3fc'][Math.floor(Math.random()*4)] };
-    if (theme === 'jungle') return { x: Math.random()*w, y: Math.random()*h, angle: Math.random()*Math.PI*2, spin: (Math.random()-0.5)*0.04, speed: Math.random()*0.6+0.2, size: Math.random()*6+3, color: Math.random()>0.5?'#4ade80':'#86efac', drift: (Math.random()-0.5)*0.4 };
-    if (theme === 'cartoon') return { x: Math.random()*w, y: Math.random()*h, vx: (Math.random()-0.5)*0.7, vy: (Math.random()-0.5)*0.7, r: Math.random()*5+3, color: ['#f43f5e','#f59e0b','#3b82f6','#22c55e','#a855f7'][Math.floor(Math.random()*5)] };
+    if (theme === 'space') return { x: Math.random()*w, y: Math.random()*h, r: Math.random()*2.5+1.0, phase: Math.random()*Math.PI*2, speed: Math.random()*0.8+0.3, color: Math.random()>0.85?'#a78bfa':'#ffffff' };
+    if (theme === 'ocean') return { x: Math.random()*w, y: h+Math.random()*h, r: Math.random()*6+3, speed: Math.random()*0.6+0.3, wobble: Math.random()*0.5+0.2, wPhase: Math.random()*Math.PI*2, alpha: Math.random()*0.5+0.25 };
+    if (theme === 'fantasy') return { x: Math.random()*w, y: Math.random()*h, life: Math.random(), maxLife: Math.random()*120+50, speed: Math.random()*0.4+0.15, size: Math.random()*7+3, color: ['#f9a8d4','#c4b5fd','#fde68a','#a5f3fc'][Math.floor(Math.random()*4)] };
+    if (theme === 'jungle') return { x: Math.random()*w, y: Math.random()*h, angle: Math.random()*Math.PI*2, spin: (Math.random()-0.5)*0.05, speed: Math.random()*0.8+0.3, size: Math.random()*9+5, color: Math.random()>0.5?'#4ade80':'#86efac', drift: (Math.random()-0.5)*0.5 };
+    if (theme === 'cartoon') return { x: Math.random()*w, y: Math.random()*h, vx: (Math.random()-0.5)*0.9, vy: (Math.random()-0.5)*0.9, r: Math.random()*7+4, color: ['#f43f5e','#f59e0b','#3b82f6','#22c55e','#a855f7'][Math.floor(Math.random()*5)] };
     return null;
   }
 
   function _initParticles(theme, w, h) {
-    const counts = { space:55, ocean:22, fantasy:30, jungle:14, cartoon:14 };
+    const counts = { space:70, ocean:35, fantasy:45, jungle:28, cartoon:28 };
     const count = counts[theme] || 20;
     _animParticles = Array.from({ length: count }, () => _makeParticle(theme, w, h));
   }
 
   function _runBoardAnim() {
     if (!_animCanvas || !_animCtx) return;
-    const w = _animCanvas.width, h = _animCanvas.height;
+    const w = _animW, h = _animH;
     _animTime += 0.018;
-    _animCtx.clearRect(0, 0, w, h);
+    _animCtx.clearRect(0, 0, _animW, _animH);
 
     for (const p of _animParticles) {
       const theme = _animTheme;
@@ -2500,7 +2348,7 @@ const Board = (() => {
         p.y -= p.speed;
         if (p.life >= 1) { Object.assign(p, _makeParticle('fantasy', w, h)); }
         const a = p.life < 0.2 ? p.life/0.2 : p.life > 0.8 ? (1-p.life)/0.2 : 1;
-        _animCtx.globalAlpha = a * 0.75;
+        _animCtx.globalAlpha = a * 0.90;
         _animCtx.fillStyle = p.color;
         const s = p.size;
         _animCtx.beginPath();
@@ -2511,7 +2359,7 @@ const Board = (() => {
       } else if (theme === 'jungle') {
         p.y += p.speed; p.x += p.drift; p.angle += p.spin;
         if (p.y > h + p.size) { Object.assign(p, _makeParticle('jungle', w, h)); p.y = -p.size; }
-        _animCtx.globalAlpha = 0.5;
+        _animCtx.globalAlpha = 0.70;
         _animCtx.save(); _animCtx.translate(p.x, p.y); _animCtx.rotate(p.angle);
         _animCtx.fillStyle = p.color;
         _animCtx.beginPath(); _animCtx.ellipse(0, 0, p.size, p.size*0.42, 0, 0, Math.PI*2); _animCtx.fill();
@@ -2540,16 +2388,18 @@ const Board = (() => {
     _animCanvas.style.width = wrap.clientWidth + 'px';
     _animCanvas.style.height = wrap.clientHeight + 'px';
     _animCtx = _animCanvas.getContext('2d');
-    _animCtx.scale(dpr, dpr);
+    _animCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     _animTheme = theme;
     _animTime = 0;
-    _initParticles(theme, wrap.clientWidth, wrap.clientHeight);
+    _animW = wrap.clientWidth;
+    _animH = wrap.clientHeight;
+    _initParticles(theme, _animW, _animH);
     _runBoardAnim();
   }
 
   function stopBoardAnim() {
     if (_animRAF) { cancelAnimationFrame(_animRAF); _animRAF = null; }
-    if (_animCtx && _animCanvas) _animCtx.clearRect(0, 0, _animCanvas.width, _animCanvas.height);
+    if (_animCtx && _animW) _animCtx.clearRect(0, 0, _animW, _animH);
   }
 
   preloadSprites();
