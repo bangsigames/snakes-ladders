@@ -785,6 +785,9 @@ const App = (() => {
   // ============================================================
 
   function init() {
+    // Preload all board sprites so they're ready before first game
+    Board.preloadSprites();
+
     // Inject SVG icons
     const iconQuickPlay = document.querySelector('#btn-home-quick-play .home-btn-icon');
     if (iconQuickPlay) iconQuickPlay.innerHTML = Icons.get('dice', 36);

@@ -183,6 +183,7 @@ body.theme-cartoon .home-bg {
     transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1),
     box-shadow 0.12s cubic-bezier(0.34, 1.56, 0.64, 1),
     background 0.12s;
+  will-change: transform;
   position: relative;
   overflow: hidden;
   -webkit-appearance: none;
@@ -374,6 +375,7 @@ body.theme-cartoon .home-bg {
   transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.34,1.56,0.64,1);
   transform: scale(0.95) translateY(10px);
   overflow: hidden;
+  will-change: opacity, transform;
 }
 .screen.active {
   opacity: 1; pointer-events: all;
@@ -2293,6 +2295,7 @@ body.theme-cartoon .home-bg {
 #game-canvas {
   position: relative;
   z-index: 1;
+  will-change: contents;
 }
 #board-anim-canvas {
   position: absolute;

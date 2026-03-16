@@ -15,6 +15,7 @@ const Game = (() => {
 
   function init(boardConfig, players) {
     _almostNotified = new Set();
+    _lastStatusHTML = '';
     currentTheme = boardConfig.theme || 'cartoon';
     state = {
       board: boardConfig,
@@ -60,11 +61,14 @@ const Game = (() => {
 
   // ---- Bot scheduling ----
 
+  let _botTimer = null;
   function scheduleBotTurn() {
     if (!state) return;
     const player = state.players[state.currentIndex];
     if (player && player.isBot && state.phase === 'rolling') {
-      setTimeout(() => {
+      if (_botTimer) clearTimeout(_botTimer);
+      _botTimer = setTimeout(() => {
+        _botTimer = null;
         if (state && state.players[state.currentIndex].isBot && state.phase === 'rolling') {
           rollDice();
         }
@@ -381,6 +385,11 @@ const Game = (() => {
     doStep();
   }
 
+  let _animRAF = null;
+  function _cancelAnimRAF() {
+    if (_animRAF) { cancelAnimationFrame(_animRAF); _animRAF = null; }
+  }
+
   // Animate player token sliding along snake bezier (head → tail)
   function animateAlongSnake(player, snake, onDone) {
     const canvas = document.getElementById('game-canvas');
@@ -388,30 +397,22 @@ const Game = (() => {
     const w = canvas.width, h = canvas.height;
     const bp = Board.getSnakeBezierPath(snake.head, snake.tail, board.cols, board.rows, w, h);
 
-    const DURATION = 700; // ms
+    const DURATION = 700;
     const startTime = performance.now();
+    _cancelAnimRAF();
 
     function frame(now) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / DURATION, 1);
-
-      const animState = {
-        playerId: player.id,
-        bezierPath: bp,
-        progress: progress,
-      };
-
-      Board.redrawGame(board, state.players, animState);
-
+      const progress = Math.min((now - startTime) / DURATION, 1);
+      Board.redrawGame(board, state.players, { playerId: player.id, bezierPath: bp, progress });
       if (progress < 1) {
-        requestAnimationFrame(frame);
+        _animRAF = requestAnimationFrame(frame);
       } else {
+        _animRAF = null;
         animating = false;
         onDone();
       }
     }
-
-    requestAnimationFrame(frame);
+    _animRAF = requestAnimationFrame(frame);
   }
 
   // Animate player token climbing up ladder
@@ -421,30 +422,22 @@ const Game = (() => {
     const w = canvas.width, h = canvas.height;
     const bp = Board.getLadderBezierPath(ladder.bottom, ladder.top, board.cols, board.rows, w, h);
 
-    const DURATION = 600; // ms
+    const DURATION = 600;
     const startTime = performance.now();
+    _cancelAnimRAF();
 
     function frame(now) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / DURATION, 1);
-
-      const animState = {
-        playerId: player.id,
-        bezierPath: bp,
-        progress: progress,
-      };
-
-      Board.redrawGame(board, state.players, animState);
-
+      const progress = Math.min((now - startTime) / DURATION, 1);
+      Board.redrawGame(board, state.players, { playerId: player.id, bezierPath: bp, progress });
       if (progress < 1) {
-        requestAnimationFrame(frame);
+        _animRAF = requestAnimationFrame(frame);
       } else {
+        _animRAF = null;
         animating = false;
         onDone();
       }
     }
-
-    requestAnimationFrame(frame);
+    _animRAF = requestAnimationFrame(frame);
   }
 
   // Show event briefly (1s auto-dismiss) after animation
@@ -658,14 +651,13 @@ const Game = (() => {
     updatePlayersStatus();
   }
 
+  let _lastStatusHTML = '';
   function updatePlayersStatus() {
     if (!state) return;
     const container = document.getElementById('players-status');
     if (!container) return;
 
     const total = state.board.total || 100;
-
-    // Reorder: active player first, then others in turn order
     const active = state.players[state.currentIndex];
     const rest = [
       ...state.players.slice(state.currentIndex + 1),
@@ -678,18 +670,14 @@ const Game = (() => {
         _almostNotified.add(p.id);
         setTimeout(() => Sounds.almostThere(), 350);
       }
-      return `
-      <div class="player-chip ${isActive ? 'active-chip' : ''} ${almostThere ? 'chip-almost' : ''}"
-           style="border-color: ${isActive ? p.color : 'transparent'}">
-        <span class="chip-avatar">${p.character}</span>
-        <div>
-          <div class="chip-name" style="color:${p.color}">${p.isBot ? '🤖 ' : ''}${p.name}</div>
-          <div class="chip-pos">${p.position === 0 ? t('game.position_start') : p.finished ? t('game.position_done') : almostThere ? t('game.position_to_go', { n: total - p.position }) : t('game.position_sq', { n: p.position })}</div>
-        </div>
-      </div>`;
+      return `<div class="player-chip ${isActive ? 'active-chip' : ''} ${almostThere ? 'chip-almost' : ''}" style="border-color: ${isActive ? p.color : 'transparent'}"><span class="chip-avatar">${p.character}</span><div><div class="chip-name" style="color:${p.color}">${p.isBot ? '🤖 ' : ''}${p.name}</div><div class="chip-pos">${p.position === 0 ? t('game.position_start') : p.finished ? t('game.position_done') : almostThere ? t('game.position_to_go', { n: total - p.position }) : t('game.position_sq', { n: p.position })}</div></div></div>`;
     };
 
-    container.innerHTML = renderChip(active, true) + rest.map(p => renderChip(p, false)).join('');
+    const html = renderChip(active, true) + rest.map(p => renderChip(p, false)).join('');
+    if (html !== _lastStatusHTML) {
+      _lastStatusHTML = html;
+      container.innerHTML = html;
+    }
   }
 
   // ---- Shake detection ----
@@ -714,6 +702,8 @@ const Game = (() => {
   }
 
   function cleanup() {
+    _cancelAnimRAF();
+    if (_botTimer) { clearTimeout(_botTimer); _botTimer = null; }
     window.removeEventListener('devicemotion', handleMotion);
     Sounds.stopMusic();
   }
