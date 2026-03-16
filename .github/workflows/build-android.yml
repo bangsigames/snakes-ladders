@@ -61,23 +61,50 @@ jobs:
           done
           rm -rf android/app/src/main/res/mipmap-anydpi-v26
 
+      - name: Decode keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/snakesladders-release.jks
+
+      - name: Configure Gradle signing
+        run: |
+          cat >> android/app/build.gradle << 'EOF'
+
+          android {
+            signingConfigs {
+              release {
+                storeFile file("snakesladders-release.jks")
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias "snakesladders"
+                keyPassword System.getenv("KEY_PASSWORD")
+              }
+            }
+            buildTypes {
+              release {
+                signingConfig signingConfigs.release
+              }
+            }
+          }
+          EOF
+
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build debug APK
-        run: cd android && ./gradlew assembleDebug
+      - name: Build signed release APK
+        run: cd android && ./gradlew assembleRelease --no-daemon
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: snakes-ladders-${{ github.ref_name }}
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: android/app/build/outputs/apk/debug/app-debug.apk
+          files: android/app/build/outputs/apk/release/app-release.apk
           name: My Snakes & Ladders ${{ github.ref_name }}
           body: |
             ## My Snakes & Ladders ${{ github.ref_name }}
