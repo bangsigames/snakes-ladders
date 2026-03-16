@@ -5,6 +5,7 @@
 const App = (() => {
 
   let currentBoard = null; // board config selected for play
+  let _lastGamePlayers = null; // players from most recent finished game
 
   // ============================================================
   // SCREEN MANAGEMENT
@@ -418,9 +419,14 @@ const App = (() => {
     chips.forEach(c => c.classList.toggle('selected', c.textContent.trim() === trimmed));
   }
 
-  function showPlayerSetup() {
-    playerCount = 2;
-    playerSetups = [];
+  function showPlayerSetup(prefillPlayers) {
+    if (prefillPlayers) {
+      playerCount = prefillPlayers.length;
+      playerSetups = prefillPlayers.map(p => ({ ...p }));
+    } else {
+      playerCount = 2;
+      playerSetups = [];
+    }
     renderPlayerCountBtns();
     renderPlayerCards();
     showScreen('screen-player-setup');
@@ -732,6 +738,7 @@ const App = (() => {
       }
     }
 
+    _lastGamePlayers = gameState.players.map(p => ({ name: p.name, character: p.character, color: p.color, sound: p.sound, isBot: p.isBot || false }));
     applyTheme(gameState.board.theme || 'cartoon');
     showScreen('screen-winner');
     Particles.start(document.getElementById('confetti-canvas'));
@@ -1022,7 +1029,7 @@ const App = (() => {
       Sounds.button();
       Particles.stop();
       Game.cleanup();
-      showPlayerSetup();
+      showPlayerSetup(_lastGamePlayers || undefined);
     });
     document.getElementById('btn-home-from-win').addEventListener('click', () => {
       Sounds.button();
