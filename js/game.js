@@ -266,12 +266,11 @@ const Game = (() => {
         unzoomBoard(null);
 
         // Can remaining players continue racing?
-        // Yes if: 3+ total players AND at least 2 players still unfinished (last
-        // remaining player is automatically last place — no point continuing)
-        // AND at least 1 of those is human (no value in watching bots race)
+        // Yes if: at least 2 players still unfinished (otherwise last place is decided
+        // automatically, no race left) AND at least 1 of those is human.
         const unfinishedPlayers = state.players.filter(p => !p.finished);
         const unfinishedHumans = unfinishedPlayers.filter(p => !p.isBot);
-        const canContinue = state.players.length >= 3 && unfinishedPlayers.length > 1 && unfinishedHumans.length > 1;
+        const canContinue = unfinishedPlayers.length >= 2 && unfinishedHumans.length >= 1;
 
         if (allPlayersFinished() || !canContinue) {
           endGame();
@@ -503,41 +502,7 @@ const Game = (() => {
       card.classList.add('bounce-card');
       Particles.stop();
     } else if (type === 'snake') {
-      emoji.innerHTML = `<svg viewBox="0 -13 100 113" xmlns="http://www.w3.org/2000/svg">
-        <!-- Body shadow/outline -->
-        <path d="M18 92 Q6 68 18 50 Q30 32 50 30 Q70 28 64 10"
-              fill="none" stroke="#1b5e20" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
-        <!-- Body -->
-        <path d="M18 92 Q6 68 18 50 Q30 32 50 30 Q70 28 64 10"
-              fill="none" stroke="#4CAF50" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
-        <!-- Belly stripe -->
-        <path d="M18 92 Q6 68 18 50 Q30 32 50 30 Q70 28 64 10"
-              fill="none" stroke="rgba(200,240,175,0.68)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <!-- Scale arcs along body (manually placed) -->
-        <ellipse cx="19" cy="78" rx="8" ry="5" fill="rgba(20,80,20,0.48)" transform="rotate(-55 19 78)"/>
-        <ellipse cx="12" cy="62" rx="8" ry="5" fill="rgba(20,80,20,0.48)" transform="rotate(-35 12 62)"/>
-        <ellipse cx="17" cy="47" rx="8" ry="5" fill="rgba(20,80,20,0.48)" transform="rotate(5 17 47)"/>
-        <ellipse cx="33" cy="34" rx="8" ry="5" fill="rgba(20,80,20,0.48)" transform="rotate(40 33 34)"/>
-        <ellipse cx="52" cy="27" rx="8" ry="5" fill="rgba(20,80,20,0.48)" transform="rotate(5 52 27)"/>
-        <!-- Head shadow -->
-        <circle cx="66" cy="9" r="20" fill="#1b5e20"/>
-        <!-- Head -->
-        <circle cx="66" cy="8" r="18" fill="#4CAF50"/>
-        <!-- Head gloss -->
-        <ellipse cx="57" cy="2" rx="7" ry="4.5" fill="rgba(255,255,255,0.22)" transform="rotate(-20 57 2)"/>
-        <!-- Eyes — wide and alarmed -->
-        <circle cx="56" cy="3"  r="6" fill="white"/>
-        <circle cx="76" cy="3"  r="6" fill="white"/>
-        <circle cx="57" cy="4"  r="3.4" fill="#111"/>
-        <circle cx="77" cy="4"  r="3.4" fill="#111"/>
-        <!-- Eye shine -->
-        <circle cx="55.5" cy="2.2" r="1.4" fill="white"/>
-        <circle cx="75.5" cy="2.2" r="1.4" fill="white"/>
-        <!-- Tongue -->
-        <line x1="66" y1="25" x2="66" y2="36" stroke="#FF1744" stroke-width="3.2" stroke-linecap="round"/>
-        <line x1="66" y1="36" x2="59" y2="43" stroke="#FF1744" stroke-width="3.2" stroke-linecap="round"/>
-        <line x1="66" y1="36" x2="73" y2="43" stroke="#FF1744" stroke-width="3.2" stroke-linecap="round"/>
-      </svg>`;
+      emoji.innerHTML = `<img src="img/snake-event.png" alt="snake" style="width:100%;height:100%;object-fit:contain;">`;
       title.textContent = t('event.snake_title');
       desc.textContent = t('event.snake_desc', { name: player.name });
       overlay.classList.add('snake-event');
