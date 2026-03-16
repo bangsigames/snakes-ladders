@@ -37,6 +37,7 @@ const Game = (() => {
       rankings: [],
     };
 
+    Board.invalidateBoardCache();
     Board.initGameCanvas(
       document.getElementById('game-canvas'),
       boardConfig,
@@ -799,6 +800,7 @@ const Game = (() => {
       rankings:     snapshot.rankings || [],
     };
 
+    Board.invalidateBoardCache();
     Board.initGameCanvas(
       document.getElementById('game-canvas'),
       state.board,

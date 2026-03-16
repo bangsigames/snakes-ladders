@@ -42,47 +42,75 @@ const Board = (() => {
   // CANVAS RENDERING
   // ============================================================
 
-  /**
-   * Draw the full board on a canvas context.
-   * @param {CanvasRenderingContext2D} ctx
-   * @param {object} boardConfig  { cols, rows, total, theme, snakes, ladders }
-   * @param {number} w  canvas width
-   * @param {number} h  canvas height
-   */
-  function render(ctx, boardConfig, w, h, players, animState) {
+  // Offscreen cache for the static board (cells + snakes + ladders).
+  // Only rebuilt when the board config or canvas dimensions change.
+  let _boardCache = null; // { key, canvas, cellRects }
+
+  function _staticCacheKey(boardConfig, w, h) {
+    const { cols, rows, theme, snakes = [], ladders = [] } = boardConfig;
+    return `${w}x${h}|${theme}|${cols}x${rows}|` +
+      snakes.map(s => `${s.head},${s.tail}`).join(';') + '|' +
+      ladders.map(l => `${l.bottom},${l.top}`).join(';');
+  }
+
+  function _buildStaticCache(boardConfig, w, h) {
     const { cols, rows, theme, snakes = [], ladders = [] } = boardConfig;
     const T = THEMES[theme] || THEMES.cartoon;
     const cellW = w / cols;
     const cellH = h / rows;
 
-
-    // Theme canvas background art (drawn before cells)
-    drawBoardBackground(ctx, theme, cols, rows, w, h, T);
-
-    // Draw cells (inset 1px so themed background shows as grid lines)
+    // Pre-compute all cell rects once
     const total = cols * rows;
+    const cellRects = new Array(total + 1);
     for (let cell = 1; cell <= total; cell++) {
-      const r = getCellRect(cell, cols, rows, w, h);
+      cellRects[cell] = getCellRect(cell, cols, rows, w, h);
+    }
+
+    // Render static content to offscreen canvas
+    const oc = document.createElement('canvas');
+    oc.width = w; oc.height = h;
+    const oc_ctx = oc.getContext('2d');
+
+    drawBoardBackground(oc_ctx, theme, cols, rows, w, h, T);
+
+    for (let cell = 1; cell <= total; cell++) {
       const isEven = (Math.floor((cell-1) / cols) + ((cell-1) % cols)) % 2 === 0;
-      drawCell(ctx, r, cell, isEven, T, cellW, cellH, theme, total);
+      drawCell(oc_ctx, cellRects[cell], cell, isEven, T, cellW, cellH, theme, total);
     }
 
-    // Theme overlay art (drawn after cells, semi-transparent)
-    drawBoardOverlay(ctx, theme, cols, rows, w, h, T);
+    drawBoardOverlay(oc_ctx, theme, cols, rows, w, h, T);
 
-    // Draw ladders (behind snakes)
     for (const ladder of ladders) {
-      drawLadder(ctx, ladder.bottom, ladder.top, cols, rows, w, h, T, theme);
+      drawLadder(oc_ctx, ladder.bottom, ladder.top, cols, rows, w, h, T, theme);
     }
-
-    // Draw snakes
     for (const snake of snakes) {
-      drawSnake(ctx, snake.head, snake.tail, cols, rows, w, h, T, theme);
+      drawSnake(oc_ctx, snake.head, snake.tail, cols, rows, w, h, T, theme);
     }
 
-    // Draw player tokens
+    return { key: _staticCacheKey(boardConfig, w, h), canvas: oc, cellRects, cellW, cellH, cols, rows };
+  }
+
+  function invalidateBoardCache() {
+    _boardCache = null;
+  }
+
+  /**
+   * Draw the full board on a canvas context.
+   * Static content (cells, snakes, ladders) is cached to an offscreen canvas
+   * and only rebuilt when the board config or canvas size changes.
+   */
+  function render(ctx, boardConfig, w, h, players, animState) {
+    const key = _staticCacheKey(boardConfig, w, h);
+    if (!_boardCache || _boardCache.key !== key) {
+      _boardCache = _buildStaticCache(boardConfig, w, h);
+    }
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.drawImage(_boardCache.canvas, 0, 0);
+
     if (players) {
-      drawPlayers(ctx, players, cols, rows, w, h, cellW, cellH, animState);
+      const { cellRects, cellW, cellH, cols, rows } = _boardCache;
+      drawPlayers(ctx, players, cols, rows, w, h, cellW, cellH, animState, cellRects);
     }
   }
 
@@ -1059,39 +1087,42 @@ const Board = (() => {
     ctx.restore();
   }
 
-  function drawPlayers(ctx, players, cols, rows, w, h, cellW, cellH, animState) {
+  function drawPlayers(ctx, players, cols, rows, w, h, cellW, cellH, animState, cellRects) {
+    // Use pre-computed rects when available, otherwise fall back to getCellRect
+    const getRect = cellRects
+      ? (cell) => cellRects[cell]
+      : (cell) => getCellRect(cell, cols, rows, w, h);
+
+    const tokenR = Math.min(cellW, cellH) * 0.32;
+
     // Group players by position (for those not animating along bezier)
     const byPos = {};
     for (const p of players) {
-      // Skip if this player is bezier-animating
-      if (animState && animState.playerId === p.id && animState.bezierPath) {
-        continue;
-      }
+      if (animState && animState.playerId === p.id && animState.bezierPath) continue;
       if (p.position > 0) {
         if (!byPos[p.position]) byPos[p.position] = [];
         byPos[p.position].push(p);
       }
     }
 
-    for (const [pos, group] of Object.entries(byPos)) {
-      const r = getCellRect(parseInt(pos), cols, rows, w, h);
+    for (const pos in byPos) {
+      const r = getRect(+pos);
+      const group = byPos[pos];
       const n = group.length;
-      group.forEach((p, i) => {
+      for (let i = 0; i < n; i++) {
+        const p = group[i];
         const offX = n > 1 ? (i - (n-1)/2) * (cellW * 0.28) : 0;
-        const px = r.cx + offX;
-        const py = r.cy;
+        let drawX = r.cx + offX;
+        let drawY = r.cy;
 
-        // Old step-by-step animated position
-        let drawX = px, drawY = py;
         if (animState && animState.playerId === p.id && !animState.bezierPath && animState.progress < 1) {
-          const fromR = getCellRect(animState.fromCell, cols, rows, w, h);
-          drawX = fromR.cx + (px - fromR.cx) * animState.progress + offX;
-          drawY = fromR.cy + (py - fromR.cy) * animState.progress;
+          const fromR = getRect(animState.fromCell);
+          drawX = fromR.cx + (r.cx - fromR.cx) * animState.progress + offX;
+          drawY = fromR.cy + (r.cy - fromR.cy) * animState.progress;
         }
 
-        const tokenR = Math.min(cellW, cellH) * 0.32;
         drawToken(ctx, drawX, drawY, p, tokenR);
-      });
+      }
     }
 
     // Draw bezier-animated player
@@ -1100,10 +1131,10 @@ const Board = (() => {
       if (p) {
         const bp = animState.bezierPath;
         const t = animState.progress;
-        const bx = cubicBezierPoint(bp.x0, bp.cx1, bp.cx2, bp.x1, t);
-        const by = cubicBezierPoint(bp.y0, bp.cy1, bp.cy2, bp.y1, t);
-        const tokenR = Math.min(cellW, cellH) * 0.32;
-        drawToken(ctx, bx, by, p, tokenR);
+        drawToken(ctx,
+          cubicBezierPoint(bp.x0, bp.cx1, bp.cx2, bp.x1, t),
+          cubicBezierPoint(bp.y0, bp.cy1, bp.cy2, bp.y1, t),
+          p, tokenR);
       }
     }
   }
@@ -1826,7 +1857,7 @@ const Board = (() => {
     cubicBezierPoint,
     getSnakeBezierPath, getLadderBezierPath,
     designer,
-    initGameCanvas, resizeGameCanvas, redrawGame,
+    initGameCanvas, resizeGameCanvas, redrawGame, invalidateBoardCache,
     startBoardAnim, stopBoardAnim,
     lightenColor,
   };
