@@ -45,7 +45,7 @@ html, body {
   --shadow: 0 6px 20px rgba(0,0,0,0.09);
   --shadow-lg: 0 16px 48px rgba(0,0,0,0.14);
   --shadow-btn: 0 6px 0 var(--primary-dark), 0 8px 32px rgba(255,77,109,0.35);
-  --font-display: 'Baloo 2', 'Fredoka One', 'Arial Black', sans-serif;
+  --font-display: 'Fredoka One', 'Baloo 2', 'Arial Black', sans-serif;
 
   /* ---- Typography scale ---- */
   --type-title:   clamp(1.4rem, 5vw, 2rem);
@@ -540,61 +540,93 @@ body.theme-cartoon .home-bg {
 .logo-text { text-align: center; }
 
 .logo-title {
-  font-family: var(--font-display);
-  font-size: clamp(1.4rem, 5.5vw, 2rem);
+  font-family: 'Fredoka One', var(--font-display);
+  font-size: clamp(2rem, 8vw, 2.8rem);
   color: white;
   text-shadow: 0 3px 0 rgba(0,0,0,0.25), 0 8px 32px rgba(255,77,109,0.5);
-  line-height: 1;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  -webkit-text-stroke: 1px rgba(0,0,0,0.12);
-}
-
-.logo-usp {
-  margin-top: 6px;
-  display: inline-block;
-  background: rgba(255,255,255,0.18);
-  border: 1.5px solid rgba(255,255,255,0.35);
-  border-radius: 20px;
-  padding: 3px 12px;
-  font-size: clamp(0.72rem, 2.2vw, 0.85rem);
-  font-weight: 700;
-  color: rgba(255,255,255,0.92);
-  letter-spacing: 0.3px;
+  line-height: 1.05;
+  font-weight: 400; /* Fredoka One is inherently bold at weight 400 */
+  letter-spacing: 0.5px;
+  -webkit-text-stroke: 1px rgba(0,0,0,0.10);
 }
 
 .logo-tagline {
   margin-top: 8px;
-  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  font-size: clamp(0.82rem, 2.6vw, 1rem);
   font-weight: 700;
-  color: rgba(255,255,255,0.65);
-  letter-spacing: 3px;
-  text-transform: uppercase;
+  color: rgba(255,255,255,0.72);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.tagline-e {
+  color: #FFBE0B;
+  font-weight: 900;
+}
+
+/* Globe language button */
+.home-globe-btn {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  right: 16px;
+  z-index: 10;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.28);
+  font-size: 1.35rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, transform 0.15s;
+}
+.home-globe-btn:active { background: rgba(255,255,255,0.28); transform: scale(0.93); }
+
+/* Language panel (shown on globe tap) */
+.home-lang-panel {
+  position: absolute;
+  top: calc(max(12px, env(safe-area-inset-top, 0px)) + 52px);
+  right: 12px;
+  z-index: 20;
+  background: rgba(20,0,48,0.94);
+  border: 1.5px solid rgba(255,255,255,0.18);
+  border-radius: 18px;
+  padding: 10px;
+  display: flex; flex-direction: column; gap: 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
 }
 
 /* ---- Buttons ---- */
 .home-buttons {
   display: flex; flex-direction: column;
-  gap: 14px; width: 100%; max-width: 480px;
+  gap: 12px; width: 100%; max-width: 480px;
 }
 
 .home-secondary-row {
   display: grid; grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 12px;
 }
 
 .home-btn {
   padding: 16px 20px;
-  min-height: 72px;
+  min-height: 68px;
   border-radius: 22px;
 }
 .home-btn:hover:not(:active) { transform: translateY(-4px) scale(1.01); }
 .home-btn:active             { transform: translateY(5px) scale(0.98); }
 
-.home-btn-icon  { font-size: 2rem; flex-shrink: 0; }
-.home-btn-label { font-size: clamp(1.05rem, 3.5vw, 1.4rem); flex: none; color: white; }
-.home-btn-sub   { font-size: 0.72rem; font-weight: 700; opacity: 0.72; letter-spacing: 0.04em; text-transform: uppercase; }
-#btn-home-quick-play { flex-direction: column; gap: 2px; }
+/* PRIMARY modifier — Build a Board gets extra height and larger label */
+.home-btn-primary {
+  min-height: 88px;
+}
+.home-btn-primary .home-btn-label {
+  font-size: clamp(1.2rem, 4vw, 1.6rem);
+}
+.home-btn-primary .home-btn-icon {
+  font-size: 2.2rem;
+}
+
+.home-btn-icon  { font-size: 1.8rem; flex-shrink: 0; }
+.home-btn-label { font-size: clamp(1rem, 3.5vw, 1.3rem); flex: none; color: white; }
 
 /* PRIMARY — Play Game: yellow candy */
 .btn-play {
@@ -3130,16 +3162,18 @@ body.theme-cartoon .home-bg {
 }
 
 @media (max-height: 750px) {
-  .home-content { gap: 14px; }
-  .logo-app-icon { width: 110px; height: 110px; border-radius: 26px; }
+  .home-content { gap: 12px; }
+  .logo-app-icon { width: 100px; height: 100px; border-radius: 24px; }
+  .logo-title { font-size: clamp(1.7rem, 7vw, 2.2rem); }
+  .home-btn-primary { min-height: 76px; }
 }
 @media (max-height: 680px) {
-  .home-content { gap: 10px; }
-  .logo-app-icon { width: 80px; height: 80px; border-radius: 20px; }
-  .logo-title, .logo-title2 { font-size: clamp(1.6rem, 6vw, 2rem); }
-  .home-btn { padding: 12px 20px; }
-  .lang-row { gap: 6px; }
-  .lang-btn { width: 32px; height: 32px; font-size: 1.1rem; }
+  .home-content { gap: 8px; }
+  .logo-app-icon { width: 72px; height: 72px; border-radius: 18px; }
+  .logo-title { font-size: clamp(1.4rem, 6vw, 1.8rem); }
+  .logo-tagline { font-size: 0.78rem; }
+  .home-btn { padding: 10px 16px; min-height: 56px; }
+  .home-btn-primary { min-height: 68px; }
   .privacy-link { font-size: 0.72rem; padding: 2px 6px; }
 }
 

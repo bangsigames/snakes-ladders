@@ -821,7 +821,7 @@ const App = (() => {
     const iconPlay = document.querySelector('#btn-home-play .home-btn-icon');
     if (iconPlay) iconPlay.innerHTML = Icons.get('play', 36);
     const iconPalette = document.querySelector('#btn-home-design .home-btn-icon');
-    if (iconPalette) iconPalette.innerHTML = Icons.get('palette', 28);
+    if (iconPalette) iconPalette.innerHTML = Icons.get('palette', 36);
     const iconBoards = document.querySelector('#btn-home-scores .home-btn-icon');
     if (iconBoards) iconBoards.innerHTML = Icons.get('ladder', 28);
     const iconMenuBtn = document.getElementById('icon-menu-btn');

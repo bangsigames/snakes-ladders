@@ -6,7 +6,7 @@ const TRANSLATIONS = {
   en: {
     // Home screen
     home: {
-      app_name: 'My Snakes & Ladders',
+      app_name: 'Sneaky Ladders',
       title1: 'Snakes &',
       title2: 'Ladders',
       usp: '✏️ Build Your Own Board',
@@ -286,7 +286,7 @@ const TRANSLATIONS = {
   },
   fr: {
     home: {
-      app_name: 'My Snakes & Ladders',
+      app_name: 'Sneaky Ladders',
       title1: 'Serpents &',
       title2: 'Échelles',
       usp: '✏️ Crée ton propre plateau',
@@ -559,7 +559,7 @@ const TRANSLATIONS = {
   // ── GERMAN ──────────────────────────────────────────────────
   de: {
     home: {
-      app_name: 'My Snakes & Ladders',
+      app_name: 'Sneaky Ladders',
       title1: 'Schlangen &',
       title2: 'Leitern',
       usp: '✏️ Bau dein eigenes Spielfeld',
@@ -830,7 +830,7 @@ const TRANSLATIONS = {
   // ── ITALIAN ─────────────────────────────────────────────────
   it: {
     home: {
-      app_name: 'My Snakes & Ladders',
+      app_name: 'Sneaky Ladders',
       title1: 'Serpenti e',
       title2: 'Scale',
       usp: '✏️ Crea il tuo tabellone',
@@ -1101,7 +1101,7 @@ const TRANSLATIONS = {
   // ── SPANISH ─────────────────────────────────────────────────
   es: {
     home: {
-      app_name: 'My Snakes & Ladders',
+      app_name: 'Sneaky Ladders',
       title1: 'Serpientes y',
       title2: 'Escaleras',
       usp: '✏️ Crea tu propio tablero',
@@ -1372,7 +1372,7 @@ const TRANSLATIONS = {
   // ── PORTUGUESE (BR) ─────────────────────────────────────────
   pt: {
     home: {
-      app_name: 'My Snakes & Ladders',
+      app_name: 'Sneaky Ladders',
       title1: 'Cobras e',
       title2: 'Escadas',
       usp: '✏️ Crie seu próprio tabuleiro',
