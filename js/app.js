@@ -142,27 +142,27 @@ const App = (() => {
         cartoon: 'linear-gradient(135deg,#fb7185,#e11d48); box-shadow:0 5px 0 #9f1239',
       };
       list.innerHTML = boards.map(b => {
-        const playStyle = playGrads[b.theme] || playGrads.cartoon;
-        const squares = (b.cols || 10) * (b.rows || 10);
-        const deleteBtn = b.isDefault
-          ? `<span class="card-default-badge">${t('designer.builtin_badge')}</span>`
-          : `<button class="btn-card-delete" data-action="delete" data-board-id="${escHtml(b.id)}">✕</button>`;
-        const snakeIcon = Icons.get('snake', 14);
-        const ladderIcon = Icons.get('ladder', 14);
+        const theme = VALID_THEMES.includes(b.theme) ? b.theme : 'cartoon';
+        const name = b.isDefault
+          ? t('designer.default_' + (b.preset || 'large') + '_name')
+          : escHtml(b.name || t('misc.unnamed_board'));
+        const cols = b.cols || 10;
+        const rows = b.rows || 10;
+        const cornerEl = b.isDefault
+          ? `<span class="card-star-badge" aria-label="${t('designer.builtin_badge')}">⭐</span>`
+          : `<button class="btn-card-delete" data-action="delete" data-board-id="${escHtml(b.id)}" aria-label="Delete board">✕</button>`;
         return `
           <div class="saved-board-card" data-action="select" data-board-id="${escHtml(b.id)}">
-            <div class="card-hero" style="background-image:url('img/theme-${VALID_THEMES.includes(b.theme) ? b.theme : 'cartoon'}.png');background-size:cover;background-position:center;">
-              ${deleteBtn}
-            </div>
-            <div class="card-content">
-              <div class="card-name">${b.isDefault ? t('designer.default_' + (b.preset || 'large') + '_name') : escHtml(b.name || t('misc.unnamed_board'))}</div>
-              <div class="card-stats">
-                <span class="stat-chip">${snakeIcon} ${b.snakes.length} ${t('designer.snakes_stat').toLowerCase()}</span>
-                <span class="stat-chip">${ladderIcon} ${b.ladders.length} ${t('designer.ladders_stat').toLowerCase()}</span>
-                <span class="stat-chip">${squares} ${t('misc.squares_abbr')}</span>
+            <div class="card-thumb" style="background-image:url('img/theme-${theme}.png')"></div>
+            <div class="card-info">
+              <div class="card-name">${name}</div>
+              <div class="card-details">
+                <span class="card-size">${cols}×${rows}</span>
+                <span class="card-count">🐍 ${b.snakes.length}</span>
+                <span class="card-count">🪜 ${b.ladders.length}</span>
               </div>
-              <button class="btn-board-play" style="background:${playStyle}" data-action="select" data-board-id="${escHtml(b.id)}">${t('designer.btn_play')}</button>
             </div>
+            ${cornerEl}
           </div>`;
       }).join('');
       list.onclick = (e) => {
@@ -192,11 +192,24 @@ const App = (() => {
 
   function deleteBoard(id) {
     Sounds.button();
-    showConfirm(t('misc.confirm_delete'), () => {
+    const board = getAllBoards().find(b => b.id === id);
+    if (!board) return;
+    const boardName = board.isDefault
+      ? t('designer.default_' + (board.preset || 'large') + '_name')
+      : escHtml(board.name || t('misc.unnamed_board'));
+    const theme = VALID_THEMES.includes(board.theme) ? board.theme : 'cartoon';
+    showConfirm('', () => {
       Storage.deleteBoard(id);
       showToast(t('misc.board_deleted'));
       showBoardSelect();
-    }, { confirmLabel: t('misc.confirm_delete_label'), cancelLabel: t('misc.confirm_keep_label') });
+    }, {
+      bodyHtml: `
+        <div class="delete-confirm-thumb" style="background-image:url('img/theme-${theme}.png')"></div>
+        <div class="delete-confirm-name">${boardName}</div>
+        <p class="delete-confirm-msg">${t('misc.confirm_delete')}</p>`,
+      confirmLabel: t('misc.confirm_delete_label'),
+      cancelLabel: t('misc.confirm_keep_label'),
+    });
   }
 
   // ============================================================
@@ -1410,7 +1423,12 @@ function showConfirm(message, onConfirm, opts = {}) {
       ${thirdLabel ? `<button class="btn btn-md btn-neutral btn-full" id="confirm-modal-third">${escHtml(thirdLabel)}</button>` : ''}
       <button class="btn btn-md btn-ghost-dk btn-full" id="confirm-modal-cancel">${escHtml(cancelLabel)}</button>
     </div>`;
-  card.querySelector('#confirm-modal-msg').textContent = message;
+  const msgEl = card.querySelector('#confirm-modal-msg');
+  if (opts.bodyHtml) {
+    msgEl.innerHTML = opts.bodyHtml;
+  } else {
+    msgEl.textContent = message;
+  }
   modal.classList.remove('hidden');
   _trapFocus(modal);
   const close = () => { modal.classList.add('hidden'); _releaseFocusTrap(); };
