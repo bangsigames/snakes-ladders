@@ -10,6 +10,35 @@ const Game = (() => {
   let lastShake = 0;
   let currentTheme = 'cartoon';
   let _almostNotified = new Set(); // player IDs that have heard the almost-there chime
+  let _resizeHandler = null;
+  let _shakePermissionGranted = false;
+
+  // Screen reader announcements for game events
+  // Uses alternating zero-width space to force re-announcement even for repeated messages,
+  // avoiding the fragile clear-then-set-after-50ms pattern which some screen readers debounce.
+  let _announceFlip = false;
+  function announce(msg) {
+    const el = document.getElementById('game-announcer');
+    if (!el) return;
+    _announceFlip = !_announceFlip;
+    el.textContent = msg + (_announceFlip ? '\u200B' : '');
+  }
+
+  // Cross-platform haptic feedback (iOS Taptic Engine + Android vibrate)
+  function haptic(style) {
+    const H = window.Capacitor?.Plugins?.Haptics;
+    if (H) {
+      if (style === 'success' || style === 'warning' || style === 'error') {
+        H.notification({ type: style.toUpperCase() }).catch(() => {});
+      } else {
+        const s = style === 'heavy' ? 'HEAVY' : style === 'light' ? 'LIGHT' : 'MEDIUM';
+        H.impact({ style: s }).catch(() => {});
+      }
+    } else if (navigator.vibrate) {
+      const d = { light: 30, medium: 50, heavy: 80, success: [30, 50, 30], warning: [80, 40, 80], error: 80 };
+      navigator.vibrate(d[style] || 50);
+    }
+  }
 
   // ---- State ----
 
@@ -38,20 +67,29 @@ const Game = (() => {
       rankings: [],
     };
 
-    Board.invalidateBoardCache();
-    Board.initGameCanvas(
-      document.getElementById('game-canvas'),
-      boardConfig,
-      state.players
-    );
+    const loadingEl = document.getElementById('canvas-loading');
+    if (loadingEl) loadingEl.classList.remove('hidden');
 
-    // Initialize dice display
-    const initFace = document.querySelector('.dice-face');
-    if (initFace) renderDiceFace(initFace, 6);
+    // Use rAF so the browser paints the spinner before the synchronous canvas init
+    requestAnimationFrame(() => {
+      Board.invalidateBoardCache();
+      Board.initGameCanvas(
+        document.getElementById('game-canvas'),
+        boardConfig,
+        state.players
+      );
 
-    Sounds.startMusic(boardConfig.theme);
-    setupShakeDetection();
-    updateGameUI();
+      if (loadingEl) loadingEl.classList.add('hidden');
+
+      // Initialize dice display
+      const initFace = document.querySelector('.dice-face');
+      if (initFace) renderDiceFace(initFace, 6);
+
+      Sounds.startMusic(boardConfig.theme);
+      setupShakeDetection();
+      setupResizeHandler();
+      updateGameUI();
+    });
 
     // If first player is a bot (shouldn't happen, but handle gracefully)
     scheduleBotTurn();
@@ -91,6 +129,16 @@ const Game = (() => {
   function rollDice() {
     if (!state || state.phase !== 'rolling' || animating) return;
 
+    // iOS 13+ shake permission — request once on first user-gesture roll
+    if (typeof DeviceMotionEvent !== 'undefined' && DeviceMotionEvent.requestPermission && !_shakePermissionGranted) {
+      DeviceMotionEvent.requestPermission().then(result => {
+        if (result === 'granted') {
+          _shakePermissionGranted = true;
+          window.addEventListener('devicemotion', handleMotion);
+        }
+      }).catch(() => {});
+    }
+
     dismissTurnBanner(); // B4: dismiss banner as soon as player rolls
 
     const value = randomInt(1, 6);
@@ -98,10 +146,12 @@ const Game = (() => {
     state.phase = 'animating';
     animating = true;
 
-    // M8: haptic on Android
-    if (navigator.vibrate) navigator.vibrate(80);
+    haptic('medium');
     Sounds.rollDice();
+    const roller = state.players[state.currentIndex];
+    announce(t('game.announce_rolled', { name: roller.name }));
     animateDice(value, () => {
+      announce(t('game.announce_rolled_value', { name: roller.name, value }));
       showDiceResult(value, () => {
         moveCurrentPlayer(value);
       });
@@ -218,6 +268,7 @@ const Game = (() => {
       if (bounced) {
         Board.redrawGame(state.board, state.players, null);
         updateGameUI();
+        haptic('error');
         Sounds.landBounce();
         unzoomBoard(() => {
           showEventBrief('bounce', player, {
@@ -229,6 +280,7 @@ const Game = (() => {
             const snake = state.board.snakes.find(s => s.head === newPos);
             if (snake) {
               zoomBoard(newPos);
+              haptic('warning');
               Sounds.landSnake();
               flashCanvas('snake');
               animateAlongSnake(player, snake, () => {
@@ -245,6 +297,7 @@ const Game = (() => {
             const ladder = state.board.ladders.find(l => l.bottom === newPos);
             if (ladder) {
               zoomBoard(newPos);
+              haptic('success');
               Sounds.landLadder();
               animateAlongLadder(player, ladder, () => {
                 player.position = ladder.top;
@@ -292,6 +345,8 @@ const Game = (() => {
 
         // Interim winner — pause game, show winner screen with continue option
         state.phase = 'done';
+        announce(t('game.announce_wins', { name: player.name }));
+        haptic('success');
         Sounds.win();
         setTimeout(() => App.showWinner(state, true), 800);
         return;
@@ -300,6 +355,8 @@ const Game = (() => {
       // Check snakes
       const snake = state.board.snakes.find(s => s.head === newPos);
       if (snake) {
+        announce(t('game.announce_snake', { name: player.name }));
+        haptic('warning');
         Sounds.landSnake();
         flashCanvas('snake');
         // Animate along snake bezier (stay zoomed), then zoom out → event card
@@ -323,6 +380,8 @@ const Game = (() => {
       // Check ladders
       const ladder = state.board.ladders.find(l => l.bottom === newPos);
       if (ladder) {
+        announce(t('game.announce_ladder', { name: player.name }));
+        haptic('success');
         Sounds.landLadder();
         // Animate along ladder (stay zoomed), then zoom out → event card
         animateAlongLadder(player, ladder, () => {
@@ -365,9 +424,10 @@ const Game = (() => {
     if (path.length === 0) { onDone(); return; }
 
     let step = 0;
-    const STEP_DURATION = 120; // ms per cell
+    const STEP_DURATION = 120;
+    let _lastStepTime = 0;
 
-    function doStep() {
+    function doStep(now) {
       if (step >= path.length) {
         player.position = toPos;
         Board.redrawGame(board, state.players, null);
@@ -375,14 +435,17 @@ const Game = (() => {
         onDone();
         return;
       }
-      player.position = path[step];
-      Board.redrawGame(board, state.players, null);
-      updatePlayersStatus();
-      if (step < path.length - 1) Sounds.moveStep();
-      step++;
-      setTimeout(doStep, STEP_DURATION);
+      if (now - _lastStepTime >= STEP_DURATION) {
+        _lastStepTime = now;
+        player.position = path[step];
+        Board.redrawGame(board, state.players, null);
+        updatePlayersStatus();
+        if (step < path.length - 1) Sounds.moveStep();
+        step++;
+      }
+      requestAnimationFrame(doStep);
     }
-    doStep();
+    requestAnimationFrame(ts => { _lastStepTime = ts; doStep(ts); });
   }
 
   let _animRAF = null;
@@ -486,8 +549,11 @@ const Game = (() => {
       desc.textContent = t('event.ladder_desc', { name: player.name });
       overlay.classList.add('ladder-event');
       card.classList.add('ladder-card');
-      confettiCanvas.width = window.innerWidth;
-      confettiCanvas.height = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      confettiCanvas.width = Math.round(window.innerWidth * dpr);
+      confettiCanvas.height = Math.round(window.innerHeight * dpr);
+      confettiCanvas.style.width = window.innerWidth + 'px';
+      confettiCanvas.style.height = window.innerHeight + 'px';
       Particles.start(confettiCanvas, 70);
     }
 
@@ -518,11 +584,6 @@ const Game = (() => {
     }, 500);
     // auto-dismiss after 6s (kids need more reading time)
     const timer = setTimeout(dismiss, 6000);
-  }
-
-  // Legacy showEvent for compatibility
-  function showEvent(type, player, data, cb) {
-    showEventBrief(type, player, data, cb);
   }
 
   function allPlayersFinished() {
@@ -592,9 +653,11 @@ const Game = (() => {
     state.phase = 'done';
     Storage.clearGameState(); // game over — no need to resume
     Sounds.stopMusic();
-    Sounds.win();
     const winner = state.rankings[0] || state.players[0];
     state.winner = winner;
+    announce(t('game.announce_game_over', { name: winner.name }));
+    haptic('success');
+    Sounds.win();
 
     // Save score
     Storage.saveScore({
@@ -632,6 +695,7 @@ const Game = (() => {
     if (diceEl) {
       diceEl.classList.toggle('dice-disabled', !canRoll);
       diceEl.classList.toggle('bot-thinking', isBotTurn);
+      diceEl.setAttribute('aria-disabled', canRoll ? 'false' : 'true');
     }
     if (gameScreen) {
       gameScreen.classList.toggle('human-turn', canRoll);
@@ -670,7 +734,7 @@ const Game = (() => {
         _almostNotified.add(p.id);
         setTimeout(() => Sounds.almostThere(), 350);
       }
-      return `<div class="player-chip ${isActive ? 'active-chip' : ''} ${almostThere ? 'chip-almost' : ''}" style="border-color: ${isActive ? p.color : 'transparent'}"><span class="chip-avatar">${p.character}</span><div><div class="chip-name" style="color:${p.color}">${p.isBot ? '🤖 ' : ''}${p.name}</div><div class="chip-pos">${p.position === 0 ? t('game.position_start') : p.finished ? t('game.position_done') : almostThere ? t('game.position_to_go', { n: total - p.position }) : t('game.position_sq', { n: p.position })}</div></div></div>`;
+      return `<div class="player-chip ${isActive ? 'active-chip' : ''} ${almostThere ? 'chip-almost' : ''}" style="border-color: ${isActive ? p.color : 'transparent'}"><span class="chip-avatar">${p.character}</span><div><div class="chip-name" style="color:${p.color}">${p.isBot ? '🤖 ' : ''}${escHtml(p.name)}</div><div class="chip-pos">${p.position === 0 ? t('game.position_start') : p.finished ? t('game.position_done') : almostThere ? t('game.position_to_go', { n: total - p.position }) : t('game.position_sq', { n: p.position })}</div></div></div>`;
     };
 
     const html = renderChip(active, true) + rest.map(p => renderChip(p, false)).join('');
@@ -701,10 +765,30 @@ const Game = (() => {
     }
   }
 
+  function setupResizeHandler() {
+    if (_resizeHandler) window.removeEventListener('resize', _resizeHandler);
+    let _resizeTimer = null;
+    _resizeHandler = () => {
+      if (!state) return;
+      clearTimeout(_resizeTimer);
+      _resizeTimer = setTimeout(() => {
+        Board.invalidateBoardCache();
+        Board.initGameCanvas(
+          document.getElementById('game-canvas'),
+          state.board,
+          state.players
+        );
+        Board.redrawGame(state.board, state.players, null);
+      }, 150);
+    };
+    window.addEventListener('resize', _resizeHandler);
+  }
+
   function cleanup() {
     _cancelAnimRAF();
     if (_botTimer) { clearTimeout(_botTimer); _botTimer = null; }
     window.removeEventListener('devicemotion', handleMotion);
+    if (_resizeHandler) { window.removeEventListener('resize', _resizeHandler); _resizeHandler = null; }
     Sounds.stopMusic();
   }
 
@@ -734,6 +818,7 @@ const Game = (() => {
 
     Sounds.startMusic(state.board.theme);
     setupShakeDetection();
+    setupResizeHandler();
     updateGameUI();
     scheduleBotTurn();
   }

@@ -7,6 +7,7 @@
 /* ---- CSS Reset & Base ---- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 .hidden { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
 html, body {
   width: 100%; height: 100%;
@@ -15,8 +16,6 @@ html, body {
   background: #4CC9F0;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
-  /* iOS safe area support */
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* ---- CSS Variables — default (Cartoon theme) ---- */
@@ -183,7 +182,6 @@ body.theme-cartoon .home-bg {
     transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1),
     box-shadow 0.12s cubic-bezier(0.34, 1.56, 0.64, 1),
     background 0.12s;
-  will-change: transform;
   position: relative;
   overflow: hidden;
   -webkit-appearance: none;
@@ -354,8 +352,8 @@ body.theme-cartoon .home-bg {
 
 /* CTA pulse — color-agnostic animation for primary CTAs */
 @keyframes ctaPulse {
-  0%, 100% { filter: brightness(1); }
-  50%      { filter: brightness(1.08); }
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
 }
 .btn-cta:not(:disabled) {
   animation: ctaPulse 2.5s ease-in-out infinite;
@@ -497,7 +495,7 @@ body.theme-cartoon .home-bg {
   position: relative; z-index: 2;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  height: 100%; gap: 20px; padding: 16px 24px;
+  height: 100%; gap: 20px; padding: 16px 24px calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
 .home-logo { text-align: center; }
@@ -624,8 +622,8 @@ body.theme-cartoon .home-bg {
   50%      { opacity: 0.3; }
 }
 @keyframes playBtnPulse {
-  0%,100% { box-shadow: 0 8px 0 #cc7a00, 0 12px 40px rgba(255,183,0,0.55); }
-  50%     { box-shadow: 0 8px 0 #cc7a00, 0 18px 60px rgba(255,183,0,0.9), 0 0 80px rgba(255,183,0,0.35); }
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
 }
 
 /* SECONDARY — Create Board: solid green */
@@ -669,8 +667,8 @@ body.theme-cartoon .home-bg {
    ============================================================ */
 .screen-header {
   display: flex; align-items: center; gap: 16px;
-  padding: 0 16px;
-  min-height: 56px;
+  padding: env(safe-area-inset-top, 0px) 16px 0;
+  min-height: calc(56px + env(safe-area-inset-top, 0px));
   background: rgba(0,0,0,0.36);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -749,6 +747,7 @@ body.theme-cartoon .home-bg {
 
 .saved-boards-list {
   flex: 1; overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 12px 16px 20px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -911,7 +910,7 @@ body.theme-cartoon .home-bg {
 .btn-back-sm {
   font-size: 0.85rem !important;
   padding: 0 10px !important;
-  min-height: 36px !important;
+  min-height: 44px !important;
   flex-shrink: 0;
 }
 .designer-step-track {
@@ -931,26 +930,27 @@ body.theme-cartoon .home-bg {
 .step-dot.active { opacity: 1; transform: scale(1.08); }
 .step-dot.done   { opacity: 0.7; }
 .step-num {
-  width: 26px; height: 26px; border-radius: 50%;
+  width: 32px; height: 32px; border-radius: 50%;
   background: rgba(255,255,255,0.15);
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-size: 0.78rem; font-weight: 900;
-  color: rgba(255,255,255,0.5);
+  font-family: var(--font-display); font-size: 0.82rem; font-weight: 900;
+  color: rgba(255,255,255,0.72);
   transition: background 0.25s, color 0.25s;
 }
 .step-dot.active .step-num { background: white; color: #1a0040; }
 .step-dot.done   .step-num { background: #22C55E; color: white; }
 .step-lbl {
-  font-size: 0.58rem; font-weight: 800;
-  color: rgba(255,255,255,0.4);
+  font-size: 0.72rem; font-weight: 800;
+  color: rgba(255,255,255,0.65);
   text-transform: uppercase; letter-spacing: 0.04em;
   transition: color 0.25s;
 }
 .step-dot.active .step-lbl { color: white; }
-.step-dot.done   .step-lbl { color: rgba(255,255,255,0.55); }
+.step-dot.done   .step-lbl { color: rgba(255,255,255,0.75); }
 
 .designer-step {
   flex: 1; overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 24px 20px;
   display: flex; flex-direction: column;
   gap: 20px;
@@ -1168,6 +1168,7 @@ body.theme-cartoon .home-bg {
   grid-column: 1 / -1;
 }
 .theme-card:last-child .theme-scene {
+  min-height: 120px; /* fallback for Android WebView < 88 */
   aspect-ratio: 8 / 3;
   max-height: 160px;
 }
@@ -1203,6 +1204,7 @@ body.theme-cartoon .home-bg {
 .theme-scene {
   position: relative;
   width: 100%;
+  min-height: 280px; /* fallback for Android WebView < 88 */
   aspect-ratio: 4 / 3;
   height: auto;
   max-height: 160px;
@@ -1539,6 +1541,7 @@ body.theme-cartoon .home-bg {
   border-radius: 18px;
   box-shadow: 0 16px 56px rgba(0,0,0,0.4);
   cursor: crosshair;
+  touch-action: manipulation;
 }
 
 .guided-bottom {
@@ -1590,6 +1593,9 @@ body.theme-cartoon .home-bg {
   background: rgba(255,77,109,0.3);
   border: none; color: white;
   width: 28px; height: 28px; border-radius: 50%;
+  /* Expand touch target to 44×44 without affecting layout */
+  padding: 8px;
+  margin: -8px;
   cursor: pointer; font-size: 0.75rem;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.15s; flex-shrink: 0;
@@ -1640,6 +1646,7 @@ body.theme-cartoon .home-bg {
   width: 200px; flex-shrink: 0;
   display: flex; flex-direction: column; gap: 12px;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .designer-board-wrap {
   flex: 1; display: flex; align-items: center; justify-content: center;
@@ -1725,7 +1732,7 @@ body.theme-cartoon .home-bg {
 }
 .btn-randomize:active { transform: translateY(3px); box-shadow: 0 1px 0 #1A8FBB; }
 
-.placements-list { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+.placements-list { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; overscroll-behavior: contain; }
 .placement-item {
   background: rgba(255,255,255,0.95);
   border-radius: 12px; padding: 7px 10px;
@@ -1739,6 +1746,9 @@ body.theme-cartoon .home-bg {
   background: #FF4D6D; color: white; border: none;
   border-radius: 50%; width: 22px; height: 22px;
   font-size: 0.75rem; cursor: pointer;
+  /* Expand touch target to 44×44 without affecting layout */
+  padding: 11px;
+  margin: -11px;
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 2px 0 #B81530;
   transition: all 0.12s;
@@ -1884,6 +1894,8 @@ body.theme-cartoon .home-bg {
     radial-gradient(ellipse 100% 50% at 80% 20%, rgba(76,201,240,0.35) 0%, transparent 60%),
     radial-gradient(ellipse 80% 60% at 20% 80%, rgba(255,190,11,0.25) 0%, transparent 60%),
     var(--bg-deep);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .player-count-row {
@@ -1921,6 +1933,7 @@ body.theme-cartoon .home-bg {
 
 .players-setup-grid {
   flex: 1; overflow-y: auto;
+  overscroll-behavior: contain;
   padding: var(--space-sm) var(--space-md);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1982,7 +1995,7 @@ body.theme-cartoon .home-bg {
   margin-bottom: 0; flex: 1;
 }
 .btn-name-done {
-  flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px;
+  flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px;
   background: var(--primary); color: white; border: none;
   font-size: 1.1rem; font-weight: 900; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
@@ -2127,7 +2140,7 @@ body.theme-cartoon .home-bg {
 
 /* .btn-lets-play — visual from .btn.btn-lg.btn-blue, only layout here */
 .btn-lets-play {
-  margin: 0 14px 14px;
+  margin: 0 14px calc(14px + env(safe-area-inset-bottom, 0px));
   flex-shrink: 0;
   width: calc(100% - 28px);
 }
@@ -2423,6 +2436,7 @@ body.theme-cartoon .home-bg {
   display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
   cursor: pointer;
+  touch-action: manipulation;
   transition: transform 0.12s cubic-bezier(0.34,1.56,0.64,1),
               box-shadow 0.12s, opacity 0.2s;
 }
@@ -2702,7 +2716,7 @@ body.theme-cartoon .home-bg {
   display: flex; flex-direction: column;
   align-items: center; gap: 12px;
   max-width: 500px; width: 100%;
-  flex: 1; overflow-y: auto; min-height: 0;
+  flex: 1; overflow-y: auto; overscroll-behavior: contain; min-height: 0;
 }
 
 .winner-crown {
@@ -2749,9 +2763,7 @@ body.theme-cartoon .home-bg {
   animation: fadein 0.4s 1s both;
 }
 .stat-box {
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255,255,255,0.12);
   border: 1.5px solid rgba(255,255,255,0.18);
   border-radius: 22px; padding: 14px 20px;
   text-align: center;
@@ -2760,9 +2772,7 @@ body.theme-cartoon .home-bg {
 .stat-label { font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.65); text-transform: uppercase; letter-spacing: 1px; }
 
 .final-scoreboard {
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255,255,255,0.12);
   border: 1.5px solid rgba(255,255,255,0.18);
   border-radius: 22px; padding: 16px 24px;
   width: 100%;
@@ -2784,7 +2794,7 @@ body.theme-cartoon .home-bg {
   position: relative; z-index: 2;
   display: flex; flex-direction: column; gap: 10px;
   width: 100%; max-width: 500px;
-  padding: 12px 20px 20px;
+  padding: 12px 20px calc(20px + env(safe-area-inset-bottom, 0px));
   flex-shrink: 0;
   animation: fadein 0.4s 1.3s both;
 }
@@ -2800,7 +2810,7 @@ body.theme-cartoon .home-bg {
     var(--bg-deep);
 }
 .scores-list {
-  flex: 1; overflow-y: auto; padding: 20px;
+  flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 20px;
   display: flex; flex-direction: column; gap: 12px;
 }
 .score-entry {
@@ -2819,7 +2829,7 @@ body.theme-cartoon .home-bg {
 
 .scores-note {
   text-align: center; font-size: 0.78rem;
-  color: var(--text-muted, rgba(0,0,0,0.38));
+  color: rgba(255,255,255,0.55);
   margin: -4px 20px 8px; flex-shrink: 0;
 }
 .btn-clear-scores-link {
@@ -2841,7 +2851,7 @@ body.theme-cartoon .home-bg {
     var(--bg-deep);
 }
 .howto-scroll {
-  flex: 1; overflow-y: auto; padding: 20px;
+  flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 20px;
   display: flex; flex-direction: column;
 }
 .howto-cards {
@@ -3197,7 +3207,7 @@ body.theme-cartoon .home-bg {
 
 /* ---- Privacy Policy Screen ---- */
 .privacy-scroll {
-  flex: 1; overflow-y: auto; padding: 24px 24px 40px;
+  flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 24px 24px 40px;
 }
 .privacy-body {
   max-width: 560px; margin: 0 auto;
@@ -3224,4 +3234,43 @@ body.theme-cartoon .home-bg {
 }
 .privacy-email {
   color: var(--text); font-weight: 700;
+}
+
+/* ============================================================
+   CANVAS LOADING SPINNER
+   ============================================================ */
+.canvas-loading {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2; border-radius: 18px;
+  background: rgba(0,0,0,0.35);
+  pointer-events: none;
+}
+.canvas-loading.hidden { display: none; }
+@keyframes canvasSpin {
+  to { transform: rotate(360deg); }
+}
+.canvas-loading-ring {
+  width: 48px; height: 48px;
+  border: 4px solid rgba(255,255,255,0.2);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: canvasSpin 0.8s linear infinite;
+}
+
+/* ============================================================
+   ACCESSIBILITY — Respect reduced motion preference
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Keep the loading spinner running so users know the app isn't frozen */
+  .canvas-loading-ring {
+    animation-duration: 0.8s !important;
+    animation-iteration-count: infinite !important;
+  }
 }

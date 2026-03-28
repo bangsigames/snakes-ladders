@@ -97,16 +97,6 @@ const THEMES = {
   },
 };
 
-// Generic fallback (not used in the UI; THEME_CHARACTERS is used instead)
-const CHARACTERS = [
-  { id: 'frog',    emoji: '🐸', name: 'Froggy' },
-  { id: 'rocket',  emoji: '🚀', name: 'Rocket' },
-  { id: 'unicorn', emoji: '🦄', name: 'Unicorn' },
-  { id: 'robot',   emoji: '🤖', name: 'Robo' },
-  { id: 'tiger',   emoji: '🐯', name: 'Tiger' },
-  { id: 'dragon',  emoji: '🐲', name: 'Dragon' },
-];
-
 // Theme-specific characters — 6 per theme, sound matches the character
 const THEME_CHARACTERS = {
   jungle: [

@@ -8,6 +8,8 @@ const Particles = (() => {
   let particles = [];
   let animId = null;
   let running = false;
+  let _w = 0;
+  let _h = 0;
 
   const COLORS = ['#ff4757','#ffa502','#2ed573','#1e90ff','#ff6b81',
                   '#eccc68','#a29bfe','#fd79a8','#fdcb6e','#00cec9'];
@@ -15,8 +17,8 @@ const Particles = (() => {
   class Particle {
     constructor() { this.reset(true); }
     reset(initial = false) {
-      this.x = Math.random() * canvas.width;
-      this.y = initial ? Math.random() * canvas.height - canvas.height : -20;
+      this.x = Math.random() * _w;
+      this.y = initial ? Math.random() * _h - _h : -20;
       this.size = randomInt(8, 18);
       this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
       this.speedX = (Math.random() - 0.5) * 6;
@@ -32,7 +34,7 @@ const Particles = (() => {
       this.rotation += this.rotSpeed;
       this.speedY += 0.06; // gravity
       this.speedX *= 0.99;
-      if (this.y > canvas.height + 20) this.reset();
+      if (this.y > _h + 20) this.reset();
     }
     draw() {
       ctx.save();
@@ -54,8 +56,14 @@ const Particles = (() => {
   function start(canvasEl, count = 120) {
     canvas = canvasEl;
     ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    _w = window.innerWidth;
+    _h = window.innerHeight;
+    canvas.width = Math.round(_w * dpr);
+    canvas.height = Math.round(_h * dpr);
+    canvas.style.width = _w + 'px';
+    canvas.style.height = _h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     particles = Array.from({ length: count }, () => new Particle());
     running = true;
     loop();

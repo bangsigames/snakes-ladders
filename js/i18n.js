@@ -6,6 +6,7 @@ const TRANSLATIONS = {
   en: {
     // Home screen
     home: {
+      app_name: 'My Snakes & Ladders',
       title1: 'Snakes &',
       title2: 'Ladders',
       usp: '✏️ Build Your Own Board',
@@ -58,6 +59,12 @@ const TRANSLATIONS = {
       btn_keep_playing: 'Keep Playing',
       btn_start_over: 'Start Over',
       btn_leave: 'Leave Game',
+      announce_rolled: '{name} rolled',
+      announce_rolled_value: '{name} rolled {value}',
+      announce_snake: '{name} hit a snake!',
+      announce_ladder: '{name} climbed a ladder!',
+      announce_wins: '{name} wins!',
+      announce_game_over: 'Game over! {name} wins!',
     },
     // Event cards
     event: {
@@ -94,6 +101,7 @@ const TRANSLATIONS = {
       btn_back: '← Back',
       btn_clear: 'Clear all scores',
       turns_unit: 'turns',
+      turns_unit_singular: 'turn',
     },
     // Board designer
     designer: {
@@ -217,6 +225,11 @@ const TRANSLATIONS = {
       player_fallback: 'Player {n}',
       squares_abbr: 'sq.',
       privacy_policy: 'Privacy Policy',
+      board_limit_toast: 'Board limit reached ({max} max) — delete one first',
+      sfx_on: '🔊 SFX',
+      sfx_off: '🔇 SFX',
+      music_on_short: '🎵 on',
+      music_off_short: '🎵 off',
     },
     privacy: {
       updated: 'Last updated: March 2026',
@@ -273,6 +286,7 @@ const TRANSLATIONS = {
   },
   fr: {
     home: {
+      app_name: 'My Snakes & Ladders',
       title1: 'Serpents &',
       title2: 'Échelles',
       usp: '✏️ Crée ton propre plateau',
@@ -322,6 +336,12 @@ const TRANSLATIONS = {
       btn_keep_playing: 'Continuer',
       btn_start_over: 'Recommencer',
       btn_leave: 'Quitter la partie',
+      announce_rolled: '{name} a lancé',
+      announce_rolled_value: '{name} a obtenu {value}',
+      announce_snake: '{name} a touché un serpent !',
+      announce_ladder: '{name} monte une échelle !',
+      announce_wins: '{name} gagne !',
+      announce_game_over: 'Fin de partie ! {name} gagne !',
     },
     event: {
       snake_title: 'Oh non !',
@@ -355,6 +375,7 @@ const TRANSLATIONS = {
       btn_back: '← Retour',
       btn_clear: 'Effacer tous les scores',
       turns_unit: 'tours',
+      turns_unit_singular: 'tour',
     },
     designer: {
       title: 'Éditeur de plateau',
@@ -476,6 +497,11 @@ const TRANSLATIONS = {
       player_fallback: 'Joueur {n}',
       squares_abbr: 'cases',
       privacy_policy: 'Politique de confidentialité',
+      board_limit_toast: 'Limite de plateaux atteinte ({max} max) — supprimez-en un d\'abord',
+      sfx_on: '🔊 SFX',
+      sfx_off: '🔇 SFX',
+      music_on_short: '🎵 on',
+      music_off_short: '🎵 off',
     },
     privacy: {
       updated: 'Dernière mise à jour : Mars 2026',
@@ -533,6 +559,7 @@ const TRANSLATIONS = {
   // ── GERMAN ──────────────────────────────────────────────────
   de: {
     home: {
+      app_name: 'My Snakes & Ladders',
       title1: 'Schlangen &',
       title2: 'Leitern',
       usp: '✏️ Bau dein eigenes Spielfeld',
@@ -582,6 +609,12 @@ const TRANSLATIONS = {
       btn_keep_playing: 'Weiterspielen',
       btn_start_over: 'Neu starten',
       btn_leave: 'Spiel verlassen',
+      announce_rolled: '{name} hat gewürfelt',
+      announce_rolled_value: '{name} hat {value} gewürfelt',
+      announce_snake: '{name} trifft eine Schlange!',
+      announce_ladder: '{name} klettert eine Leiter hoch!',
+      announce_wins: '{name} gewinnt!',
+      announce_game_over: 'Spiel vorbei! {name} gewinnt!',
     },
     event: {
       snake_title: 'Oh nein!',
@@ -615,6 +648,7 @@ const TRANSLATIONS = {
       btn_back: '← Zurück',
       btn_clear: 'Alle Punkte löschen',
       turns_unit: 'Züge',
+      turns_unit_singular: 'Zug',
     },
     designer: {
       title: 'Spielfeld-Designer',
@@ -736,6 +770,11 @@ const TRANSLATIONS = {
       player_fallback: 'Spieler {n}',
       squares_abbr: 'Felder',
       privacy_policy: 'Datenschutzerklärung',
+      board_limit_toast: 'Spielfeld-Limit erreicht ({max} max) — zuerst eines löschen',
+      sfx_on: '🔊 SFX',
+      sfx_off: '🔇 SFX',
+      music_on_short: '🎵 an',
+      music_off_short: '🎵 aus',
     },
     privacy: {
       updated: 'Zuletzt aktualisiert: März 2026',
@@ -791,6 +830,7 @@ const TRANSLATIONS = {
   // ── ITALIAN ─────────────────────────────────────────────────
   it: {
     home: {
+      app_name: 'My Snakes & Ladders',
       title1: 'Serpenti e',
       title2: 'Scale',
       usp: '✏️ Crea il tuo tabellone',
@@ -840,6 +880,12 @@ const TRANSLATIONS = {
       btn_keep_playing: 'Continua',
       btn_start_over: 'Ricomincia',
       btn_leave: 'Abbandona partita',
+      announce_rolled: '{name} ha lanciato',
+      announce_rolled_value: '{name} ha ottenuto {value}',
+      announce_snake: '{name} ha preso un serpente!',
+      announce_ladder: '{name} sale una scala!',
+      announce_wins: '{name} vince!',
+      announce_game_over: 'Fine del gioco! {name} vince!',
     },
     event: {
       snake_title: 'Oh no!',
@@ -873,6 +919,7 @@ const TRANSLATIONS = {
       btn_back: '← Indietro',
       btn_clear: 'Cancella tutti i punteggi',
       turns_unit: 'turni',
+      turns_unit_singular: 'turno',
     },
     designer: {
       title: 'Designer tabellone',
@@ -994,6 +1041,11 @@ const TRANSLATIONS = {
       player_fallback: 'Giocatore {n}',
       squares_abbr: 'caselle',
       privacy_policy: 'Informativa sulla privacy',
+      board_limit_toast: 'Limite di tavoli raggiunto ({max} max) — eliminane uno prima',
+      sfx_on: '🔊 SFX',
+      sfx_off: '🔇 SFX',
+      music_on_short: '🎵 on',
+      music_off_short: '🎵 off',
     },
     privacy: {
       updated: 'Ultimo aggiornamento: Marzo 2026',
@@ -1049,6 +1101,7 @@ const TRANSLATIONS = {
   // ── SPANISH ─────────────────────────────────────────────────
   es: {
     home: {
+      app_name: 'My Snakes & Ladders',
       title1: 'Serpientes y',
       title2: 'Escaleras',
       usp: '✏️ Crea tu propio tablero',
@@ -1098,6 +1151,12 @@ const TRANSLATIONS = {
       btn_keep_playing: 'Seguir jugando',
       btn_start_over: 'Volver a empezar',
       btn_leave: 'Abandonar partida',
+      announce_rolled: '{name} lanzó',
+      announce_rolled_value: '{name} sacó {value}',
+      announce_snake: '¡{name} cayó en una serpiente!',
+      announce_ladder: '¡{name} sube una escalera!',
+      announce_wins: '¡{name} gana!',
+      announce_game_over: '¡Fin del juego! ¡{name} gana!',
     },
     event: {
       snake_title: '¡Oh no!',
@@ -1131,6 +1190,7 @@ const TRANSLATIONS = {
       btn_back: '← Atrás',
       btn_clear: 'Borrar todas las puntuaciones',
       turns_unit: 'turnos',
+      turns_unit_singular: 'turno',
     },
     designer: {
       title: 'Diseñador de tablero',
@@ -1252,6 +1312,11 @@ const TRANSLATIONS = {
       player_fallback: 'Jugador {n}',
       squares_abbr: 'casillas',
       privacy_policy: 'Política de privacidad',
+      board_limit_toast: 'Límite de tableros alcanzado ({max} máx) — elimina uno primero',
+      sfx_on: '🔊 SFX',
+      sfx_off: '🔇 SFX',
+      music_on_short: '🎵 on',
+      music_off_short: '🎵 off',
     },
     privacy: {
       updated: 'Última actualización: Marzo 2026',
@@ -1307,6 +1372,7 @@ const TRANSLATIONS = {
   // ── PORTUGUESE (BR) ─────────────────────────────────────────
   pt: {
     home: {
+      app_name: 'My Snakes & Ladders',
       title1: 'Cobras e',
       title2: 'Escadas',
       usp: '✏️ Crie seu próprio tabuleiro',
@@ -1356,6 +1422,12 @@ const TRANSLATIONS = {
       btn_keep_playing: 'Continuar jogando',
       btn_start_over: 'Recomeçar',
       btn_leave: 'Abandonar jogo',
+      announce_rolled: '{name} jogou',
+      announce_rolled_value: '{name} tirou {value}',
+      announce_snake: '{name} caiu numa cobra!',
+      announce_ladder: '{name} subiu uma escada!',
+      announce_wins: '{name} ganhou!',
+      announce_game_over: 'Fim de jogo! {name} ganhou!',
     },
     event: {
       snake_title: 'Que pena!',
@@ -1389,6 +1461,7 @@ const TRANSLATIONS = {
       btn_back: '← Voltar',
       btn_clear: 'Limpar todas as pontuações',
       turns_unit: 'jogadas',
+      turns_unit_singular: 'jogada',
     },
     designer: {
       title: 'Designer de tabuleiro',
@@ -1510,6 +1583,11 @@ const TRANSLATIONS = {
       player_fallback: 'Jogador {n}',
       squares_abbr: 'casas',
       privacy_policy: 'Política de privacidade',
+      board_limit_toast: 'Limite de tabuleiros atingido ({max} máx) — apague um primeiro',
+      sfx_on: '🔊 SFX',
+      sfx_off: '🔇 SFX',
+      music_on_short: '🎵 on',
+      music_off_short: '🎵 off',
     },
     privacy: {
       updated: 'Última atualização: Março 2026',
@@ -1587,6 +1665,7 @@ const I18n = (() => {
     localStorage.setItem('sl_lang', lang);
     document.documentElement.lang = lang;
     translateDOM();
+    document.dispatchEvent(new CustomEvent('applanguagechange', { detail: { lang } }));
   }
 
   function getLanguage() { return _lang; }
@@ -1601,6 +1680,9 @@ const I18n = (() => {
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
       el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
     });
+    // Update document title if it has data-i18n
+    const titleEl = document.querySelector('title[data-i18n]');
+    if (titleEl) titleEl.textContent = t(titleEl.getAttribute('data-i18n'));
   }
 
   return { t, setLanguage, getLanguage, translateDOM };

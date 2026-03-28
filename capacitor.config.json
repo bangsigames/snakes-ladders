@@ -2,6 +2,11 @@
   "appId": "com.bangsigames.snakesladders",
   "appName": "My Snakes & Ladders",
   "webDir": "www",
+  "orientation": "portrait",
+  "ios": {
+    "scheme": "App",
+    "limitsNavigationsToAppBoundDomains": true
+  },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 1800,
@@ -12,7 +17,10 @@
     },
     "StatusBar": {
       "style": "DARK",
-      "backgroundColor": "#ff6b81"
-    }
+      "backgroundColor": "#FF4D6D",
+      "overlaysWebView": true
+    },
+    "Haptics": {}
+
   }
 }

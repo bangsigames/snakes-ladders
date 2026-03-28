@@ -5,6 +5,8 @@
 const App = (() => {
 
   let currentBoard = null; // board config selected for play
+  const VALID_THEMES = ['jungle', 'space', 'ocean', 'fantasy', 'cartoon'];
+  let _setupReturnTo = 'boards'; // 'boards' | 'home' | 'designer'
 
   // ============================================================
   // SCREEN MANAGEMENT
@@ -46,7 +48,7 @@ const App = (() => {
     const current = saved.players[saved.currentIndex];
     const avatarsHtml = saved.players.map(p =>
       `<div class="resume-player ${p.id === current.id ? 'resume-player-active' : ''}">
-         <span class="resume-avatar">${p.character}</span>
+         <span class="resume-avatar">${escHtml(p.character)}</span>
          <span class="resume-pname">${escHtml(p.name)}</span>
        </div>`
     ).join('');
@@ -69,7 +71,7 @@ const App = (() => {
         </div>
         <div class="resume-players">${avatarsHtml}</div>
         <div class="resume-whose-turn">
-          <span class="resume-turn-avatar">${current.character}</span>
+          <span class="resume-turn-avatar">${escHtml(current.character)}</span>
           <span class="resume-turn-text">${t('resume.whose_turn', { name: escHtml(current.name) })}</span>
         </div>
         <div class="popup-modal-buttons" style="margin-top:24px">
@@ -79,7 +81,7 @@ const App = (() => {
         </div>
       </div>`;
 
-    const close = () => modal.classList.add('hidden');
+    const close = () => { modal.classList.add('hidden'); _releaseFocusTrap(); };
     modal.querySelector('#resume-btn-resume').addEventListener('click', () => {
       close();
       applyTheme(theme);
@@ -94,6 +96,7 @@ const App = (() => {
     modal.querySelector('#resume-btn-later').addEventListener('click', () => close(), { once: true });
 
     modal.classList.remove('hidden');
+    _trapFocus(modal);
   }
 
   // ============================================================
@@ -115,11 +118,11 @@ const App = (() => {
     const base = DEFAULT_BOARDS.find(b => b.id === baseId);
     currentBoard = { ...base, theme, id: 'quick-' + Storage.generateId(), name: '' };
     applyTheme(theme);
-    showPlayerSetup();
+    showPlayerSetup(undefined, 'home');
   }
 
-  function showBoardSelect() {
-    Sounds.button();
+  function showBoardSelect(silent = false) {
+    if (!silent) Sounds.button();
     const boards = getAllBoards();
     const list = document.getElementById('saved-boards-list');
     const empty = document.getElementById('saved-boards-empty');
@@ -143,25 +146,36 @@ const App = (() => {
         const squares = (b.cols || 10) * (b.rows || 10);
         const deleteBtn = b.isDefault
           ? `<span class="card-default-badge">${t('designer.builtin_badge')}</span>`
-          : `<button class="btn-card-delete" onclick="event.stopPropagation();App.deleteBoard('${b.id}')">✕</button>`;
+          : `<button class="btn-card-delete" data-action="delete" data-board-id="${escHtml(b.id)}">✕</button>`;
         const snakeIcon = Icons.get('snake', 14);
         const ladderIcon = Icons.get('ladder', 14);
         return `
-          <div class="saved-board-card" onclick="App.selectBoard('${b.id}')">
-            <div class="card-hero" style="background-image:url('img/theme-${b.theme}.png');background-size:cover;background-position:center;">
+          <div class="saved-board-card" data-action="select" data-board-id="${escHtml(b.id)}">
+            <div class="card-hero" style="background-image:url('img/theme-${VALID_THEMES.includes(b.theme) ? b.theme : 'cartoon'}.png');background-size:cover;background-position:center;">
               ${deleteBtn}
             </div>
             <div class="card-content">
-              <div class="card-name">${b.isDefault ? t(`designer.default_${b.preset}_name`) : escHtml(b.name || t('misc.unnamed_board'))}</div>
+              <div class="card-name">${b.isDefault ? t('designer.default_' + (b.preset || 'large') + '_name') : escHtml(b.name || t('misc.unnamed_board'))}</div>
               <div class="card-stats">
                 <span class="stat-chip">${snakeIcon} ${b.snakes.length} ${t('designer.snakes_stat').toLowerCase()}</span>
                 <span class="stat-chip">${ladderIcon} ${b.ladders.length} ${t('designer.ladders_stat').toLowerCase()}</span>
                 <span class="stat-chip">${squares} ${t('misc.squares_abbr')}</span>
               </div>
-              <button class="btn-board-play" style="background:${playStyle}" onclick="event.stopPropagation();App.selectBoard('${b.id}')">${t('designer.btn_play')}</button>
+              <button class="btn-board-play" style="background:${playStyle}" data-action="select" data-board-id="${escHtml(b.id)}">${t('designer.btn_play')}</button>
             </div>
           </div>`;
       }).join('');
+      list.onclick = (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const id = btn.dataset.boardId;
+        if (btn.dataset.action === 'delete') {
+          e.stopPropagation();
+          deleteBoard(id);
+        } else if (btn.dataset.action === 'select') {
+          selectBoard(id);
+        }
+      };
     }
 
     showScreen('screen-saved-boards');
@@ -260,20 +274,21 @@ const App = (() => {
     const diffKey = score <= 0 ? 'designer.difficulty_easy' : score <= 2 ? 'designer.difficulty_normal' : score <= 4 ? 'designer.difficulty_tricky' : 'designer.difficulty_hard';
     const name = t(nameKeys[config.theme] || 'designer.board_name_cartoon');
     const difficulty = t(diffKey);
-    return { name, difficulty };
+    return { name, difficulty, diffKey };
   }
 
   function goToStep5() {
     const config = Board.designer.getBoardConfig();
-    const { name, difficulty } = generateBoardName(config);
+    const { name, difficulty, diffKey } = generateBoardName(config);
 
     const display = document.getElementById('board-name-display');
     if (display) display.textContent = name;
 
     const badge = document.getElementById('board-diff-badge');
     if (badge) {
+      const diffSlug = diffKey.replace('designer.difficulty_', ''); // e.g. 'easy', 'normal', 'tricky', 'hard'
       badge.textContent = difficulty;
-      badge.className = 'board-diff-badge diff-' + difficulty.toLowerCase();
+      badge.className = 'board-diff-badge diff-' + diffSlug;
     }
 
     const stats = document.getElementById('board-ready-stats');
@@ -321,7 +336,7 @@ const App = (() => {
 
     const userBoards = Storage.loadBoards();
     if (userBoards.length >= Storage.MAX_USER_BOARDS) {
-      showToast(`Board limit reached (${Storage.MAX_USER_BOARDS} max) — delete one first`);
+      showToast(t('misc.board_limit_toast', { max: Storage.MAX_USER_BOARDS }));
       return null;
     }
 
@@ -418,7 +433,8 @@ const App = (() => {
     chips.forEach(c => c.classList.toggle('selected', c.textContent.trim() === trimmed));
   }
 
-  function showPlayerSetup(prefillPlayers) {
+  function showPlayerSetup(prefillPlayers, returnTo = 'boards') {
+    _setupReturnTo = returnTo;
     if (prefillPlayers) {
       playerCount = prefillPlayers.length;
       playerSetups = prefillPlayers.map(p => ({ ...p }));
@@ -505,13 +521,16 @@ const App = (() => {
                    id="pname-input-${i}"
                    type="text"
                    inputmode="text"
+                   enterkeyhint="done"
                    autocomplete="off"
                    autocorrect="off"
                    spellcheck="false"
                    maxlength="12"
                    placeholder="${t('setup.name_placeholder')}"
                    value="${escHtml(p.name)}"
-                   oninput="App.handleNameInput(${i}, this.value)">
+                   oninput="App.handleNameInput(${i}, this.value)"
+                   onkeydown="if(event.key==='Enter'){this.blur();event.preventDefault();}"
+                   aria-label="${t('setup.player_n', { n: i + 1 })} name">
             <button class="btn-name-done" onclick="document.getElementById('pname-input-${i}').blur()" aria-label="Done">✓</button>
           </div>
           <div class="player-name-chips" id="pname-chips-${i}">
@@ -659,8 +678,8 @@ const App = (() => {
     const musicBtn = document.getElementById('btn-music-toggle');
     const sfxOff   = Sounds.isMuted();
     const musicOff = Sounds.isMusicMuted();
-    if (sfxBtn)   sfxBtn.innerHTML   = (sfxOff   ? Icons.get('sound', 22).replace(/#FFD93D/g, '#aaa') : Icons.get('sound', 22)) + `<span>${sfxOff ? '🔇 SFX' : '🔊 SFX'}</span>`;
-    if (musicBtn) musicBtn.innerHTML = (musicOff ? Icons.get('music', 22).replace(/#A78BFA/g, '#aaa') : Icons.get('music', 22)) + `<span>${musicOff ? '🎵 off' : '🎵 on'}</span>`;
+    if (sfxBtn)   sfxBtn.innerHTML   = (sfxOff   ? Icons.get('sound', 22).replace(/#FFD93D/g, '#aaa') : Icons.get('sound', 22)) + `<span>${sfxOff ? t('misc.sfx_off') : t('misc.sfx_on')}</span>`;
+    if (musicBtn) musicBtn.innerHTML = (musicOff ? Icons.get('music', 22).replace(/#A78BFA/g, '#aaa') : Icons.get('music', 22)) + `<span>${musicOff ? t('misc.music_off_short') : t('misc.music_on_short')}</span>`;
   }
 
   function toggleMusicMute() {
@@ -712,9 +731,9 @@ const App = (() => {
     document.getElementById('final-scoreboard').innerHTML = sorted.map((p, i) => `
       <div class="score-row">
         <div class="score-rank ${i===0?'gold':''}">${medals[i]||i+1}</div>
-        <div class="score-avatar">${p.character}</div>
+        <div class="score-avatar">${escHtml(p.character)}</div>
         <div class="score-name">${escHtml(p.name)}${p.isBot ? ' 🤖' : ''}</div>
-        <div class="score-moves">${p.finished ? `${p.turns} ${t('scores.turns_unit')} · 🐍${p.snakeBites} · 🪜${p.laddersClimbed}` : t('game.position_sq', { n: p.position })}</div>
+        <div class="score-moves">${p.finished ? `${p.turns} ${p.turns === 1 ? t('scores.turns_unit_singular') : t('scores.turns_unit')} · 🐍${p.snakeBites} · 🪜${p.laddersClimbed}` : t('game.position_sq', { n: p.position })}</div>
       </div>
     `).join('');
 
@@ -758,12 +777,12 @@ const App = (() => {
       list.innerHTML = scores.map((s, i) => `
         <div class="score-entry">
           <div class="score-entry-rank">${medals[i] || (i+1)}</div>
-          <div class="score-entry-avatar">${s.character || '🎮'}</div>
+          <div class="score-entry-avatar">${escHtml(s.character || '🎮')}</div>
           <div class="score-entry-info">
             <div class="score-entry-name">${escHtml(s.playerName)}</div>
-            <div class="score-entry-meta">${s.boardName || t('misc.unknown_board')} · ${new Date(s.date).toLocaleDateString()}</div>
+            <div class="score-entry-meta">${escHtml(s.boardName || '') || t('misc.unknown_board')} · ${new Date(s.date).toLocaleDateString(I18n.getLanguage())}</div>
           </div>
-          <div class="score-entry-turns">${s.turns}<span style="font-size:0.7rem;opacity:0.7"> ${t('scores.turns_unit')}</span></div>
+          <div class="score-entry-turns">${s.turns}<span style="font-size:0.7rem;opacity:0.7"> ${s.turns === 1 ? t('scores.turns_unit_singular') : t('scores.turns_unit')}</span></div>
         </div>
       `).join('');
     }
@@ -778,6 +797,17 @@ const App = (() => {
   function applyTheme(theme) {
     const T = THEMES[theme] || THEMES.cartoon;
     document.body.className = T.bodyClass;
+    // Sync iOS status bar color and text style with theme
+    const SB = window.Capacitor?.Plugins?.StatusBar;
+    if (SB) {
+      const bgColors = {
+        cartoon: '#FF4D6D', jungle: '#22C55E', space: '#1e1b4b',
+        ocean: '#0284C7',   fantasy: '#9333EA'
+      };
+      const darkBg = ['space', 'fantasy'];
+      SB.setBackgroundColor({ color: bgColors[theme] || bgColors.cartoon }).catch(() => {});
+      SB.setStyle({ style: darkBg.includes(theme) ? 'LIGHT' : 'DARK' }).catch(() => {});
+    }
   }
 
   // ============================================================
@@ -930,9 +960,12 @@ const App = (() => {
 
     document.getElementById('btn-step5-back').addEventListener('click', () => { Sounds.button(); updateDesignerStep(4); });
 
-    document.getElementById('btn-save-board').addEventListener('click', () => {
+    document.getElementById('btn-save-board').addEventListener('click', (e) => {
       Sounds.button();
+      e.currentTarget.disabled = true;
       saveBoard();
+      // Re-enable after a tick so a new board name can be saved if the user edits and retries
+      setTimeout(() => { e.currentTarget.disabled = false; }, 1500);
     });
     document.getElementById('btn-play-now').addEventListener('click', () => {
       Sounds.button();
@@ -941,7 +974,7 @@ const App = (() => {
       currentBoard = board;
       if (!currentBoard.id) currentBoard.id = Storage.generateId();
       applyTheme(currentBoard.theme);
-      showPlayerSetup();
+      showPlayerSetup(undefined, 'designer');
     });
 
     // Grid size picker
@@ -966,10 +999,27 @@ const App = (() => {
         Sounds.button();
       });
     });
+    // Pre-select first theme if none selected
+    const firstCard = document.querySelector('.theme-card');
+    if (firstCard && !document.querySelector('.theme-card.selected')) {
+      firstCard.classList.add('selected');
+      applyTheme(firstCard.dataset.theme);
+      if (themeContinueBtn) themeContinueBtn.disabled = false;
+    }
 
 
     // Player setup
-    document.getElementById('btn-setup-back').addEventListener('click', () => showBoardSelect());
+    document.getElementById('btn-setup-back').addEventListener('click', () => {
+      const returnTo = _setupReturnTo;
+      _setupReturnTo = 'boards';
+      if (returnTo === 'designer') {
+        showScreen('screen-designer');
+      } else if (returnTo === 'home') {
+        showHome();
+      } else {
+        showBoardSelect();
+      }
+    });
     // Player count buttons are rendered dynamically in renderPlayerCountBtns()
     document.getElementById('btn-lets-play').addEventListener('click', () => startGame());
 
@@ -980,7 +1030,9 @@ const App = (() => {
 
     document.getElementById('btn-game-menu').addEventListener('click', () => {
       Sounds.button();
-      document.getElementById('game-menu-overlay').classList.remove('hidden');
+      const overlay = document.getElementById('game-menu-overlay');
+      overlay.classList.remove('hidden');
+      _trapFocus(overlay);
     });
 
     // Sound toggle buttons
@@ -990,10 +1042,12 @@ const App = (() => {
     document.getElementById('btn-resume').addEventListener('click', () => {
       Sounds.button();
       document.getElementById('game-menu-overlay').classList.add('hidden');
+      _releaseFocusTrap();
     });
     document.getElementById('btn-restart').addEventListener('click', () => {
       Sounds.button();
       document.getElementById('game-menu-overlay').classList.add('hidden');
+      _releaseFocusTrap();
       Storage.clearGameState();
       Game.cleanup();
       showPlayerSetup();
@@ -1001,6 +1055,7 @@ const App = (() => {
     document.getElementById('btn-quit').addEventListener('click', () => {
       Sounds.button();
       document.getElementById('game-menu-overlay').classList.add('hidden');
+      _releaseFocusTrap();
       showConfirm(t('misc.confirm_leave_game'), () => {
         Storage.clearGameState();
         Game.cleanup();
@@ -1055,7 +1110,7 @@ const App = (() => {
     function createDemoBoards() {
       const demo = {
         id: Storage.generateId(),
-        name: 'Classic Adventure',
+        name: t('designer.default_large_name'),
         preset: 'large', isDefault: true, cols: 10, rows: 10, total: 100,
         theme: 'cartoon',
         snakes: [
@@ -1075,6 +1130,38 @@ const App = (() => {
 
     // Draw mini board previews on size selection cards
     drawMiniBoards();
+
+    // Capacitor hardware back button (Android) / swipe-back support
+    window.Capacitor?.Plugins?.App?.addListener('backButton', () => {
+      // Close any open overlay first
+      const overlay = document.querySelector('.popup-modal:not(.hidden), #game-menu-overlay:not(.hidden)');
+      if (overlay) { overlay.classList.add('hidden'); return; }
+      // Navigate back based on active screen
+      const active = document.querySelector('.screen.active');
+      if (!active) return;
+      const id = active.id;
+      if (id === 'screen-game') {
+        document.getElementById('game-menu-overlay')?.classList.remove('hidden');
+      } else if (id === 'screen-player-setup') {
+        showBoardSelect();
+      } else if (id === 'screen-designer') {
+        if (designerStep > 1) updateDesignerStep(designerStep - 1);
+        else showHome();
+      } else if (id !== 'screen-home') {
+        showHome();
+      }
+    });
+
+    // Re-render active JS-rendered screen on language change
+    document.addEventListener('applanguagechange', () => {
+      const active = document.querySelector('.screen.active');
+      if (!active) return;
+      const id = active.id;
+      if (id === 'screen-saved-boards') showBoardSelect(true);
+      else if (id === 'screen-player-setup') renderPlayerCards();
+      else if (id === 'screen-scores') showScores();
+      // winner screen uses textContent (set via t()), so translateDOM() already handles it
+    });
 
     // Show home
     showHome();
@@ -1268,10 +1355,41 @@ function updateLadderList() {
   updateLadderSelection(Board.designer.selectedLadderIndex);
 }
 
+// ---- Focus trap for modals ----
+let _focusTrapListener = null;
+let _focusTrapReturnEl = null;
+
+function _trapFocus(container) {
+  _focusTrapReturnEl = document.activeElement;
+  const focusable = () => Array.from(container.querySelectorAll(
+    'button:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex="-1"])'
+  ));
+  const first = focusable()[0];
+  if (first) first.focus();
+  if (_focusTrapListener) document.removeEventListener('keydown', _focusTrapListener);
+  _focusTrapListener = (e) => {
+    if (e.key !== 'Tab') return;
+    const els = focusable();
+    if (!els.length) return;
+    const first = els[0], last = els[els.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  };
+  document.addEventListener('keydown', _focusTrapListener);
+}
+
+function _releaseFocusTrap() {
+  if (_focusTrapListener) { document.removeEventListener('keydown', _focusTrapListener); _focusTrapListener = null; }
+  if (_focusTrapReturnEl) { _focusTrapReturnEl.focus(); _focusTrapReturnEl = null; }
+}
+
 // ---- showConfirm ----
 function showConfirm(message, onConfirm, opts = {}) {
   const {
-    confirmLabel = 'Yes, delete', cancelLabel = 'Cancel', danger = true,
+    confirmLabel = t('misc.confirm_delete_label'), cancelLabel = t('misc.confirm_cancel'), danger = true,
     thirdLabel = null, onThird = null, onCancel = null,
   } = (typeof opts === 'object' && opts !== null && !Array.isArray(opts)) ? opts : {};
   let modal = document.getElementById('confirm-modal');
@@ -1294,7 +1412,8 @@ function showConfirm(message, onConfirm, opts = {}) {
     </div>`;
   card.querySelector('#confirm-modal-msg').textContent = message;
   modal.classList.remove('hidden');
-  const close = () => modal.classList.add('hidden');
+  _trapFocus(modal);
+  const close = () => { modal.classList.add('hidden'); _releaseFocusTrap(); };
   card.querySelector('#confirm-modal-ok').addEventListener('click', () => { close(); onConfirm(); }, { once: true });
   card.querySelector('#confirm-modal-cancel').addEventListener('click', () => { close(); if (onCancel) onCancel(); }, { once: true });
   if (thirdLabel) card.querySelector('#confirm-modal-third').addEventListener('click', () => { close(); if (onThird) onThird(); }, { once: true });
@@ -1318,7 +1437,8 @@ function showToast(msg) {
 function escHtml(str) {
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
 }
 
 // ---- Boot ----

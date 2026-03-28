@@ -16,14 +16,17 @@ const Storage = (() => {
   const MAX_USER_BOARDS = 20;
 
   function saveBoard(board) {
-    const boards = loadBoards();
-    const existing = boards.findIndex(b => b.id === board.id);
-    if (existing >= 0) {
-      boards[existing] = board;
-    } else {
-      boards.unshift(board);
-    }
-    localStorage.setItem(BOARDS_KEY, JSON.stringify(boards.slice(0, MAX_USER_BOARDS)));
+    try {
+      const boards = loadBoards();
+      const existing = boards.findIndex(b => b.id === board.id);
+      if (existing >= 0) {
+        boards[existing] = board;
+      } else {
+        boards.unshift(board);
+      }
+      localStorage.setItem(BOARDS_KEY, JSON.stringify(boards.slice(0, MAX_USER_BOARDS)));
+      return true;
+    } catch { return false; }
   }
 
   function deleteBoard(id) {
@@ -38,11 +41,12 @@ const Storage = (() => {
   }
 
   function saveScore(score) {
-    // score: { playerName, character, turns, boardName, date }
-    const scores = loadScores();
-    scores.unshift({ ...score, date: Date.now() });
-    // Keep top 50
-    localStorage.setItem(SCORES_KEY, JSON.stringify(scores.slice(0, 50)));
+    try {
+      const scores = loadScores();
+      scores.unshift({ ...score, date: Date.now() });
+      localStorage.setItem(SCORES_KEY, JSON.stringify(scores.slice(0, 50)));
+      return true;
+    } catch { return false; }
   }
 
   function clearScores() {
@@ -62,7 +66,8 @@ const Storage = (() => {
         savedAt:      Date.now(),
       };
       localStorage.setItem(GAME_KEY, JSON.stringify(snapshot));
-    } catch { /* storage full — silently skip */ }
+      return true;
+    } catch { return false; }
   }
 
   function loadGameState() {

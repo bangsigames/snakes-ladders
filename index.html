@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self';">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>My Snakes & Ladders</title>
+  <title data-i18n="home.app_name">My Snakes &amp; Ladders</title>
   <link rel="stylesheet" href="css/fonts.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -317,7 +318,7 @@
         <div id="placement-hint" style="display:none">Tap a square to start</div>
       </div>
       <div class="guided-board-wrap" id="guided-board-wrap-3">
-        <canvas id="designer-canvas"></canvas>
+        <canvas id="designer-canvas" role="img" aria-label="Board preview — tap to place snakes and ladders"></canvas>
         <button class="btn btn-icon btn-icon-delete snake-del-btn hidden" id="snake-del-btn" aria-label="Remove snake">✕</button>
       </div>
       <div class="guided-bottom">
@@ -506,17 +507,23 @@
     <div class="theme-bg-art" id="theme-bg-art"></div>
     <div class="game-layout">
 
+      <!-- Screen reader live region for game events -->
+      <div id="game-announcer" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
       <!-- Compact transparent top bar -->
       <div class="game-top-bar">
-        <button class="btn btn-icon btn-glass" id="btn-game-menu"><span id="icon-menu-btn"></span></button>
-        <div class="players-status" id="players-status"></div>
+        <button class="btn btn-icon btn-glass" id="btn-game-menu" aria-label="Game menu"><span id="icon-menu-btn" aria-hidden="true"></span></button>
+        <div class="players-status" id="players-status" aria-label="Player positions"></div>
       </div>
 
       <!-- Board fills remaining space -->
       <div class="game-board-wrap">
-        <canvas id="game-canvas"></canvas>
-        <canvas id="board-anim-canvas"></canvas>
-        <div id="canvas-flash" class="canvas-flash"></div>
+        <canvas id="game-canvas" role="img" aria-label="Snakes and Ladders game board"></canvas>
+        <canvas id="board-anim-canvas" aria-hidden="true"></canvas>
+        <div id="canvas-flash" class="canvas-flash" aria-hidden="true"></div>
+        <div id="canvas-loading" class="canvas-loading" aria-hidden="true">
+          <div class="canvas-loading-ring"></div>
+        </div>
       </div>
 
       <!-- Turn announcement banner -->
@@ -527,8 +534,8 @@
 
       <!-- Floating tappable dice — no panel, no button -->
       <div class="game-dice-float">
-        <div class="dice" id="dice">
-          <div class="dice-face dice-top"></div>
+        <div class="dice" id="dice" role="button" aria-label="Tap to roll dice" tabindex="0">
+          <div class="dice-face dice-top" aria-hidden="true"></div>
         </div>
         <div class="dice-tap-label" id="dice-tap-label" data-i18n="game.tap_to_roll">Tap to roll!</div>
       </div>

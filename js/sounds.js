@@ -10,12 +10,22 @@ const Sounds = (() => {
   let muted = false;
   let musicMuted = false;
 
+  let _resumePromise = null;
+
   function getCtx() {
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
     }
-    if (ctx.state === 'suspended') ctx.resume();
+    if (ctx.state === 'suspended' && !_resumePromise) {
+      _resumePromise = ctx.resume().then(() => { _resumePromise = null; }).catch(() => { _resumePromise = null; });
+    }
     return ctx;
+  }
+
+  // Returns a safe scheduling base time, adding extra buffer if context just resumed
+  function _baseTime() {
+    const c = getCtx();
+    return c.currentTime + (_resumePromise ? 0.12 : 0.005);
   }
 
   function playTone(freq, type, startTime, duration, gain, pitchEnd) {
@@ -35,16 +45,25 @@ const Sounds = (() => {
     osc.stop(startTime + duration + 0.01);
   }
 
+  // Reusable white-noise buffer — allocated once at max needed duration (0.5s).
+  // Each caller trims playback via gain envelope; the long buffer tail fades to silence.
+  let _noiseBuf = null;
+  function _getNoiseBuf() {
+    const c = getCtx();
+    if (_noiseBuf && _noiseBuf.sampleRate === c.sampleRate) return _noiseBuf;
+    const len = Math.ceil(c.sampleRate * 0.5);
+    _noiseBuf = c.createBuffer(1, len, c.sampleRate);
+    const data = _noiseBuf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    return _noiseBuf;
+  }
+
   function playNoise(startTime, duration, gain, highpass) {
     if (gain === undefined) gain = 0.2;
     if (highpass === undefined) highpass = 200;
     const c = getCtx();
-    const bufSize = Math.ceil(c.sampleRate * duration);
-    const buf = c.createBuffer(1, bufSize, c.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
     const src = c.createBufferSource();
-    src.buffer = buf;
+    src.buffer = _getNoiseBuf();
     const filter = c.createBiquadFilter();
     filter.type = 'highpass';
     filter.frequency.value = highpass;
@@ -63,7 +82,7 @@ const Sounds = (() => {
   function rollDice() {
     if (muted) return;
     const c = getCtx();
-    const now = c.currentTime;
+    const now = _baseTime();
     // Rapid dice rattle — 8 impacts over 600ms, fading out
     for (let i = 0; i < 8; i++) {
       const t = now + i * 0.072 + Math.random() * 0.02;
@@ -80,14 +99,14 @@ const Sounds = (() => {
   function moveStep() {
     if (muted) return;
     const c = getCtx();
-    const now = c.currentTime;
+    const now = _baseTime();
     playTone(600, 'sine', now, 0.08, 0.15, 700);
   }
 
   function landSnake() {
     if (muted) return;
     const c = getCtx();
-    const now = c.currentTime;
+    const now = _baseTime();
     // Loud hiss burst
     playNoise(now, 0.25, 0.35, 4000);
     playNoise(now + 0.2, 0.25, 0.28, 3000);
@@ -101,7 +120,7 @@ const Sounds = (() => {
   function landBounce() {
     if (muted) return;
     const c = getCtx();
-    const now = c.currentTime;
+    const now = _baseTime();
     // Thud impact at the wall
     playNoise(now, 0.07, 0.4, 100);
     playTone(180, 'sine', now, 0.09, 0.28, 90);
@@ -115,7 +134,7 @@ const Sounds = (() => {
   function landLadder() {
     if (muted) return;
     const c = getCtx();
-    const now = c.currentTime;
+    const now = _baseTime();
     // Ascending arpeggio timed to fit 600ms animation
     const notes = [261, 329, 392, 523, 659, 784, 1047];
     notes.forEach((freq, i) => {
@@ -129,7 +148,7 @@ const Sounds = (() => {
   function win() {
     if (muted) return;
     const c = getCtx();
-    const now = c.currentTime;
+    const now = _baseTime();
     // Victory fanfare melody
     const melody = [523, 659, 784, 1047, 784, 1047, 1319];
     const times  = [0,   0.12,0.24,0.40, 0.55,0.68, 0.82];
@@ -149,7 +168,7 @@ const Sounds = (() => {
   function playerMove(soundId) {
     if (muted) return;
     const c = getCtx();
-    const now = c.currentTime;
+    const now = _baseTime();
     const sounds = {
       boop:   () => playTone(660, 'sine', now, 0.12, 0.3),
       pop:    () => { playTone(880, 'triangle', now, 0.05, 0.4, 440); playNoise(now, 0.05, 0.15, 2000); },
@@ -163,15 +182,15 @@ const Sounds = (() => {
 
   function button() {
     if (muted) return;
-    const c = getCtx();
-    playTone(440, 'sine', c.currentTime, 0.08, 0.2, 550);
+    getCtx();
+    playTone(440, 'sine', _baseTime(), 0.08, 0.2, 550);
   }
 
   // L5: ascending chime when a player enters "almost there" zone
   function almostThere() {
     if (muted) return;
     const c = getCtx();
-    const now = c.currentTime;
+    const now = _baseTime();
     // Three rising notes: E5 → G5 → C6 — bright and exciting
     playTone(659, 'triangle', now,        0.18, 0.22);
     playTone(784, 'triangle', now + 0.14, 0.18, 0.26);
@@ -184,7 +203,7 @@ const Sounds = (() => {
   function errorBuzz() {
     if (muted) return;
     const c = getCtx();
-    const now = c.currentTime;
+    const now = _baseTime();
     playNoise(now, 0.04, 0.18, 90);
     playTone(110, 'sawtooth', now, 0.04, 0.15, 80);
   }
@@ -199,7 +218,7 @@ const Sounds = (() => {
     if (perfNow - _lastThemedSoundAt < 350) return;
     _lastThemedSoundAt = perfNow;
     const c = getCtx();
-    const now = c.currentTime;
+    const now = _baseTime();
 
     const defs = {
       // ---- JUNGLE ----
@@ -502,8 +521,8 @@ const Sounds = (() => {
   let _stepIdx     = 0;      // index into the 16-step pattern
   let _stepDur     = 0;      // duration of one 8th-note step (seconds)
   let _activeTheme = null;   // theme key currently playing
-  let currentMusicTheme = null;
   let _hihatBuf    = null;   // reusable white-noise buffer for hi-hat
+  let _clapBuf     = null;   // reusable noise buffer for clap
 
   // ── Percussion synthesis ─────────────────────────────────────────────────
   function _playKick(time, gain) {
@@ -541,13 +560,15 @@ const Sounds = (() => {
   }
 
   function _playClap(time, gain) {
-    const c   = getCtx();
-    const len = Math.floor(c.sampleRate * 0.08);
-    const buf = c.createBuffer(1, len, c.sampleRate);
-    const d   = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    const c = getCtx();
+    if (!_clapBuf) {
+      const len = Math.floor(c.sampleRate * 0.08);
+      _clapBuf = c.createBuffer(1, len, c.sampleRate);
+      const d = _clapBuf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    }
     const src    = c.createBufferSource();
-    src.buffer   = buf;
+    src.buffer   = _clapBuf;
     const filter = c.createBiquadFilter();
     filter.type  = 'bandpass';
     filter.frequency.value = 1200;
@@ -603,24 +624,22 @@ const Sounds = (() => {
   // ── Public music controls ────────────────────────────────────────────────
   function startMusic(theme) {
     stopMusic();
-    currentMusicTheme = theme || 'cartoon';
+    _activeTheme = theme || 'cartoon';
     if (musicMuted) return;
-    _activeTheme = currentMusicTheme;
     const td  = MUSIC[_activeTheme] || MUSIC.cartoon;
     _stepDur  = 60 / td.bpm / 2;            // one 8th note in seconds
     _stepIdx  = 0;
-    _stepTime = getCtx().currentTime + 0.05; // start 50ms from now
+    _stepTime = _baseTime() + 0.05; // start 50ms+ from now
     _musicTick();
   }
 
   // Restart the last-playing theme — called on app foreground resume.
   function resumeMusic() {
-    if (currentMusicTheme && !musicMuted) startMusic(currentMusicTheme);
+    if (_activeTheme && !musicMuted) startMusic(_activeTheme);
   }
 
   function stopMusic() {
     if (_sched) { clearTimeout(_sched); _sched = null; }
-    _activeTheme = null;
   }
 
   // Toggle ALL sound (SFX + music) with one button
@@ -628,7 +647,7 @@ const Sounds = (() => {
     muted = !muted;
     musicMuted = muted;
     if (muted) stopMusic();
-    else if (currentMusicTheme) startMusic(currentMusicTheme);
+    else if (_activeTheme) startMusic(_activeTheme);
     return muted;
   }
 
@@ -644,7 +663,7 @@ const Sounds = (() => {
   function toggleMusic() {
     musicMuted = !musicMuted;
     if (musicMuted) stopMusic();
-    else if (currentMusicTheme) startMusic(currentMusicTheme);
+    else if (_activeTheme) startMusic(_activeTheme);
     return musicMuted;
   }
 
@@ -655,6 +674,15 @@ const Sounds = (() => {
 
   function isMuted() { return muted; }
   function isMusicMuted() { return musicMuted; }
+
+  // Pause music on backgrounding, resume when app returns to foreground
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (ctx && ctx.state === 'running') ctx.suspend();
+    } else {
+      if (ctx && ctx.state === 'suspended' && !musicMuted) ctx.resume();
+    }
+  });
 
   return {
     rollDice, moveStep, landSnake, landBounce, landLadder, win, playerMove, button, errorBuzz, almostThere,

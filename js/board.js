@@ -71,8 +71,6 @@ const Board = (() => {
     oc.width = w; oc.height = h;
     const oc_ctx = oc.getContext('2d');
 
-    drawBoardBackground(oc_ctx, theme, cols, rows, w, h, T);
-
     for (let cell = 1; cell <= total; cell++) {
       const isEven = (Math.floor((cell-1) / cols) + ((cell-1) % cols)) % 2 === 0;
       drawCell(oc_ctx, cellRects[cell], cell, isEven, T, cellW, cellH, theme, total);
@@ -124,9 +122,6 @@ const Board = (() => {
     ctx.textBaseline = 'middle';
     ctx.fillText(emoji, 0, 0);
     ctx.restore();
-  }
-
-  function drawBoardBackground(ctx, theme, cols, rows, w, h, T) {
   }
 
   // Subtle corner vignette overlay
@@ -289,9 +284,6 @@ const Board = (() => {
 
     }
 
-    // ── Subtle themed decoration ──
-    drawTileDecoration(ctx, cx, cy, cw, faceH, cellNum, theme);
-
     // ── Special: start cell (1) ──
     if (cellNum === 1) {
       ctx.save();
@@ -371,67 +363,6 @@ const Board = (() => {
     ctx.fillText(cellNum, numX, numY);
     ctx.shadowBlur = 0;
     ctx.shadowColor = 'transparent';
-  }
-
-  function drawTileDecoration(ctx, cx, cy, cw, faceH, cellNum, theme) {
-    return; // tile decorations removed
-    const type = cellNum % 5;
-    if (type === 0) return; // plain tile
-
-    const sz = Math.min(cw, faceH) * 0.18;
-    if (sz < 3) return;
-
-    // Bottom-right corner position
-    const px = cx + cw - sz * 0.85;
-    const py = cy + faceH - sz * 0.85;
-
-    ctx.save();
-    ctx.globalAlpha = 0.38;
-    const dc = { jungle: '#ffffff', space: '#c4b5fd', ocean: '#ffffff', fantasy: '#fde68a', cartoon: '#ffffff' }[theme] || '#ffffff';
-    ctx.fillStyle = dc;
-    ctx.strokeStyle = dc;
-
-    if (type === 1) {
-      // 3 small dots in a row
-      const dr = sz * 0.27;
-      for (let d = 0; d < 3; d++) {
-        ctx.beginPath();
-        ctx.arc(px - sz * (2 - d) * 0.42, py, dr, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    } else if (type === 2) {
-      // 4-point sparkle star
-      ctx.beginPath();
-      for (let i = 0; i < 8; i++) {
-        const a = (i / 8) * Math.PI * 2 - Math.PI / 2;
-        const rad = i % 2 === 0 ? sz * 0.5 : sz * 0.22;
-        const x2 = px + Math.cos(a) * rad;
-        const y2 = py + Math.sin(a) * rad;
-        if (i === 0) ctx.moveTo(x2, y2); else ctx.lineTo(x2, y2);
-      }
-      ctx.closePath();
-      ctx.fill();
-    } else if (type === 3) {
-      // Diamond
-      ctx.beginPath();
-      ctx.moveTo(px, py - sz * 0.5);
-      ctx.lineTo(px + sz * 0.38, py);
-      ctx.lineTo(px, py + sz * 0.5);
-      ctx.lineTo(px - sz * 0.38, py);
-      ctx.closePath();
-      ctx.fill();
-    } else if (type === 4) {
-      // Ring + centre dot
-      ctx.lineWidth = Math.max(1, sz * 0.18);
-      ctx.beginPath();
-      ctx.arc(px, py, sz * 0.38, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(px, py, sz * 0.14, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.restore();
   }
 
   // Lighten or darken a hex/rgb color by `amount` (negative = darker)
@@ -1142,11 +1073,6 @@ const Board = (() => {
   // Bezier helpers
   function cubicBezierPoint(p0, p1, p2, p3, t) {
     return (1-t)**3*p0 + 3*(1-t)**2*t*p1 + 3*(1-t)*t**2*p2 + t**3*p3;
-  }
-
-  // Keep old name as alias for backward compat
-  function bezierPoint(p0, p1, p2, p3, t) {
-    return cubicBezierPoint(p0, p1, p2, p3, t);
   }
 
   // Returns bezier control points for a snake (matching drawSnake)
