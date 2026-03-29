@@ -536,7 +536,7 @@ const App = (() => {
         <div class="swiz-player-slots">
           <div class="swiz-player-slot swiz-slot-you">
             <div class="swiz-slot-num" style="background:${PLAYER_COLORS[0]}">1</div>
-            <div class="swiz-slot-label">${t('setup.you_label')}</div>
+            <div class="swiz-slot-label">${t('setup.player_n', { n: 1 })}</div>
             <div class="swiz-slot-you-badge">🔒 👤 ${t('setup.toggle_human')}</div>
           </div>
           ${slotRows}
