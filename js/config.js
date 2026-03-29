@@ -328,6 +328,9 @@ function getCellFromPoint(px, py, cols, rows, canvasW, canvasH) {
   return rowFromBottom * cols + posInRow + 1;
 }
 
+// How long a saved mid-game state remains resumable (7 days)
+const GAME_RESUME_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {

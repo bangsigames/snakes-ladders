@@ -15,9 +15,19 @@ const Storage = (() => {
 
   const MAX_USER_BOARDS = 20;
 
+  function uniqueBoardName(name, excludeId, boards) {
+    const others = boards.filter(b => b.id !== excludeId);
+    const taken = new Set(others.map(b => b.name));
+    if (!taken.has(name)) return name;
+    let n = 2;
+    while (taken.has(`${name} ${n}`)) n++;
+    return `${name} ${n}`;
+  }
+
   function saveBoard(board) {
     try {
       const boards = loadBoards();
+      board = { ...board, name: uniqueBoardName(board.name, board.id, boards) };
       const existing = boards.findIndex(b => b.id === board.id);
       if (existing >= 0) {
         boards[existing] = board;

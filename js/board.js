@@ -77,6 +77,7 @@ const Board = (() => {
     }
 
     drawBoardOverlay(oc_ctx, theme, cols, rows, w, h, T);
+    drawRowArrows(oc_ctx, cols, rows, w, h, cellW, cellH);
 
     for (const ladder of ladders) {
       drawLadder(oc_ctx, ladder.bottom, ladder.top, cols, rows, w, h, T, theme);
@@ -97,7 +98,7 @@ const Board = (() => {
    * Static content (cells, snakes, ladders) is cached to an offscreen canvas
    * and only rebuilt when the board config or canvas size changes.
    */
-  function render(ctx, boardConfig, w, h, players, animState) {
+  function render(ctx, boardConfig, w, h, players, animState, activePlayerId) {
     const key = _staticCacheKey(boardConfig, w, h);
     if (!_boardCache || _boardCache.key !== key) {
       _boardCache = _buildStaticCache(boardConfig, w, h);
@@ -108,7 +109,7 @@ const Board = (() => {
 
     if (players) {
       const { cellRects, cellW, cellH, cols, rows } = _boardCache;
-      drawPlayers(ctx, players, cols, rows, w, h, cellW, cellH, animState, cellRects);
+      drawPlayers(ctx, players, cols, rows, w, h, cellW, cellH, animState, cellRects, activePlayerId);
     }
   }
 
@@ -344,18 +345,8 @@ const Board = (() => {
     const numX = cx + cw * 0.10;
     const numY = cy + faceH - faceH * 0.08;
 
-    let numFill, numShadow;
-    if (theme === 'space') {
-      numFill = '#c4b5fd'; numShadow = 'rgba(5,0,20,0.98)';
-    } else if (theme === 'ocean') {
-      numFill = '#bae6fd'; numShadow = 'rgba(0,40,80,0.96)';
-    } else if (theme === 'fantasy') {
-      numFill = '#e9d5ff'; numShadow = 'rgba(60,0,100,0.92)';
-    } else if (theme === 'jungle') {
-      numFill = '#bbf7d0'; numShadow = 'rgba(5,20,5,0.95)';
-    } else {
-      numFill = '#ffffff'; numShadow = 'rgba(20,20,40,0.96)';
-    }
+    const numFill = 'rgba(255,255,255,0.60)';
+    const numShadow = 'rgba(0,0,0,0.80)';
 
     ctx.shadowColor = numShadow;
     ctx.shadowBlur = 4;
@@ -374,6 +365,37 @@ const Board = (() => {
       return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
     }
     return color; // fallback: return unchanged for rgba strings
+  }
+
+  // Draw direction arrows on left/right edges of each row
+  function drawRowArrows(ctx, cols, rows, w, h, cellW, cellH) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,0.20)';
+    const arrowH = Math.min(cellH * 0.28, 14);
+    const arrowW = arrowH * 0.75;
+    const marginX = Math.max(2, cellW * 0.07);
+
+    for (let rowFromBottom = 0; rowFromBottom < rows; rowFromBottom++) {
+      const isLTR = rowFromBottom % 2 === 0;
+      const rowY = h - (rowFromBottom + 1) * cellH;
+      const cy = rowY + cellH * 0.5;
+
+      // Arrow points right for L→R rows, left for R→L rows
+      const tipX = isLTR
+        ? w - marginX                   // right edge, pointing right
+        : marginX;                       // left edge, pointing left
+      const baseX = isLTR ? tipX - arrowW : tipX + arrowW;
+      const dir = isLTR ? 1 : -1;
+
+      ctx.beginPath();
+      ctx.moveTo(tipX, cy);
+      ctx.lineTo(baseX, cy - arrowH * 0.5);
+      ctx.lineTo(baseX + dir * arrowW * 0.3, cy);
+      ctx.lineTo(baseX, cy + arrowH * 0.5);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   function drawSnake(ctx, headCell, tailCell, cols, rows, w, h, T, theme) {
@@ -1018,13 +1040,13 @@ const Board = (() => {
     ctx.restore();
   }
 
-  function drawPlayers(ctx, players, cols, rows, w, h, cellW, cellH, animState, cellRects) {
+  function drawPlayers(ctx, players, cols, rows, w, h, cellW, cellH, animState, cellRects, activePlayerId) {
     // Use pre-computed rects when available, otherwise fall back to getCellRect
     const getRect = cellRects
       ? (cell) => cellRects[cell]
       : (cell) => getCellRect(cell, cols, rows, w, h);
 
-    const tokenR = Math.min(cellW, cellH) * 0.32;
+    const baseR = Math.min(cellW, cellH) * 0.32;
 
     // Group players by position (for those not animating along bezier)
     const byPos = {};
@@ -1036,12 +1058,16 @@ const Board = (() => {
       }
     }
 
+    // Draw inactive players first, then active on top
+    const isActive = (p) => activePlayerId != null && p.id === activePlayerId;
+
     for (const pos in byPos) {
       const r = getRect(+pos);
       const group = byPos[pos];
       const n = group.length;
       for (let i = 0; i < n; i++) {
         const p = group[i];
+        if (isActive(p)) continue; // draw active last
         const offX = n > 1 ? (i - (n-1)/2) * (cellW * 0.28) : 0;
         let drawX = r.cx + offX;
         let drawY = r.cy;
@@ -1052,7 +1078,32 @@ const Board = (() => {
           drawY = fromR.cy + (r.cy - fromR.cy) * animState.progress;
         }
 
-        drawToken(ctx, drawX, drawY, p, tokenR);
+        ctx.save();
+        ctx.globalAlpha = 0.70;
+        drawToken(ctx, drawX, drawY, p, baseR);
+        ctx.restore();
+      }
+    }
+
+    // Draw active player token (larger, full opacity, no bezier)
+    for (const pos in byPos) {
+      const r = getRect(+pos);
+      const group = byPos[pos];
+      const n = group.length;
+      for (let i = 0; i < n; i++) {
+        const p = group[i];
+        if (!isActive(p)) continue;
+        const offX = n > 1 ? (i - (n-1)/2) * (cellW * 0.28) : 0;
+        let drawX = r.cx + offX;
+        let drawY = r.cy;
+
+        if (animState && animState.playerId === p.id && !animState.bezierPath && animState.progress < 1) {
+          const fromR = getRect(animState.fromCell);
+          drawX = fromR.cx + (r.cx - fromR.cx) * animState.progress + offX;
+          drawY = fromR.cy + (r.cy - fromR.cy) * animState.progress;
+        }
+
+        drawToken(ctx, drawX, drawY, p, baseR * 1.20);
       }
     }
 
@@ -1062,10 +1113,13 @@ const Board = (() => {
       if (p) {
         const bp = animState.bezierPath;
         const t = animState.progress;
+        const r = isActive(p) ? baseR * 1.20 : baseR;
+        if (!isActive(p)) { ctx.save(); ctx.globalAlpha = 0.70; }
         drawToken(ctx,
           cubicBezierPoint(bp.x0, bp.cx1, bp.cx2, bp.x1, t),
           cubicBezierPoint(bp.y0, bp.cy1, bp.cy2, bp.y1, t),
-          p, tokenR);
+          p, r);
+        if (!isActive(p)) ctx.restore();
       }
     }
   }
@@ -1671,9 +1725,9 @@ const Board = (() => {
     gameCanvas.style.height = ch + 'px';
   }
 
-  function redrawGame(boardConfig, players, animState) {
+  function redrawGame(boardConfig, players, animState, activePlayerId) {
     if (!gameCanvas || !gameCtx) return;
-    render(gameCtx, boardConfig, gameCanvas.width, gameCanvas.height, players, animState);
+    render(gameCtx, boardConfig, gameCanvas.width, gameCanvas.height, players, animState, activePlayerId);
   }
 
   // ============================================================
@@ -1778,6 +1832,28 @@ const Board = (() => {
 
   preloadSprites();
 
+  // Render theme-specific ladder art into a standalone canvas (for event cards, etc.)
+  // Uses a 1-col × 8-row mini board so getCellRect gives a centered vertical ladder.
+  function ladderPreviewCanvas(theme, size) {
+    const T = THEMES[theme] || THEMES.cartoon;
+    const oc = document.createElement('canvas');
+    oc.width = size; oc.height = size;
+    const ctx = oc.getContext('2d');
+    drawLadder(ctx, 1, 8, 1, 8, size, size, T, theme);
+    return oc;
+  }
+
+  // Render theme-specific snake art into a standalone canvas (for event cards, etc.)
+  // head=8 (top), tail=1 (bottom) on a 1-col × 8-row board → centered vertical snake.
+  function snakePreviewCanvas(theme, size) {
+    const T = THEMES[theme] || THEMES.cartoon;
+    const oc = document.createElement('canvas');
+    oc.width = size; oc.height = size;
+    const ctx = oc.getContext('2d');
+    drawSnake(ctx, 8, 1, 1, 8, size, size, T, theme);
+    return oc;
+  }
+
   return {
     render, drawSnake, drawLadder, drawPlayers, drawToken,
     cubicBezierPoint,
@@ -1785,7 +1861,7 @@ const Board = (() => {
     designer,
     initGameCanvas, resizeGameCanvas, redrawGame, invalidateBoardCache,
     startBoardAnim, stopBoardAnim,
-    lightenColor,
+    lightenColor, ladderPreviewCanvas, snakePreviewCanvas,
   };
 })();
 

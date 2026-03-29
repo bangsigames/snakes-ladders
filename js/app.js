@@ -37,7 +37,7 @@ const App = (() => {
     const saved = Storage.loadGameState();
     if (!saved) return;
     const age = Date.now() - (saved.savedAt || 0);
-    if (age > 7 * 24 * 60 * 60 * 1000) { Storage.clearGameState(); return; }
+    if (age > GAME_RESUME_MAX_AGE_MS) { Storage.clearGameState(); return; }
     _resumePrompted = true;
     showResumeModal(saved);
   }
@@ -185,6 +185,7 @@ const App = (() => {
     const board = getAllBoards().find(b => b.id === id);
     if (!board) return;
     Sounds.button();
+    Game.haptic('light');
     currentBoard = board;
     applyTheme(board.theme);
     showPlayerSetup();
@@ -264,6 +265,7 @@ const App = (() => {
     setSnakeGuideStep(1);
     updateSnakeHintIcon(theme);
     updateSnakeList();
+    maybeShowSnakeDemo();
   }
 
   function goToStep4() {
@@ -273,40 +275,52 @@ const App = (() => {
     Board.designer.setMode('ladder-bottom');
     setLadderGuideStep(1);
     updateLadderList();
+    maybeShowLadderDemo();
   }
 
   function generateBoardName(config) {
-    const nameKeys = {
-      jungle:  'designer.board_name_jungle',
-      space:   'designer.board_name_space',
-      ocean:   'designer.board_name_ocean',
-      fantasy: 'designer.board_name_fantasy',
-      cartoon: 'designer.board_name_cartoon',
-    };
+    const theme = config.theme || 'cartoon';
+    const names = t('designer.board_names_' + theme) || t('designer.board_names_cartoon');
+    const idx = ((config.snakes || []).length + (config.ladders || []).length) % names.length;
+    const name = names[idx];
     const score = (config.snakes || []).length - (config.ladders || []).length;
     const diffKey = score <= 0 ? 'designer.difficulty_easy' : score <= 2 ? 'designer.difficulty_normal' : score <= 4 ? 'designer.difficulty_tricky' : 'designer.difficulty_hard';
-    const name = t(nameKeys[config.theme] || 'designer.board_name_cartoon');
     const difficulty = t(diffKey);
     return { name, difficulty, diffKey };
   }
 
+  let _autoSavedBoard = null;
+  let _autoSavedSig   = '';
+  let _step5Difficulty = '';
+
   function goToStep5() {
     const config = Board.designer.getBoardConfig();
     const { name, difficulty, diffKey } = generateBoardName(config);
+    _step5Difficulty = difficulty;
 
+    // Board name display
     const display = document.getElementById('board-name-display');
     if (display) display.textContent = name;
+    // Reset inline edit state
+    const nameInput = document.getElementById('board-name-input');
+    if (nameInput) { nameInput.classList.add('hidden'); nameInput.value = name; }
+    const editBtn = document.getElementById('btn-name-edit');
+    if (editBtn) editBtn.style.display = '';
 
     const badge = document.getElementById('board-diff-badge');
     if (badge) {
-      const diffSlug = diffKey.replace('designer.difficulty_', ''); // e.g. 'easy', 'normal', 'tricky', 'hard'
+      const diffSlug = diffKey.replace('designer.difficulty_', '');
       badge.textContent = difficulty;
       badge.className = 'board-diff-badge diff-' + diffSlug;
     }
 
+    // Theme hero image
+    const heroImg = document.getElementById('board-ready-hero-img');
+    if (heroImg) heroImg.src = `img/theme-${config.theme}.png`;
+
+    // Stats
     const stats = document.getElementById('board-ready-stats');
     if (stats) {
-      const preset = GRID_PRESETS[config.preset] || {};
       stats.innerHTML = `
         <div class="ready-stat">
           <svg viewBox="0 0 16 16" width="14" height="14"><rect x="1" y="1" width="6" height="6" rx="1" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/></svg>
@@ -325,6 +339,64 @@ const App = (() => {
         </div>
       `;
     }
+
+    // Auto-save (once per unique config)
+    const sig = `${config.preset}-${config.theme}-${config.snakes.length}-${config.ladders.length}`;
+    if (!_autoSavedBoard || _autoSavedSig !== sig) {
+      const userBoards = Storage.loadBoards();
+      if (userBoards.length < Storage.MAX_USER_BOARDS) {
+        const fullName = `${name} (${difficulty})`;
+        _autoSavedBoard = { ...config, id: Storage.generateId(), name: fullName, createdAt: Date.now() };
+        Storage.saveBoard(_autoSavedBoard);
+        _autoSavedSig = sig;
+        showToast('✅ ' + t('misc.board_saved', { name }));
+      } else {
+        _autoSavedBoard = null;
+        _autoSavedSig = '';
+        showToast(t('misc.board_limit_toast', { max: Storage.MAX_USER_BOARDS }));
+      }
+    }
+
+    // Confetti burst
+    requestAnimationFrame(() => launchBoardReadyConfetti());
+  }
+
+  function launchBoardReadyConfetti() {
+    const canvas = document.getElementById('board-ready-confetti');
+    if (!canvas) return;
+    canvas.width  = canvas.offsetWidth  || canvas.clientWidth  || 300;
+    canvas.height = canvas.offsetHeight || canvas.clientHeight || 100;
+    const ctx = canvas.getContext('2d');
+    const COLORS = ['#FFD700','#4CD964','#FF6B6B','#4FC3F7','#FF8C42','#A855F7','#FFBE0B','#fff'];
+    const pieces = Array.from({ length: 72 }, () => ({
+      x:  Math.random() * canvas.width,
+      y:  -8 - Math.random() * 40,
+      w:  5 + Math.random() * 7,
+      h:  3 + Math.random() * 4,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      rot: Math.random() * 360,
+      vx: (Math.random() - 0.5) * 3.5,
+      vy: 1.8 + Math.random() * 3,
+      vr: (Math.random() - 0.5) * 9,
+    }));
+    let raf;
+    const tick = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+      for (const p of pieces) {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.rot += p.vr;
+        if (p.y < canvas.height + 20) alive = true;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot * Math.PI / 180);
+        ctx.globalAlpha = Math.max(0, 1 - (p.y / (canvas.height * 1.2)));
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      }
+      if (alive) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
   }
 
   function getSelectedPreset() {
@@ -365,49 +437,14 @@ const App = (() => {
   }
 
   // ============================================================
-  // PLAYER SETUP
+  // PLAYER SETUP WIZARD
   // ============================================================
 
   let playerCount = 2;
   let playerSetups = [];
-
-  const THEME_NAME_SETS = {
-    cartoon: [
-      ['Zap',     'Boing',   'Zippy',   'Dash',    'Pop',     'Fizz'],
-      ['Wobble',  'Giggles', 'Tumble',  'Noodle',  'Kazoo',   'Blip'],
-      ['Wacky',   'Squish',  'Pudding', 'Doodle',  'Loopy',   'Bonkers'],
-      ['Bubbles', 'Whizz',   'Splat',   'Zigzag',  'Boop',    'Twirl'],
-    ],
-    jungle: [
-      ['Mango',   'Koba',    'Tikki',   'Riki',    'Bongo',   'Tuco'],
-      ['Zara',    'Nala',    'Kiki',    'Mimi',    'Pika',    'Bindu'],
-      ['Rumble',  'Thorn',   'Mossy',   'Fern',    'Bramble', 'Vine'],
-      ['Ziggy',   'Pumba',   'Suki',    'Tano',    'Ranga',   'Simba'],
-    ],
-    space: [
-      ['Nova',    'Star',    'Blaze',   'Cosmo',   'Orbit',   'Zap'],
-      ['Luna',    'Comet',   'Lyra',    'Nebula',  'Vega',    'Aurora'],
-      ['Bolt',    'Pulsar',  'Helix',   'Radar',   'Photon',  'Ion'],
-      ['Buzz',    'Eclipse', 'Pixel',   'Cipher',  'Quasar',  'Zenith'],
-    ],
-    ocean: [
-      ['Coral',    'Finn',   'Pearl',   'Splash',  'Crest',   'Ripple'],
-      ['Marina',   'Sandy',  'Bubbles', 'Wave',    'Shelby',  'Nemo'],
-      ['Tide',     'Orca',   'Brine',   'Trident', 'Kelp',    'Drift'],
-      ['Starfish', 'Aqua',   'Pebble',  'Flo',     'Surge',   'Cozy'],
-    ],
-    fantasy: [
-      ['Ember',   'Rune',    'Fable',   'Zira',    'Myth',    'Blaze'],
-      ['Pixie',   'Willow',  'Sage',    'Crysta',  'Lyric',   'Dawn'],
-      ['Thorin',  'Griffin', 'Arrow',   'Flint',   'Shadow',  'Drake'],
-      ['Glimmer', 'Prism',   'Echo',    'Talon',   'Wren',    'Spark'],
-    ],
-  };
-
-  function getNameSets() {
-    const theme = currentBoard ? (currentBoard.theme || 'cartoon') : 'cartoon';
-    return THEME_NAME_SETS[theme] || THEME_NAME_SETS.cartoon;
-  }
+  let setupWizardPhase = 'count';  // 'count' | 'player' | 'summary'
+  let setupCurrentPlayer = 0;
+  let _currentVVHandler = null;
 
   function getThemeCharacters() {
     const theme = currentBoard ? (currentBoard.theme || 'cartoon') : 'cartoon';
@@ -419,34 +456,32 @@ const App = (() => {
     });
   }
 
-  function syncNamesFromDOM() {
-    playerSetups.forEach((p, i) => {
-      if (p.isBot) return;
-      const input = document.getElementById(`pname-input-${i}`);
-      if (input && input.value.trim()) p.name = input.value.trim();
-    });
+  function getWizardNameSet() {
+    const theme = currentBoard ? (currentBoard.theme || 'cartoon') : 'cartoon';
+    return t('setup.names_' + theme) || ['Player'];
   }
 
-  function selectPlayerName(playerIndex, name) {
-    if (!playerSetups[playerIndex] || playerSetups[playerIndex].isBot) return;
-    playerSetups[playerIndex].name = name;
-    Sounds.button();
-    const chips = document.querySelectorAll(`#pname-chips-${playerIndex} .player-name-chip`);
-    chips.forEach(c => c.classList.toggle('selected', c.textContent.trim() === name));
-    const input = document.getElementById(`pname-input-${playerIndex}`);
-    if (input) { input.value = name; input.focus(); }
+  function syncCurrentPlayerName(idx) {
+    const input = document.getElementById(`swiz-name-input-${idx}`);
+    if (input && playerSetups[idx] && !playerSetups[idx].isBot) {
+      const trimmed = sanitiseName(input.value, 12);
+      if (trimmed) playerSetups[idx].name = trimmed;
+    }
   }
 
-  function handleNameInput(playerIndex, value) {
-    if (!playerSetups[playerIndex] || playerSetups[playerIndex].isBot) return;
-    const trimmed = value.trim();
-    playerSetups[playerIndex].name = trimmed || (getNameSets()[playerIndex] || getNameSets()[0])[0];
-    // Deselect all chips when user types manually
-    const chips = document.querySelectorAll(`#pname-chips-${playerIndex} .player-name-chip`);
-    chips.forEach(c => c.classList.toggle('selected', c.textContent.trim() === trimmed));
+  function cleanupVVHandler() {
+    if (_currentVVHandler && window.visualViewport) {
+      window.visualViewport.removeEventListener('resize', _currentVVHandler);
+      _currentVVHandler = null;
+    }
+    // reset any footer transform
+    const footer = document.querySelector('.swiz-player-footer');
+    if (footer) footer.style.transform = '';
   }
 
+  // ---- Entry point ----
   function showPlayerSetup(prefillPlayers, returnTo = 'boards') {
+    cleanupVVHandler();
     _setupReturnTo = returnTo;
     if (prefillPlayers) {
       playerCount = prefillPlayers.length;
@@ -455,181 +490,339 @@ const App = (() => {
       playerCount = 2;
       playerSetups = [];
     }
-    renderPlayerCountBtns();
-    renderPlayerCards();
+    setupWizardPhase = 'count';
+    setupCurrentPlayer = 0;
     showScreen('screen-player-setup');
     applyTheme(currentBoard?.theme || 'cartoon');
+    renderSetupWizard();
   }
 
-  function renderPlayerCountBtns() {
-    const container = document.querySelector('.player-count-btns');
-    if (!container) return;
-    container.innerHTML = [1, 2, 3, 4].map(n => `
-      <button class="pcount-btn ${n === playerCount ? 'active' : ''}" data-count="${n}">
-        ${n}${n === 1 ? `<span class="pcount-vs-bot">${t('setup.vs_bot')}</span>` : ''}
-      </button>
-    `).join('');
-    container.querySelectorAll('.pcount-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        syncNamesFromDOM(); // preserve typed names before re-render
-        playerCount = parseInt(btn.dataset.count);
-        Sounds.button();
-        renderPlayerCountBtns();
-        renderPlayerCards();
-      });
+  function renderSetupWizard() {
+    const root = document.getElementById('setup-wizard-root');
+    if (!root) return;
+    cleanupVVHandler();
+    if (setupWizardPhase === 'count') {
+      root.innerHTML = buildCountStepHTML();
+      wireCountStep();
+    } else if (setupWizardPhase === 'player') {
+      root.innerHTML = buildPlayerStepHTML(setupCurrentPlayer);
+      wirePlayerStep(setupCurrentPlayer);
+    } else {
+      root.innerHTML = buildSummaryStepHTML();
+      wireSummaryStep();
+    }
+  }
+
+  // ---- Count step ----
+  function buildCountStepHTML() {
+    return `<div class="swiz-count">
+      <div class="swiz-back-row">
+        <button class="btn btn-sm btn-ghost-dk" id="btn-swiz-count-back">${t('setup.btn_back')}</button>
+      </div>
+      <div class="swiz-count-body">
+        <h1 class="swiz-count-title">${t('setup.count_title')}</h1>
+        <div class="swiz-count-cards">
+          <button class="swiz-count-card" data-count="1">
+            <div class="swiz-count-num">1</div>
+            <div class="swiz-count-text">
+              <div class="swiz-count-lbl">${t('setup.vs_bot')}</div>
+              <div class="swiz-count-sub">${t('setup.vs_bot_desc')}</div>
+            </div>
+          </button>
+          <button class="swiz-count-card" data-count="2">
+            <div class="swiz-count-num">2</div>
+            <div class="swiz-count-lbl">${t('setup.players_label')}</div>
+          </button>
+          <button class="swiz-count-card" data-count="3">
+            <div class="swiz-count-num">3</div>
+            <div class="swiz-count-lbl">${t('setup.players_label')}</div>
+          </button>
+          <button class="swiz-count-card" data-count="4">
+            <div class="swiz-count-num">4</div>
+            <div class="swiz-count-lbl">${t('setup.players_label')}</div>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function wireCountStep() {
+    document.getElementById('btn-swiz-count-back')?.addEventListener('click', () => {
+      Sounds.button();
+      _wizardGoBackToOrigin();
+    });
+    document.querySelectorAll('.swiz-count-card').forEach(btn => {
+      btn.addEventListener('click', () => { Game.haptic('light'); advanceFromCount(parseInt(btn.dataset.count)); });
     });
   }
 
-  function renderPlayerCards() {
-    const grid = document.getElementById('players-setup-grid');
-    if (!grid) return;
+  function _wizardGoBackToOrigin() {
+    const returnTo = _setupReturnTo;
+    _setupReturnTo = 'boards';
+    if (returnTo === 'designer') showScreen('screen-designer');
+    else if (returnTo === 'home') showHome();
+    else showBoardSelect();
+  }
 
+  function advanceFromCount(n) {
+    playerCount = n;
+    Sounds.button();
+    const displayCount = n === 1 ? 2 : n;
     const themeChars = getThemeCharacters();
-    const displayCount = playerCount === 1 ? 2 : playerCount;
-
+    const nameSet = getWizardNameSet();
     playerSetups = Array.from({ length: displayCount }, (_, i) => {
       const existing = playerSetups[i];
-      const forceBot = (playerCount === 1 && i === 1);
+      const forceBot = (n === 1 && i === 1);
       const defaultChar = themeChars[i % themeChars.length];
-      const defaultName = (getNameSets()[i] || getNameSets()[0])[0];
-      return existing ? {
-        ...existing,
-        isBot: forceBot ? true : (existing.isBot || false),
-        sound: existing.sound || defaultChar.sound,
-      } : {
-        name: defaultName,
-        character: defaultChar.emoji,
-        color: PLAYER_COLORS[i],
-        sound: defaultChar.sound,
-        isBot: forceBot || (i > 0 && playerCount === 1),
-      };
+      const defaultName = nameSet[i % nameSet.length];
+      if (existing) {
+        return { ...existing, isBot: forceBot ? true : (existing.isBot || false), sound: existing.sound || defaultChar.sound };
+      }
+      return { name: defaultName, character: defaultChar.emoji, color: PLAYER_COLORS[i], sound: defaultChar.sound, isBot: forceBot };
     });
+    setupCurrentPlayer = 0;
+    setupWizardPhase = 'player';
+    renderSetupWizard();
+  }
 
-    grid.innerHTML = playerSetups.map((p, i) => {
-      const isPlayer1 = i === 0;
-      const forceBot = (playerCount === 1 && i === 1);
-      const isBot = p.isBot;
-      const nameSet = getNameSets()[i] || getNameSets()[0];
-      // Characters claimed by the *other* players
-      const takenEmojis = playerSetups.filter((_, j) => j !== i).map(o => o.character);
+  // ---- Player step ----
+  function buildPlayerStepHTML(idx) {
+    const p = playerSetups[idx];
+    if (!p) return '';
+    const themeChars = getThemeCharacters();
+    const nameSet = getWizardNameSet();
+    const visibleCount = playerCount === 1 ? 1 : playerCount;
+    const takenEmojis = playerSetups.filter((_, j) => j !== idx).map(o => o.character);
+    const isBot = p.isBot;
+    const isLastPlayer = idx >= visibleCount - 1;
 
-      return `
-      <div class="player-card" style="animation-delay: ${i * 0.1}s">
-        <div class="player-card-header">
-          <div class="player-num-badge" style="background:${PLAYER_COLORS[i]}">${i + 1}</div>
-          <div class="player-card-title">${t('setup.player_n', { n: i + 1 })}</div>
-          ${!isPlayer1 ? `
-            <div class="player-type-toggle">
-              <button class="ptype-btn ${!isBot ? 'active' : ''}"
-                      onclick="App.setPlayerType(${i}, false)" ${forceBot ? 'disabled' : ''}>${t('setup.human')}</button>
-              <button class="ptype-btn ${isBot ? 'active' : ''}"
-                      onclick="App.setPlayerType(${i}, true)" ${forceBot ? 'disabled' : ''}>${t('setup.cpu')}</button>
-            </div>
-          ` : `<span class="ptype-static">${t('setup.human')}</span>`}
-        </div>
-        ${isBot ? '' : `
-          <div class="setup-section-label">${t('setup.pick_name')}</div>
-          <div class="player-name-input-row">
-            <input class="player-name-input"
-                   id="pname-input-${i}"
-                   type="text"
-                   inputmode="text"
-                   enterkeyhint="done"
-                   autocomplete="off"
-                   autocorrect="off"
-                   spellcheck="false"
-                   maxlength="12"
-                   placeholder="${t('setup.name_placeholder')}"
-                   value="${escHtml(p.name)}"
-                   oninput="App.handleNameInput(${i}, this.value)"
-                   onkeydown="if(event.key==='Enter'){this.blur();event.preventDefault();}"
-                   aria-label="${t('setup.player_n', { n: i + 1 })} name">
-            <button class="btn-name-done" onclick="document.getElementById('pname-input-${i}').blur()" aria-label="Done">✓</button>
-          </div>
-          <div class="player-name-chips" id="pname-chips-${i}">
-            ${nameSet.map(name => `
-              <button class="player-name-chip ${p.name === name ? 'selected' : ''}"
-                      onclick="App.selectPlayerName(${i}, '${escHtml(name)}')">${escHtml(name)}</button>
-            `).join('')}
-          </div>
-          <div class="setup-section-label">${t('setup.pick_character')}</div>
-        `}
-        ${Components.AvatarSelector(themeChars, p.character, i, takenEmojis)}
+    const nextLabel = isLastPlayer
+      ? t('setup.btn_play_wizard')
+      : t('setup.btn_next_player', { n: idx + 2 });
+    const progressLabel = t('setup.player_of', { n: idx + 1, total: visibleCount });
+
+    // Solo Human/Bot toggle (Player 1 only when solo)
+    const showBotToggle = (playerCount === 1 && idx === 0);
+    const toggleHTML = showBotToggle ? `
+      <div class="swiz-solo-toggle">
+        <button class="ptype-btn ${!isBot ? 'active' : ''}" onclick="App.setWizardPlayerType(${idx},false)">${t('setup.toggle_human')}</button>
+        <button class="ptype-btn ${isBot ? 'active' : ''}" onclick="App.setWizardPlayerType(${idx},true)">${t('setup.toggle_bot')}</button>
+      </div>` : '';
+
+    // Name section (hidden for bots)
+    const nameSection = isBot ? '' : `
+      <div class="setup-section-label">${t('setup.pick_name')}</div>
+      <div class="swiz-chips-grid" id="swiz-chips-${idx}">
+        ${nameSet.map(name => `
+          <button class="player-name-chip swiz-chip ${p.name === name ? 'selected' : ''}"
+            onclick="App.selectWizardName(${idx},'${escHtml(name)}')">${escHtml(name)}</button>
+        `).join('')}
       </div>
-    `;
+      <div class="swiz-chip-own-row">
+        <button class="player-name-chip swiz-chip swiz-chip-own" id="swiz-chip-own-${idx}"
+          onclick="App.openWizardNameInput(${idx})">${t('setup.type_own')}</button>
+      </div>
+      <div class="swiz-name-input-wrap hidden" id="swiz-input-wrap-${idx}">
+        <input class="player-name-input" id="swiz-name-input-${idx}"
+          type="text" inputmode="text" enterkeyhint="done"
+          autocomplete="off" autocorrect="off" spellcheck="false" maxlength="12"
+          placeholder="${t('setup.name_placeholder')}" value="${escHtml(p.name)}"
+          oninput="App.handleWizardNameInput(${idx},this.value)"
+          onkeydown="if(event.key==='Enter'){this.blur();event.preventDefault();}">
+      </div>`;
+
+    return `<div class="swiz-player">
+      <div class="swiz-player-header">
+        <button class="btn btn-sm btn-ghost-dk" id="btn-swiz-player-back">${t('setup.btn_back')}</button>
+        <div class="swiz-player-progress">${progressLabel}</div>
+        <div class="swiz-hdr-spacer"></div>
+      </div>
+      <div class="swiz-player-body" id="swiz-player-body">
+        <div class="swiz-player-card">
+          <div class="swiz-player-hdr">
+            <div class="player-num-badge" style="background:${PLAYER_COLORS[idx]}">${idx + 1}</div>
+            <div class="swiz-player-title">${t('setup.player_n', { n: idx + 1 })}</div>
+            ${toggleHTML}
+          </div>
+          ${nameSection}
+          <div class="setup-section-label">${t('setup.pick_character')}</div>
+          ${Components.AvatarSelector(themeChars, p.character, idx, takenEmojis)}
+        </div>
+      </div>
+      <div class="swiz-player-footer">
+        <button class="btn btn-lg btn-green btn-full" id="btn-swiz-player-next">${nextLabel}</button>
+      </div>
+    </div>`;
+  }
+
+  function wirePlayerStep(idx) {
+    document.getElementById('btn-swiz-player-back')?.addEventListener('click', () => {
+      syncCurrentPlayerName(idx);
+      Sounds.button();
+      if (idx === 0) { setupWizardPhase = 'count'; }
+      else { setupCurrentPlayer = idx - 1; }
+      renderSetupWizard();
+    });
+    document.getElementById('btn-swiz-player-next')?.addEventListener('click', () => {
+      syncCurrentPlayerName(idx);
+      Sounds.button();
+      const visibleCount = playerCount === 1 ? 1 : playerCount;
+      if (idx >= visibleCount - 1) { setupWizardPhase = 'summary'; }
+      else { setupCurrentPlayer = idx + 1; }
+      renderSetupWizard();
+    });
+    // Keyboard slide-up via visualViewport
+    if (window.visualViewport) {
+      const vvHandler = () => {
+        const kbH = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
+        const footer = document.querySelector('.swiz-player-footer');
+        if (footer) footer.style.transform = kbH > 50 ? `translateY(-${kbH}px)` : '';
+        if (kbH > 50) document.getElementById(`swiz-name-input-${idx}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      };
+      window.visualViewport.addEventListener('resize', vvHandler);
+      _currentVVHandler = vvHandler;
+    }
+  }
+
+  function selectWizardName(idx, name) {
+    if (!playerSetups[idx] || playerSetups[idx].isBot) return;
+    playerSetups[idx].name = name;
+    Sounds.button();
+    document.querySelectorAll(`#swiz-chips-${idx} .player-name-chip`).forEach(c =>
+      c.classList.toggle('selected', c.textContent.trim() === name));
+    document.getElementById(`swiz-input-wrap-${idx}`)?.classList.add('hidden');
+    document.getElementById(`swiz-chip-own-${idx}`)?.classList.remove('active-own');
+  }
+
+  function openWizardNameInput(idx) {
+    if (!playerSetups[idx] || playerSetups[idx].isBot) return;
+    document.querySelectorAll(`#swiz-chips-${idx} .player-name-chip`).forEach(c => c.classList.remove('selected'));
+    document.getElementById(`swiz-chip-own-${idx}`)?.classList.add('active-own');
+    const wrap = document.getElementById(`swiz-input-wrap-${idx}`);
+    const input = document.getElementById(`swiz-name-input-${idx}`);
+    if (wrap) wrap.classList.remove('hidden');
+    if (input) {
+      input.value = ''; playerSetups[idx].name = '';
+      setTimeout(() => { input.focus(); input.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 60);
+    }
+  }
+
+  function handleWizardNameInput(idx, value) {
+    if (!playerSetups[idx] || playerSetups[idx].isBot) return;
+    playerSetups[idx].name = value.trim();
+  }
+
+  function setWizardPlayerType(idx, isBot) {
+    if (!playerSetups[idx]) return;
+    syncCurrentPlayerName(idx);
+    Sounds.button();
+    playerSetups[idx].isBot = isBot;
+    const nameSet = getWizardNameSet();
+    playerSetups[idx].name = isBot
+      ? t('misc.bot_name', { n: idx + 1 })
+      : (nameSet[idx % nameSet.length] || nameSet[0]);
+    renderSetupWizard();
+  }
+
+  // ---- Summary step ----
+  function buildSummaryStepHTML() {
+    const displayCount = playerCount === 1 ? 2 : playerCount;
+    const playerRows = playerSetups.slice(0, displayCount).map((p, i) => {
+      const sub = p.isBot ? t('setup.toggle_bot') : t('setup.toggle_human');
+      const editable = !(playerCount === 1 && i === 1);
+      return `<div class="swiz-summary-player ${editable ? '' : 'swiz-summary-bot'}"
+        ${editable ? `onclick="App.editSummaryPlayer(${i})"` : ''}>
+        <div class="swiz-summary-emoji">${p.character}</div>
+        <div class="swiz-summary-info">
+          <div class="swiz-summary-name">${escHtml(p.name)}</div>
+          <div class="swiz-summary-sub">${sub}</div>
+        </div>
+        ${editable ? `<div class="swiz-summary-edit">✏️ ${t('setup.edit')}</div>` : ''}
+      </div>`;
     }).join('');
 
-    // Sync count button active state
-    document.querySelectorAll('.pcount-btn').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.count) === playerCount);
+    return `<div class="swiz-summary">
+      <div class="swiz-summary-header">
+        <button class="btn btn-sm btn-ghost-dk" id="btn-swiz-summary-back">${t('setup.btn_back')}</button>
+        <div class="swiz-summary-title">${t('setup.summary_title')}</div>
+        <div class="swiz-hdr-spacer"></div>
+      </div>
+      <div class="swiz-summary-body">${playerRows}</div>
+      <div class="swiz-summary-footer">
+        <button class="btn btn-lg btn-green btn-full" id="btn-swiz-summary-play">${t('setup.btn_start')}</button>
+      </div>
+    </div>`;
+  }
+
+  function wireSummaryStep() {
+    document.getElementById('btn-swiz-summary-back')?.addEventListener('click', () => {
+      Sounds.button();
+      const visibleCount = playerCount === 1 ? 1 : playerCount;
+      setupCurrentPlayer = visibleCount - 1;
+      setupWizardPhase = 'player';
+      renderSetupWizard();
     });
+    document.getElementById('btn-swiz-summary-play')?.addEventListener('click', () => startGame());
   }
 
-  function setPlayerType(playerIndex, isBot) {
-    if (!playerSetups[playerIndex]) return;
-    if (playerCount === 1 && playerIndex === 1) return;
-    // Block all-bot: require at least 1 human
-    if (isBot) {
-      const otherHumans = playerSetups.slice(0, playerCount).filter((p, i) => i !== playerIndex && !p.isBot);
-      if (otherHumans.length === 0) {
-        showToast(t('misc.at_least_one_human'));
-        return;
-      }
-    }
-    syncNamesFromDOM();
+  function editSummaryPlayer(idx) {
     Sounds.button();
-    playerSetups[playerIndex].isBot = isBot;
-    playerSetups[playerIndex].name = isBot
-      ? t('misc.bot_name', { n: playerIndex + 1 })
-      : (getNameSets()[playerIndex] || getNameSets()[0])[0];
-    renderPlayerCards();
+    setupCurrentPlayer = idx;
+    setupWizardPhase = 'player';
+    renderSetupWizard();
   }
 
-  function toggleBot(playerIndex) {
-    if (!playerSetups[playerIndex]) return;
-    if (playerCount === 1 && playerIndex === 1) return;
-    setPlayerType(playerIndex, !playerSetups[playerIndex].isBot);
-    renderPlayerCards();
+  function _wizardGoBack() {
+    if (setupWizardPhase === 'count') {
+      _wizardGoBackToOrigin();
+    } else if (setupWizardPhase === 'player') {
+      syncCurrentPlayerName(setupCurrentPlayer);
+      if (setupCurrentPlayer === 0) { setupWizardPhase = 'count'; renderSetupWizard(); }
+      else { setupCurrentPlayer -= 1; renderSetupWizard(); }
+    } else {
+      const visibleCount = playerCount === 1 ? 1 : playerCount;
+      setupCurrentPlayer = visibleCount - 1;
+      setupWizardPhase = 'player';
+      renderSetupWizard();
+    }
   }
 
   function selectChar(playerIndex, emoji, sound) {
-    syncNamesFromDOM();
+    if (!playerSetups[playerIndex]) return;
     playerSetups[playerIndex].character = emoji;
     if (sound) playerSetups[playerIndex].sound = sound;
-    // Play the character's sound as a preview
     const theme = currentBoard ? (currentBoard.theme || 'cartoon') : 'cartoon';
     if (sound) Sounds.playThemedSound(theme, sound);
-    // Re-render all cards so taken characters update across all pickers
-    renderPlayerCards();
+    // Update char picker in place without full re-render
+    const themeChars = getThemeCharacters();
+    const takenEmojis = playerSetups.filter((_, j) => j !== playerIndex).map(o => o.character);
+    const picker = document.querySelector('#swiz-player-body .char-picker');
+    if (picker) picker.outerHTML = Components.AvatarSelector(themeChars, emoji, playerIndex, takenEmojis);
   }
 
   function selectColor(playerIndex, color) {
     Sounds.button();
-    playerSetups[playerIndex].color = color;
-    const card = document.querySelectorAll('#players-setup-grid .player-card')[playerIndex];
-    if (card) {
-      card.querySelectorAll('.color-btn').forEach(b => {
-        b.classList.toggle('selected', b.style.background === color || b.style.backgroundColor === color);
-      });
-    }
+    if (playerSetups[playerIndex]) playerSetups[playerIndex].color = color;
   }
+
+  // back-compat aliases (may be called from old onclick attrs)
+  function setPlayerType(idx, isBot) { setWizardPlayerType(idx, isBot); }
+  function toggleBot(idx) { if (playerSetups[idx]) setWizardPlayerType(idx, !playerSetups[idx].isBot); }
+  function selectPlayerName(idx, name) { selectWizardName(idx, name); }
+  function handleNameInput(idx, val) { handleWizardNameInput(idx, val); }
 
   function startGame() {
     if (!currentBoard) {
       showToast(t('misc.no_board_selected'));
       return;
     }
-    syncNamesFromDOM(); // capture any final edits
-
-    // M2: validate human player names
+    // Validate human player names
     const displayCount = playerCount === 1 ? 2 : playerCount;
     for (let i = 0; i < displayCount; i++) {
       const p = playerSetups[i];
       if (!p || p.isBot) continue;
       if (!p.name || !p.name.trim()) {
         showToast(t('misc.player_needs_name', { n: i + 1 }));
-        const input = document.getElementById(`pname-input-${i}`);
-        if (input) { input.focus(); input.classList.add('input-error'); setTimeout(() => input.classList.remove('input-error'), 1200); }
         return;
       }
     }
@@ -638,7 +831,7 @@ const App = (() => {
 
     // Collect player data
     const players = playerSetups.slice(0, displayCount).map((p, i) => ({
-      name: p.name || (p.isBot ? (getNameSets()[i] || getNameSets()[0])[0] : t('misc.player_fallback', { n: i + 1 })),
+      name: p.name || (p.isBot ? t('misc.bot_name', { n: i + 1 }) : t('misc.player_fallback', { n: i + 1 })),
       character: p.character,
       color: p.color,
       sound: p.sound,
@@ -687,12 +880,10 @@ const App = (() => {
   let lastTheme = 'cartoon';
 
   function updateSoundBtnIcons() {
-    const sfxBtn   = document.getElementById('btn-sfx-toggle');
-    const musicBtn = document.getElementById('btn-music-toggle');
-    const sfxOff   = Sounds.isMuted();
-    const musicOff = Sounds.isMusicMuted();
-    if (sfxBtn)   sfxBtn.innerHTML   = (sfxOff   ? Icons.get('sound', 22).replace(/#FFD93D/g, '#aaa') : Icons.get('sound', 22)) + `<span>${sfxOff ? t('misc.sfx_off') : t('misc.sfx_on')}</span>`;
-    if (musicBtn) musicBtn.innerHTML = (musicOff ? Icons.get('music', 22).replace(/#A78BFA/g, '#aaa') : Icons.get('music', 22)) + `<span>${musicOff ? t('misc.music_off_short') : t('misc.music_on_short')}</span>`;
+    const sfxCheck   = document.getElementById('btn-sfx-toggle');
+    const musicCheck = document.getElementById('btn-music-toggle');
+    if (sfxCheck)   sfxCheck.checked   = !Sounds.isMuted();
+    if (musicCheck) musicCheck.checked = !Sounds.isMusicMuted();
   }
 
   function toggleMusicMute() {
@@ -741,14 +932,16 @@ const App = (() => {
     `;
 
     const medals = ['🥇','🥈','🥉','4️⃣'];
-    document.getElementById('final-scoreboard').innerHTML = sorted.map((p, i) => `
+    document.getElementById('final-scoreboard').innerHTML = sorted.map((p, i) => {
+      const turnsLabel = p.turns === 1 ? t('scores.turns_unit_singular') : t('scores.turns_unit');
+      return `
       <div class="score-row">
         <div class="score-rank ${i===0?'gold':''}">${medals[i]||i+1}</div>
         <div class="score-avatar">${escHtml(p.character)}</div>
         <div class="score-name">${escHtml(p.name)}${p.isBot ? ' 🤖' : ''}</div>
-        <div class="score-moves">${p.finished ? `${p.turns} ${p.turns === 1 ? t('scores.turns_unit_singular') : t('scores.turns_unit')} · 🐍${p.snakeBites} · 🪜${p.laddersClimbed}` : t('game.position_sq', { n: p.position })}</div>
-      </div>
-    `).join('');
+        <div class="score-moves">🐍 ${p.snakeBites} · 🪜 ${p.laddersClimbed} · ${p.turns} ${turnsLabel}</div>
+      </div>`;
+    }).join('');
 
     // Subtitle and continue button
     const place = gameState.rankings.length;
@@ -852,7 +1045,7 @@ const App = (() => {
     document.getElementById('btn-howto-back')?.addEventListener('click', () => { Sounds.button(); showHome(); });
     document.getElementById('btn-home-privacy')?.addEventListener('click', () => showScreen('screen-privacy'));
     document.getElementById('btn-privacy-back')?.addEventListener('click', () => showHome());
-    document.getElementById('btn-howto-play')?.addEventListener('click', () => { Sounds.button(); showBoardSelect(); });
+    document.getElementById('btn-howto-play')?.addEventListener('click', () => { Sounds.button(); showHome(); });
 
     // Saved boards
     document.getElementById('btn-saved-back').addEventListener('click', () => { Sounds.button(); showHome(); });
@@ -865,10 +1058,8 @@ const App = (() => {
       else updateDesignerStep(designerStep - 1);
     });
     document.getElementById('btn-step1-next').addEventListener('click', () => { Sounds.button(); updateDesignerStep(2); });
-    document.getElementById('btn-step2-back').addEventListener('click', () => { Sounds.button(); updateDesignerStep(1); });
     document.getElementById('btn-step2-next').addEventListener('click', () => { Sounds.button(); updateDesignerStep(3); });
 
-    document.getElementById('btn-step3-back').addEventListener('click', () => { Sounds.button(); updateDesignerStep(2); });
     document.getElementById('btn-step3-next').addEventListener('click', () => {
       const snakes = Board.designer.getBoardConfig().snakes;
       const target = Board.designer.targetSnakeCount;
@@ -906,7 +1097,6 @@ const App = (() => {
       setSnakeGuideStep(1);
     });
 
-    document.getElementById('btn-step4-back').addEventListener('click', () => { Sounds.button(); updateDesignerStep(3); });
     document.getElementById('btn-step4-next').addEventListener('click', () => {
       const ladders = Board.designer.getBoardConfig().ladders;
       const target = Board.designer.targetLadderCount;
@@ -971,21 +1161,66 @@ const App = (() => {
       }, { confirmLabel: t('misc.confirm_yes_clear'), cancelLabel: t('misc.keep_them'), danger: false });
     });
 
-    document.getElementById('btn-step5-back').addEventListener('click', () => { Sounds.button(); updateDesignerStep(4); });
-
-    document.getElementById('btn-save-board').addEventListener('click', (e) => {
-      Sounds.button();
-      e.currentTarget.disabled = true;
-      saveBoard();
-      // Re-enable after a tick so a new board name can be saved if the user edits and retries
-      setTimeout(() => { e.currentTarget.disabled = false; }, 1500);
+    // Inline board name editing
+    let _boardNameVV = null;
+    document.getElementById('btn-name-edit').addEventListener('click', () => {
+      const display = document.getElementById('board-name-display');
+      const input   = document.getElementById('board-name-input');
+      const editBtn = document.getElementById('btn-name-edit');
+      input.value = display.textContent;
+      input.classList.remove('hidden');
+      display.style.display = 'none';
+      editBtn.style.display = 'none';
+      input.focus();
+      input.select();
+      if (window.visualViewport && !_boardNameVV) {
+        _boardNameVV = () => {
+          const kbH = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
+          const cta = document.querySelector('.board-ready-cta');
+          if (cta) cta.style.transform = kbH > 50 ? `translateY(-${kbH}px)` : '';
+        };
+        window.visualViewport.addEventListener('resize', _boardNameVV);
+      }
     });
+    function commitBoardName() {
+      const display = document.getElementById('board-name-display');
+      const input   = document.getElementById('board-name-input');
+      const editBtn = document.getElementById('btn-name-edit');
+      const newName = sanitiseName(input.value) || sanitiseName(display.textContent);
+      display.textContent = newName;
+      display.style.display = '';
+      editBtn.style.display = '';
+      input.classList.add('hidden');
+      if (_boardNameVV && window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', _boardNameVV);
+        _boardNameVV = null;
+        const cta = document.querySelector('.board-ready-cta');
+        if (cta) cta.style.transform = '';
+      }
+    }
+    document.getElementById('board-name-input').addEventListener('blur', commitBoardName);
+    document.getElementById('board-name-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); commitBoardName(); }
+    });
+
     document.getElementById('btn-play-now').addEventListener('click', () => {
       Sounds.button();
-      const board = saveBoard() || Board.designer.getBoardConfig();
-      if (!board) return;
+      commitBoardName();
+      const displayName = document.getElementById('board-name-display')?.textContent || '';
+      let board;
+      if (_autoSavedBoard) {
+        // Update stored name if user edited it
+        const storedBaseName = _autoSavedBoard.name.replace(/ \([^)]+\)$/, '');
+        if (displayName && displayName !== storedBaseName) {
+          _autoSavedBoard.name = `${displayName} (${_step5Difficulty})`;
+          Storage.saveBoard(_autoSavedBoard);
+        }
+        board = _autoSavedBoard;
+      } else {
+        board = Board.designer.getBoardConfig();
+        if (!board.id) board.id = Storage.generateId();
+      }
       currentBoard = board;
-      if (!currentBoard.id) currentBoard.id = Storage.generateId();
       applyTheme(currentBoard.theme);
       showPlayerSetup(undefined, 'designer');
     });
@@ -998,6 +1233,7 @@ const App = (() => {
         card.classList.add('selected');
         if (sizeNextBtn) sizeNextBtn.classList.add('size-next-visible');
         Sounds.button();
+        Game.haptic('light');
       });
     });
 
@@ -1010,6 +1246,7 @@ const App = (() => {
         applyTheme(card.dataset.theme);
         if (themeContinueBtn) themeContinueBtn.disabled = false;
         Sounds.button();
+        Game.haptic('light');
       });
     });
     // Pre-select first theme if none selected
@@ -1021,20 +1258,7 @@ const App = (() => {
     }
 
 
-    // Player setup
-    document.getElementById('btn-setup-back').addEventListener('click', () => {
-      const returnTo = _setupReturnTo;
-      _setupReturnTo = 'boards';
-      if (returnTo === 'designer') {
-        showScreen('screen-designer');
-      } else if (returnTo === 'home') {
-        showHome();
-      } else {
-        showBoardSelect();
-      }
-    });
-    // Player count buttons are rendered dynamically in renderPlayerCountBtns()
-    document.getElementById('btn-lets-play').addEventListener('click', () => startGame());
+    // Player setup — back/next/play buttons are wired dynamically per wizard step
 
     // Tappable dice
     document.getElementById('dice').addEventListener('click', () => {
@@ -1045,12 +1269,13 @@ const App = (() => {
       Sounds.button();
       const overlay = document.getElementById('game-menu-overlay');
       overlay.classList.remove('hidden');
+      updateSoundBtnIcons();
       _trapFocus(overlay);
     });
 
-    // Sound toggle buttons
-    document.getElementById('btn-sfx-toggle')?.addEventListener('click', () => toggleSfxMute());
-    document.getElementById('btn-music-toggle')?.addEventListener('click', () => toggleMusicMute());
+    // Sound toggle switches
+    document.getElementById('btn-sfx-toggle')?.addEventListener('change', () => toggleSfxMute());
+    document.getElementById('btn-music-toggle')?.addEventListener('change', () => toggleMusicMute());
 
     document.getElementById('btn-resume').addEventListener('click', () => {
       Sounds.button();
@@ -1106,6 +1331,19 @@ const App = (() => {
 
     // Scores
     document.getElementById('btn-scores-back').addEventListener('click', () => { Sounds.button(); showHome(); });
+    document.getElementById('btn-scores-info').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const tip = document.getElementById('scores-info-tip');
+      const open = tip.classList.toggle('hidden');
+      e.currentTarget.setAttribute('aria-expanded', String(!open));
+    });
+    document.getElementById('screen-scores').addEventListener('click', () => {
+      const tip = document.getElementById('scores-info-tip');
+      if (!tip.classList.contains('hidden')) {
+        tip.classList.add('hidden');
+        document.getElementById('btn-scores-info')?.setAttribute('aria-expanded', 'false');
+      }
+    });
     document.getElementById('btn-clear-scores').addEventListener('click', () => {
       Sounds.button();
       showConfirm(t('misc.confirm_clear_scores'), () => {
@@ -1156,7 +1394,7 @@ const App = (() => {
       if (id === 'screen-game') {
         document.getElementById('game-menu-overlay')?.classList.remove('hidden');
       } else if (id === 'screen-player-setup') {
-        showBoardSelect();
+        _wizardGoBack();
       } else if (id === 'screen-designer') {
         if (designerStep > 1) updateDesignerStep(designerStep - 1);
         else showHome();
@@ -1171,7 +1409,7 @@ const App = (() => {
       if (!active) return;
       const id = active.id;
       if (id === 'screen-saved-boards') showBoardSelect(true);
-      else if (id === 'screen-player-setup') renderPlayerCards();
+      else if (id === 'screen-player-setup') renderSetupWizard();
       else if (id === 'screen-scores') showScores();
       // winner screen uses textContent (set via t()), so translateDOM() already handles it
     });
@@ -1198,8 +1436,10 @@ const App = (() => {
     showPlayerSetup, showWinner, showScores,
     selectBoard, deleteBoard,
     selectChar, selectColor,
-    toggleBot, setPlayerType, toggleMusicMute,
+    toggleBot, setPlayerType, setWizardPlayerType,
     selectPlayerName, handleNameInput,
+    selectWizardName, openWizardNameInput, handleWizardNameInput,
+    editSummaryPlayer, toggleMusicMute,
   };
 })();
 
@@ -1338,34 +1578,100 @@ function updateDesignerUI() {
 }
 
 function updateSnakeList() {
-  const count = document.getElementById('snake-count');
-  const countTarget = document.getElementById('snake-count-target');
+  const counterEl   = document.getElementById('snake-counter-text');
   const continueBtn = document.getElementById('btn-step3-next');
   const continueHint = document.getElementById('step3-continue-hint');
-  const snakes = Board.designer.getBoardConfig().snakes;
-  const target = Board.designer.targetSnakeCount;
-  if (count) count.textContent = snakes.length;
-  if (countTarget) countTarget.textContent = target;
-  const met = snakes.length >= target;
-  if (continueBtn) continueBtn.disabled = !met;
+  const autoBtn     = document.getElementById('btn-auto-snakes');
+  const warningEl   = document.getElementById('snake-space-warning');
+  const config  = Board.designer.getBoardConfig();
+  const snakes  = config.snakes;
+  const n       = snakes.length;
+  const target  = Board.designer.targetSnakeCount;
+  const met     = n >= target;
+
+  if (counterEl) {
+    if (!met) {
+      counterEl.textContent = t('designer.snakes_counter_below', { n, target });
+      counterEl.className = 'snake-counter-text';
+    } else {
+      counterEl.textContent = n === target
+        ? t('designer.snakes_counter_min', { n })
+        : t('designer.snakes_counter_above', { n });
+      counterEl.className = 'snake-counter-text snake-counter-met';
+    }
+  }
+
+  if (continueBtn)  continueBtn.disabled  = !met;
   if (continueHint) continueHint.classList.toggle('hidden', met);
-  // Update snake delete overlay position if a snake was removed
+
+  // Space conflict: free cells = total - 2 (start/end) - occupied snake+ladder cells
+  const freeCells = (config.total - 2) - (n + (config.ladders ? config.ladders.length : 0)) * 2;
+  const crowded   = freeCells < 6;
+  if (warningEl) warningEl.classList.toggle('hidden', !crowded);
+  if (autoBtn)   autoBtn.disabled = crowded;
+
   updateSnakeSelection(Board.designer.selectedSnakeIndex);
 }
 
+function maybeShowSnakeDemo() {
+  if (localStorage.getItem('snakeDemoSeen')) return;
+  const overlay = document.getElementById('snake-demo-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('hidden');
+  function dismiss() {
+    overlay.classList.add('hidden');
+    localStorage.setItem('snakeDemoSeen', '1');
+    overlay.removeEventListener('click', dismiss);
+  }
+  overlay.addEventListener('click', dismiss);
+}
+
 function updateLadderList() {
-  const count = document.getElementById('ladder-count');
-  const countTarget = document.getElementById('ladder-count-target');
+  const counterEl   = document.getElementById('ladder-counter-text');
   const continueBtn = document.getElementById('btn-step4-next');
   const continueHint = document.getElementById('step4-continue-hint');
-  const ladders = Board.designer.getBoardConfig().ladders;
-  const target = Board.designer.targetLadderCount;
-  if (count) count.textContent = ladders.length;
-  if (countTarget) countTarget.textContent = target;
-  const met = ladders.length >= target;
-  if (continueBtn) continueBtn.disabled = !met;
+  const autoBtn     = document.getElementById('btn-auto-ladders');
+  const warningEl   = document.getElementById('ladder-space-warning');
+  const config  = Board.designer.getBoardConfig();
+  const ladders = config.ladders;
+  const n       = ladders.length;
+  const target  = Board.designer.targetLadderCount;
+  const met     = n >= target;
+
+  if (counterEl) {
+    if (!met) {
+      counterEl.textContent = t('designer.ladders_counter_below', { n, target });
+      counterEl.className = 'snake-counter-text';
+    } else {
+      counterEl.textContent = n === target
+        ? t('designer.ladders_counter_min', { n })
+        : t('designer.ladders_counter_above', { n });
+      counterEl.className = 'snake-counter-text snake-counter-met';
+    }
+  }
+
+  if (continueBtn)  continueBtn.disabled  = !met;
   if (continueHint) continueHint.classList.toggle('hidden', met);
+
+  const freeCells = (config.total - 2) - (n + (config.snakes ? config.snakes.length : 0)) * 2;
+  const crowded   = freeCells < 6;
+  if (warningEl) warningEl.classList.toggle('hidden', !crowded);
+  if (autoBtn)   autoBtn.disabled = crowded;
+
   updateLadderSelection(Board.designer.selectedLadderIndex);
+}
+
+function maybeShowLadderDemo() {
+  if (localStorage.getItem('ladderDemoSeen')) return;
+  const overlay = document.getElementById('ladder-demo-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('hidden');
+  function dismiss() {
+    overlay.classList.add('hidden');
+    localStorage.setItem('ladderDemoSeen', '1');
+    overlay.removeEventListener('click', dismiss);
+  }
+  overlay.addEventListener('click', dismiss);
 }
 
 // ---- Focus trap for modals ----
@@ -1419,7 +1725,7 @@ function showConfirm(message, onConfirm, opts = {}) {
   card.innerHTML = `
     <div class="popup-modal-body" id="confirm-modal-msg"></div>
     <div class="popup-modal-buttons">
-      <button class="btn btn-md ${danger ? 'btn-red' : 'btn-blue'} btn-full" id="confirm-modal-ok">${escHtml(confirmLabel)}</button>
+      <button class="btn btn-md ${danger ? 'btn-red' : 'btn-green'} btn-full" id="confirm-modal-ok">${escHtml(confirmLabel)}</button>
       ${thirdLabel ? `<button class="btn btn-md btn-neutral btn-full" id="confirm-modal-third">${escHtml(thirdLabel)}</button>` : ''}
       <button class="btn btn-md btn-ghost-dk btn-full" id="confirm-modal-cancel">${escHtml(cancelLabel)}</button>
     </div>`;
@@ -1449,6 +1755,13 @@ function showToast(msg) {
   toast.classList.add('show');
   clearTimeout(toast._timer);
   toast._timer = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ---- sanitiseName ----
+// Strips HTML tags from user-supplied names before they are stored or used.
+// Prevents persisting injection strings even though display always uses escHtml().
+function sanitiseName(str, maxLen = 40) {
+  return String(str).replace(/<[^>]*>/g, '').trim().slice(0, maxLen);
 }
 
 // ---- escHtml ----
