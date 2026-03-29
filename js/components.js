@@ -65,7 +65,7 @@ const Components = (() => {
       return `
       <button
         class="${cls}"
-        onclick="App.selectChar(${playerIdx}, '${esc(c.emoji)}', '${esc(c.sound)}')"
+        data-player-idx="${playerIdx}" data-emoji="${esc(c.emoji)}" data-sound="${esc(c.sound || '')}"
         title="${taken ? t('misc.character_taken') : esc(c.name)}"
         ${taken ? 'aria-disabled="true"' : ''}
       ><span class="char-btn-emoji">${c.emoji}</span><span class="char-btn-name">${esc(c.name)}</span>${taken ? '<span class="char-taken-badge">✕</span>' : ''}</button>`;

@@ -21,9 +21,7 @@ const Board = (() => {
       _loadSprite('head-' + t, 'img/snake-head-' + t + '.png');
       _loadSprite('ladder-' + t, 'img/ladder-' + t + '.png');
     });
-    ['space-planet','space-comet','ocean-fish','ocean-shell',
-     'fantasy-crystal','fantasy-star','cartoon-star','cartoon-heart',
-     'jungle-frog','jungle-butterfly'].forEach(k => _loadSprite('cell-' + k, 'img/cell-' + k + '.png'));
+    ['space-planet','space-comet'].forEach(k => _loadSprite('cell-' + k, 'img/cell-' + k + '.png'));
   }
 
   function _drawCellSprite(ctx, key, cx, cy, size, alpha, blendMode) {

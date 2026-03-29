@@ -282,21 +282,15 @@ const App = (() => {
     const theme = config.theme || 'cartoon';
     const names = t('designer.board_names_' + theme) || t('designer.board_names_cartoon');
     const idx = ((config.snakes || []).length + (config.ladders || []).length) % names.length;
-    const name = names[idx];
-    const score = (config.snakes || []).length - (config.ladders || []).length;
-    const diffKey = score <= 0 ? 'designer.difficulty_easy' : score <= 2 ? 'designer.difficulty_normal' : score <= 4 ? 'designer.difficulty_tricky' : 'designer.difficulty_hard';
-    const difficulty = t(diffKey);
-    return { name, difficulty, diffKey };
+    return { name: names[idx] };
   }
 
   let _autoSavedBoard = null;
   let _autoSavedSig   = '';
-  let _step5Difficulty = '';
 
   function goToStep5() {
     const config = Board.designer.getBoardConfig();
-    const { name, difficulty, diffKey } = generateBoardName(config);
-    _step5Difficulty = difficulty;
+    const { name } = generateBoardName(config);
 
     // Board name display
     const display = document.getElementById('board-name-display');
@@ -306,13 +300,6 @@ const App = (() => {
     if (nameInput) { nameInput.classList.add('hidden'); nameInput.value = name; }
     const editBtn = document.getElementById('btn-name-edit');
     if (editBtn) editBtn.style.display = '';
-
-    const badge = document.getElementById('board-diff-badge');
-    if (badge) {
-      const diffSlug = diffKey.replace('designer.difficulty_', '');
-      badge.textContent = difficulty;
-      badge.className = 'board-diff-badge diff-' + diffSlug;
-    }
 
     // Theme hero image
     const heroImg = document.getElementById('board-ready-hero-img');
@@ -345,8 +332,7 @@ const App = (() => {
     if (!_autoSavedBoard || _autoSavedSig !== sig) {
       const userBoards = Storage.loadBoards();
       if (userBoards.length < Storage.MAX_USER_BOARDS) {
-        const fullName = `${name} (${difficulty})`;
-        _autoSavedBoard = { ...config, id: Storage.generateId(), name: fullName, createdAt: Date.now() };
+        _autoSavedBoard = { ...config, id: Storage.generateId(), name, createdAt: Date.now() };
         Storage.saveBoard(_autoSavedBoard);
         _autoSavedSig = sig;
         showToast('✅ ' + t('misc.board_saved', { name }));
@@ -411,8 +397,8 @@ const App = (() => {
 
   function saveBoard() {
     const config = Board.designer.getBoardConfig();
-    const { name, difficulty } = generateBoardName(config);
-    const fullName = `${name} (${difficulty})`;
+    const { name } = generateBoardName(config);
+    const fullName = name;
 
     if (config.snakes.length === 0 && config.ladders.length === 0) {
       showToast(t('misc.need_snake_ladder'));
@@ -551,10 +537,11 @@ const App = (() => {
           <div class="swiz-player-slot swiz-slot-you">
             <div class="swiz-slot-num" style="background:${PLAYER_COLORS[0]}">1</div>
             <div class="swiz-slot-label">${t('setup.you_label')}</div>
-            <div class="swiz-slot-you-badge">👤 ${t('setup.toggle_human')}</div>
+            <div class="swiz-slot-you-badge">🔒 👤 ${t('setup.toggle_human')}</div>
           </div>
           ${slotRows}
         </div>
+        <div class="swiz-count-summary" id="swiz-count-summary"></div>
       </div>
       <div class="swiz-count-footer">
         <button class="btn btn-lg btn-green btn-full" id="btn-swiz-count-next">${t('setup.btn_next')}</button>
@@ -569,6 +556,19 @@ const App = (() => {
     if (playerSetups.length >= 2) slotIsBot[1] = playerSetups[1]?.isBot !== false;
     if (playerSetups.length >= 3) slotIsBot[2] = playerSetups[2]?.isBot !== false;
     if (playerSetups.length >= 4) slotIsBot[3] = playerSetups[3]?.isBot !== false;
+
+    function updateSummary() {
+      let humans = 1; // Player 1 always human
+      for (let i = 1; i < currentCount; i++) if (!slotIsBot[i]) humans++;
+      const bots = currentCount - humans;
+      const hWord = humans === 1 ? 'human' : 'humans';
+      const bWord = bots === 1 ? 'bot' : 'bots';
+      const el = document.getElementById('swiz-count-summary');
+      if (el) el.textContent = bots === 0
+        ? `${humans} humans — no bots`
+        : `${humans} ${hWord} + ${bots} ${bWord}`;
+    }
+    updateSummary();
 
     document.getElementById('btn-swiz-count-back')?.addEventListener('click', () => {
       Sounds.button();
@@ -586,6 +586,7 @@ const App = (() => {
           const s = parseInt(slot.dataset.slot);
           if (s >= 1 && s <= 3) slot.classList.toggle('swiz-slot-hidden', s >= currentCount);
         });
+        updateSummary();
       });
     });
 
@@ -597,6 +598,7 @@ const App = (() => {
         Sounds.button();
         const toggle = document.getElementById(`swiz-type-toggle-${slot}`);
         toggle?.querySelectorAll('.swiz-type-btn').forEach(b => b.classList.toggle('active', b === btn));
+        updateSummary();
       });
     });
 
@@ -618,10 +620,13 @@ const App = (() => {
     playerCount = count;
     const themeChars = getThemeCharacters();
     const nameSet = getWizardNameSet();
+    // Shuffle a copy of chars for random bot assignment
+    const shuffled = themeChars.slice().sort(() => Math.random() - 0.5);
     const takenEmojis = [];
     playerSetups = Array.from({ length: count }, (_, i) => {
       const isBot = i === 0 ? false : slotIsBot[i];
-      const defaultChar = themeChars.find(c => !takenEmojis.includes(c.emoji)) || themeChars[i % themeChars.length];
+      const pool = isBot ? shuffled : themeChars;
+      const defaultChar = pool.find(c => !takenEmojis.includes(c.emoji)) || pool[i % pool.length];
       takenEmojis.push(defaultChar.emoji);
       if (isBot) {
         return { name: t('misc.bot_name', { n: i }), character: defaultChar.emoji, color: PLAYER_COLORS[i], sound: defaultChar.sound, isBot: true };
@@ -643,7 +648,8 @@ const App = (() => {
     if (!p) return '';
     const themeChars = getThemeCharacters();
     const nameSet = getWizardNameSet();
-    const takenEmojis = playerSetups.filter((_, j) => j !== idx).map(o => o.character);
+    // Only other *human* players block a character; bots can be bumped
+    const takenEmojis = playerSetups.filter((p2, j) => j !== idx && !p2.isBot).map(o => o.character);
 
     // Progress: count only human players
     const humanIndices = playerSetups.slice(0, playerCount).map((pl, i) => (!pl.isBot ? i : -1)).filter(i => i >= 0);
@@ -662,20 +668,17 @@ const App = (() => {
       <div class="swiz-chips-grid" id="swiz-chips-${idx}">
         ${nameSet.map(name => `
           <button class="player-name-chip swiz-chip ${p.name === name ? 'selected' : ''}"
-            onclick="App.selectWizardName(${idx},'${escHtml(name)}')">${escHtml(name)}</button>
+            data-name="${escHtml(name)}">${escHtml(name)}</button>
         `).join('')}
       </div>
       <div class="swiz-chip-own-row">
-        <button class="player-name-chip swiz-chip swiz-chip-own" id="swiz-chip-own-${idx}"
-          onclick="App.openWizardNameInput(${idx})">${t('setup.type_own')}</button>
+        <button class="player-name-chip swiz-chip swiz-chip-own" id="swiz-chip-own-${idx}">${t('setup.type_own')}</button>
       </div>
       <div class="swiz-name-input-wrap hidden" id="swiz-input-wrap-${idx}">
         <input class="player-name-input" id="swiz-name-input-${idx}"
           type="text" inputmode="text" enterkeyhint="done"
           autocomplete="off" autocorrect="off" spellcheck="false" maxlength="12"
-          placeholder="${t('setup.name_placeholder')}" value="${escHtml(p.name)}"
-          oninput="App.handleWizardNameInput(${idx},this.value)"
-          onkeydown="if(event.key==='Enter'){this.blur();event.preventDefault();}">
+          placeholder="${t('setup.name_placeholder')}" value="${escHtml(p.name)}">
       </div>`;
 
     return `<div class="swiz-player">
@@ -720,6 +723,27 @@ const App = (() => {
       else { setupCurrentPlayer = next; }
       renderSetupWizard();
     });
+
+    // Name chips
+    document.getElementById(`swiz-chips-${idx}`)?.addEventListener('click', e => {
+      const chip = e.target.closest('.player-name-chip[data-name]');
+      if (chip) selectWizardName(idx, chip.dataset.name);
+    });
+    document.getElementById(`swiz-chip-own-${idx}`)?.addEventListener('click', () => openWizardNameInput(idx));
+
+    // Name input
+    const _nameInput = document.getElementById(`swiz-name-input-${idx}`);
+    if (_nameInput) {
+      _nameInput.addEventListener('input', e => handleWizardNameInput(idx, e.target.value));
+      _nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.target.blur(); e.preventDefault(); } });
+    }
+
+    // Char picker — event delegation on body so it survives outerHTML swap in selectChar
+    document.getElementById('swiz-player-body')?.addEventListener('click', e => {
+      const btn = e.target.closest('.char-btn');
+      if (btn) selectChar(idx, btn.dataset.emoji, btn.dataset.sound);
+    });
+
     // Keyboard slide-up via visualViewport
     if (window.visualViewport) {
       const vvHandler = () => {
@@ -779,7 +803,7 @@ const App = (() => {
       const sub = p.isBot ? t('setup.toggle_bot') : t('setup.toggle_human');
       const editable = !p.isBot;
       return `<div class="swiz-summary-player ${editable ? '' : 'swiz-summary-bot'}"
-        ${editable ? `onclick="App.editSummaryPlayer(${i})"` : ''}>
+        ${editable ? `data-player-idx="${i}"` : ''}>
         <div class="swiz-summary-emoji">${p.character}</div>
         <div class="swiz-summary-info">
           <div class="swiz-summary-name">${escHtml(p.name)}</div>
@@ -812,6 +836,10 @@ const App = (() => {
       renderSetupWizard();
     });
     document.getElementById('btn-swiz-summary-play')?.addEventListener('click', () => startGame());
+    document.querySelector('.swiz-summary-body')?.addEventListener('click', e => {
+      const card = e.target.closest('.swiz-summary-player[data-player-idx]');
+      if (card) editSummaryPlayer(parseInt(card.dataset.playerIdx));
+    });
   }
 
   function editSummaryPlayer(idx) {
@@ -841,12 +869,19 @@ const App = (() => {
 
   function selectChar(playerIndex, emoji, sound) {
     if (!playerSetups[playerIndex]) return;
+    const themeChars = getThemeCharacters();
+    // If another bot already holds this emoji, bump it to a free char
+    playerSetups.forEach((p, j) => {
+      if (j !== playerIndex && p.isBot && p.character === emoji) {
+        const free = themeChars.find(c => !playerSetups.some((o, k) => k !== j && o.character === c.emoji));
+        if (free) { p.character = free.emoji; p.sound = free.sound; }
+      }
+    });
     playerSetups[playerIndex].character = emoji;
     if (sound) playerSetups[playerIndex].sound = sound;
     const theme = currentBoard ? (currentBoard.theme || 'cartoon') : 'cartoon';
     if (sound) Sounds.playThemedSound(theme, sound);
     // Update char picker in place without full re-render
-    const themeChars = getThemeCharacters();
     const takenEmojis = playerSetups.filter((_, j) => j !== playerIndex).map(o => o.character);
     const picker = document.querySelector('#swiz-player-body .char-picker');
     if (picker) picker.outerHTML = Components.AvatarSelector(themeChars, emoji, playerIndex, takenEmojis);
@@ -1521,7 +1556,7 @@ const App = (() => {
   };
 })();
 
-// Expose App on window so inline onclick="App.xxx()" handlers work in Android WebView
+// Expose App on window for Android WebView (const does not auto-assign to window)
 window.App = App;
 
 // ---- Guide step helpers (global so board.js can call them) ----
