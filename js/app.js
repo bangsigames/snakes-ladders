@@ -515,44 +515,94 @@ const App = (() => {
 
   // ---- Count step ----
   function buildCountStepHTML() {
+    const count = playerCount || 2;
+    // Slot types: index 0 = Player 1 (always human), 1-3 default bot unless existing setup says human
+    const slotIsBot = [false, true, true, true];
+    if (playerSetups.length >= 2) slotIsBot[1] = playerSetups[1]?.isBot !== false;
+    if (playerSetups.length >= 3) slotIsBot[2] = playerSetups[2]?.isBot !== false;
+    if (playerSetups.length >= 4) slotIsBot[3] = playerSetups[3]?.isBot !== false;
+
+    const slotRows = [1, 2, 3].map(i => {
+      const hidden = i >= count ? ' swiz-slot-hidden' : '';
+      const isBot = slotIsBot[i];
+      return `
+      <div class="swiz-player-slot${hidden}" data-slot="${i}">
+        <div class="swiz-slot-num" style="background:${PLAYER_COLORS[i]}">${i + 1}</div>
+        <div class="swiz-slot-label">${t('setup.player_n', { n: i + 1 })}</div>
+        <div class="swiz-type-toggle" id="swiz-type-toggle-${i}">
+          <button class="swiz-type-btn${!isBot ? ' active' : ''}" data-slot="${i}" data-type="human">👤 ${t('setup.toggle_human')}</button>
+          <button class="swiz-type-btn${isBot ? ' active' : ''}" data-slot="${i}" data-type="bot">🤖 ${t('setup.toggle_bot')}</button>
+        </div>
+      </div>`;
+    }).join('');
+
     return `<div class="swiz-count">
       <div class="swiz-back-row">
         <button class="btn btn-sm btn-ghost-dk" id="btn-swiz-count-back">${t('setup.btn_back')}</button>
       </div>
       <div class="swiz-count-body">
-        <h1 class="swiz-count-title">${t('setup.count_title')}</h1>
-        <div class="swiz-count-cards">
-          <button class="swiz-count-card" data-count="1">
-            <div class="swiz-count-num">1</div>
-            <div class="swiz-count-text">
-              <div class="swiz-count-lbl">${t('setup.vs_bot')}</div>
-              <div class="swiz-count-sub">${t('setup.vs_bot_desc')}</div>
-            </div>
-          </button>
-          <button class="swiz-count-card" data-count="2">
-            <div class="swiz-count-num">2</div>
-            <div class="swiz-count-lbl">${t('setup.players_label')}</div>
-          </button>
-          <button class="swiz-count-card" data-count="3">
-            <div class="swiz-count-num">3</div>
-            <div class="swiz-count-lbl">${t('setup.players_label')}</div>
-          </button>
-          <button class="swiz-count-card" data-count="4">
-            <div class="swiz-count-num">4</div>
-            <div class="swiz-count-lbl">${t('setup.players_label')}</div>
-          </button>
+        <h1 class="swiz-count-title">${t('setup.title')}</h1>
+        <div class="swiz-num-tabs">
+          <button class="swiz-num-tab${count === 2 ? ' active' : ''}" data-count="2">2</button>
+          <button class="swiz-num-tab${count === 3 ? ' active' : ''}" data-count="3">3</button>
+          <button class="swiz-num-tab${count === 4 ? ' active' : ''}" data-count="4">4</button>
         </div>
+        <div class="swiz-player-slots">
+          <div class="swiz-player-slot swiz-slot-you">
+            <div class="swiz-slot-num" style="background:${PLAYER_COLORS[0]}">1</div>
+            <div class="swiz-slot-label">${t('setup.you_label')}</div>
+            <div class="swiz-slot-you-badge">👤 ${t('setup.toggle_human')}</div>
+          </div>
+          ${slotRows}
+        </div>
+      </div>
+      <div class="swiz-count-footer">
+        <button class="btn btn-lg btn-green btn-full" id="btn-swiz-count-next">${t('setup.btn_next')}</button>
       </div>
     </div>`;
   }
 
   function wireCountStep() {
+    let currentCount = playerCount || 2;
+    // Mirror initial bot state from HTML (derived from playerSetups above)
+    const slotIsBot = [false, true, true, true];
+    if (playerSetups.length >= 2) slotIsBot[1] = playerSetups[1]?.isBot !== false;
+    if (playerSetups.length >= 3) slotIsBot[2] = playerSetups[2]?.isBot !== false;
+    if (playerSetups.length >= 4) slotIsBot[3] = playerSetups[3]?.isBot !== false;
+
     document.getElementById('btn-swiz-count-back')?.addEventListener('click', () => {
       Sounds.button();
       _wizardGoBackToOrigin();
     });
-    document.querySelectorAll('.swiz-count-card').forEach(btn => {
-      btn.addEventListener('click', () => { Game.haptic('light'); advanceFromCount(parseInt(btn.dataset.count)); });
+
+    document.querySelectorAll('.swiz-num-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        currentCount = parseInt(tab.dataset.count);
+        playerCount = currentCount;
+        Game.haptic('light');
+        Sounds.button();
+        document.querySelectorAll('.swiz-num-tab').forEach(t => t.classList.toggle('active', t === tab));
+        document.querySelectorAll('[data-slot]').forEach(slot => {
+          const s = parseInt(slot.dataset.slot);
+          if (s >= 1 && s <= 3) slot.classList.toggle('swiz-slot-hidden', s >= currentCount);
+        });
+      });
+    });
+
+    document.querySelectorAll('.swiz-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const slot = parseInt(btn.dataset.slot);
+        const isBot = btn.dataset.type === 'bot';
+        slotIsBot[slot] = isBot;
+        Sounds.button();
+        const toggle = document.getElementById(`swiz-type-toggle-${slot}`);
+        toggle?.querySelectorAll('.swiz-type-btn').forEach(b => b.classList.toggle('active', b === btn));
+      });
+    });
+
+    document.getElementById('btn-swiz-count-next')?.addEventListener('click', () => {
+      Sounds.button();
+      _advanceFromCombinedCount(currentCount, slotIsBot);
     });
   }
 
@@ -564,21 +614,23 @@ const App = (() => {
     else showBoardSelect();
   }
 
-  function advanceFromCount(n) {
-    playerCount = n;
-    Sounds.button();
-    const displayCount = n === 1 ? 2 : n;
+  function _advanceFromCombinedCount(count, slotIsBot) {
+    playerCount = count;
     const themeChars = getThemeCharacters();
     const nameSet = getWizardNameSet();
-    playerSetups = Array.from({ length: displayCount }, (_, i) => {
-      const existing = playerSetups[i];
-      const forceBot = (n === 1 && i === 1);
-      const defaultChar = themeChars[i % themeChars.length];
-      const defaultName = nameSet[i % nameSet.length];
-      if (existing) {
-        return { ...existing, isBot: forceBot ? true : (existing.isBot || false), sound: existing.sound || defaultChar.sound };
+    const takenEmojis = [];
+    playerSetups = Array.from({ length: count }, (_, i) => {
+      const isBot = i === 0 ? false : slotIsBot[i];
+      const defaultChar = themeChars.find(c => !takenEmojis.includes(c.emoji)) || themeChars[i % themeChars.length];
+      takenEmojis.push(defaultChar.emoji);
+      if (isBot) {
+        return { name: t('misc.bot_name', { n: i }), character: defaultChar.emoji, color: PLAYER_COLORS[i], sound: defaultChar.sound, isBot: true };
       }
-      return { name: defaultName, character: defaultChar.emoji, color: PLAYER_COLORS[i], sound: defaultChar.sound, isBot: forceBot };
+      const existing = playerSetups[i];
+      if (existing && !existing.isBot) {
+        return { ...existing, isBot: false, sound: existing.sound || defaultChar.sound };
+      }
+      return { name: nameSet[i % nameSet.length], character: defaultChar.emoji, color: PLAYER_COLORS[i], sound: defaultChar.sound, isBot: false };
     });
     setupCurrentPlayer = 0;
     setupWizardPhase = 'player';
@@ -591,26 +643,21 @@ const App = (() => {
     if (!p) return '';
     const themeChars = getThemeCharacters();
     const nameSet = getWizardNameSet();
-    const visibleCount = playerCount === 1 ? 1 : playerCount;
     const takenEmojis = playerSetups.filter((_, j) => j !== idx).map(o => o.character);
-    const isBot = p.isBot;
-    const isLastPlayer = idx >= visibleCount - 1;
+
+    // Progress: count only human players
+    const humanIndices = playerSetups.slice(0, playerCount).map((pl, i) => (!pl.isBot ? i : -1)).filter(i => i >= 0);
+    const humanStep = humanIndices.indexOf(idx) + 1;
+    const humanTotal = humanIndices.length;
+    const isLastPlayer = humanIndices[humanIndices.length - 1] === idx;
 
     const nextLabel = isLastPlayer
       ? t('setup.btn_play_wizard')
-      : t('setup.btn_next_player', { n: idx + 2 });
-    const progressLabel = t('setup.player_of', { n: idx + 1, total: visibleCount });
+      : t('setup.btn_next_player', { n: humanStep + 1 });
+    const progressLabel = t('setup.player_of', { n: humanStep, total: humanTotal });
 
-    // Solo Human/Bot toggle (Player 1 only when solo)
-    const showBotToggle = (playerCount === 1 && idx === 0);
-    const toggleHTML = showBotToggle ? `
-      <div class="swiz-solo-toggle">
-        <button class="ptype-btn ${!isBot ? 'active' : ''}" onclick="App.setWizardPlayerType(${idx},false)">${t('setup.toggle_human')}</button>
-        <button class="ptype-btn ${isBot ? 'active' : ''}" onclick="App.setWizardPlayerType(${idx},true)">${t('setup.toggle_bot')}</button>
-      </div>` : '';
-
-    // Name section (hidden for bots)
-    const nameSection = isBot ? '' : `
+    // Name section (bots are never shown in player step now)
+    const nameSection = `
       <div class="setup-section-label">${t('setup.pick_name')}</div>
       <div class="swiz-chips-grid" id="swiz-chips-${idx}">
         ${nameSet.map(name => `
@@ -642,7 +689,6 @@ const App = (() => {
           <div class="swiz-player-hdr">
             <div class="player-num-badge" style="background:${PLAYER_COLORS[idx]}">${idx + 1}</div>
             <div class="swiz-player-title">${t('setup.player_n', { n: idx + 1 })}</div>
-            ${toggleHTML}
           </div>
           ${nameSection}
           <div class="setup-section-label">${t('setup.pick_character')}</div>
@@ -659,16 +705,19 @@ const App = (() => {
     document.getElementById('btn-swiz-player-back')?.addEventListener('click', () => {
       syncCurrentPlayerName(idx);
       Sounds.button();
-      if (idx === 0) { setupWizardPhase = 'count'; }
-      else { setupCurrentPlayer = idx - 1; }
+      let prev = idx - 1;
+      while (prev >= 0 && playerSetups[prev]?.isBot) prev--;
+      if (prev < 0) { setupWizardPhase = 'count'; }
+      else { setupCurrentPlayer = prev; }
       renderSetupWizard();
     });
     document.getElementById('btn-swiz-player-next')?.addEventListener('click', () => {
       syncCurrentPlayerName(idx);
       Sounds.button();
-      const visibleCount = playerCount === 1 ? 1 : playerCount;
-      if (idx >= visibleCount - 1) { setupWizardPhase = 'summary'; }
-      else { setupCurrentPlayer = idx + 1; }
+      let next = idx + 1;
+      while (next < playerSetups.length && playerSetups[next]?.isBot) next++;
+      if (next >= playerSetups.length) { setupWizardPhase = 'summary'; }
+      else { setupCurrentPlayer = next; }
       renderSetupWizard();
     });
     // Keyboard slide-up via visualViewport
@@ -726,10 +775,9 @@ const App = (() => {
 
   // ---- Summary step ----
   function buildSummaryStepHTML() {
-    const displayCount = playerCount === 1 ? 2 : playerCount;
-    const playerRows = playerSetups.slice(0, displayCount).map((p, i) => {
+    const playerRows = playerSetups.slice(0, playerCount).map((p, i) => {
       const sub = p.isBot ? t('setup.toggle_bot') : t('setup.toggle_human');
-      const editable = !(playerCount === 1 && i === 1);
+      const editable = !p.isBot;
       return `<div class="swiz-summary-player ${editable ? '' : 'swiz-summary-bot'}"
         ${editable ? `onclick="App.editSummaryPlayer(${i})"` : ''}>
         <div class="swiz-summary-emoji">${p.character}</div>
@@ -757,8 +805,9 @@ const App = (() => {
   function wireSummaryStep() {
     document.getElementById('btn-swiz-summary-back')?.addEventListener('click', () => {
       Sounds.button();
-      const visibleCount = playerCount === 1 ? 1 : playerCount;
-      setupCurrentPlayer = visibleCount - 1;
+      let last = playerSetups.length - 1;
+      while (last >= 0 && playerSetups[last]?.isBot) last--;
+      setupCurrentPlayer = Math.max(0, last);
       setupWizardPhase = 'player';
       renderSetupWizard();
     });
@@ -777,11 +826,14 @@ const App = (() => {
       _wizardGoBackToOrigin();
     } else if (setupWizardPhase === 'player') {
       syncCurrentPlayerName(setupCurrentPlayer);
-      if (setupCurrentPlayer === 0) { setupWizardPhase = 'count'; renderSetupWizard(); }
-      else { setupCurrentPlayer -= 1; renderSetupWizard(); }
+      let prev = setupCurrentPlayer - 1;
+      while (prev >= 0 && playerSetups[prev]?.isBot) prev--;
+      if (prev < 0) { setupWizardPhase = 'count'; renderSetupWizard(); }
+      else { setupCurrentPlayer = prev; renderSetupWizard(); }
     } else {
-      const visibleCount = playerCount === 1 ? 1 : playerCount;
-      setupCurrentPlayer = visibleCount - 1;
+      let last = playerSetups.length - 1;
+      while (last >= 0 && playerSetups[last]?.isBot) last--;
+      setupCurrentPlayer = Math.max(0, last);
       setupWizardPhase = 'player';
       renderSetupWizard();
     }
@@ -817,8 +869,7 @@ const App = (() => {
       return;
     }
     // Validate human player names
-    const displayCount = playerCount === 1 ? 2 : playerCount;
-    for (let i = 0; i < displayCount; i++) {
+    for (let i = 0; i < playerCount; i++) {
       const p = playerSetups[i];
       if (!p || p.isBot) continue;
       if (!p.name || !p.name.trim()) {
@@ -830,7 +881,7 @@ const App = (() => {
     Sounds.button();
 
     // Collect player data
-    const players = playerSetups.slice(0, displayCount).map((p, i) => ({
+    const players = playerSetups.slice(0, playerCount).map((p, i) => ({
       name: p.name || (p.isBot ? t('misc.bot_name', { n: i + 1 }) : t('misc.player_fallback', { n: i + 1 })),
       character: p.character,
       color: p.color,
