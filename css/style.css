@@ -684,7 +684,7 @@ body.theme-cartoon .home-bg {
   justify-content: center;
   gap: 8px;
 }
-.home-btn-sm .home-btn-label { font-size: clamp(0.85rem, 3vw, 1rem); }
+.home-btn-sm .home-btn-label { font-size: clamp(0.75rem, 3vw, 1rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .btn-scores {
   background: #3B82F6;
   box-shadow: 0 5px 0 #1D4ED8, 0 7px 20px rgba(59,130,246,0.4);

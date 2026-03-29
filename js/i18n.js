@@ -1258,7 +1258,7 @@ const TRANSLATIONS = {
       btn_quick_play_sub: 'Tablero y tema aleatorios',
       btn_play: 'MIS TABLEROS 🎮',
       btn_my_boards: 'CREAR TABLERO',
-      btn_high_scores: 'SALÓN DE LA FAMA',
+      btn_high_scores: 'RÉCORDS',
       btn_howto: '❓ CÓMO JUGAR',
     },
     resume: {
