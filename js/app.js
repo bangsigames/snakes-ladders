@@ -1465,6 +1465,33 @@ const App = (() => {
       // winner screen uses textContent (set via t()), so translateDOM() already handles it
     });
 
+    // Globe language button
+    const globeBtn  = document.getElementById('btn-home-lang');
+    const langPanel = document.getElementById('home-lang-panel');
+    if (globeBtn && langPanel) {
+      globeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        langPanel.classList.toggle('hidden');
+        globeBtn.setAttribute('aria-expanded', String(!langPanel.classList.contains('hidden')));
+      });
+      document.addEventListener('click', (e) => {
+        if (!globeBtn.contains(e.target) && !langPanel.contains(e.target)) {
+          langPanel.classList.add('hidden');
+          globeBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        if (btn.dataset.lang === I18n.getLanguage()) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          I18n.setLanguage(btn.dataset.lang);
+          langPanel.classList.add('hidden');
+          globeBtn.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
+
     // Show home
     showHome();
   }
@@ -1493,6 +1520,9 @@ const App = (() => {
     editSummaryPlayer, toggleMusicMute,
   };
 })();
+
+// Expose App on window so inline onclick="App.xxx()" handlers work in Android WebView
+window.App = App;
 
 // ---- Guide step helpers (global so board.js can call them) ----
 function updateSnakeHintIcon(theme) {
