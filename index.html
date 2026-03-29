@@ -576,7 +576,7 @@
       <div class="final-scoreboard" id="final-scoreboard"></div>
     </div>
     <div class="winner-buttons">
-      <button class="btn btn-lg btn-green hidden" id="btn-continue-place" data-i18n="winner.btn_continue_2nd">Continue — find 2nd place! 🥈</button>
+      <button class="btn btn-lg btn-green hidden" id="btn-continue-place" data-i18n="winner.btn_continue_2nd">Continue for 2nd place 🥈</button>
       <button class="btn btn-lg btn-green" id="btn-play-again-same" data-i18n="winner.btn_play_same">Rematch! 🎮</button>
       <button class="btn btn-lg btn-winner-secondary" id="btn-play-again" data-i18n="winner.btn_play_again">Change Players</button>
       <button class="btn btn-lg btn-ghost-lt" id="btn-home-from-win" data-i18n="winner.btn_home">Home</button>
@@ -773,8 +773,8 @@
       const langPanel = document.getElementById('home-lang-panel');
       globeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const open = langPanel.classList.toggle('hidden', !langPanel.classList.contains('hidden'));
-        globeBtn.setAttribute('aria-expanded', String(langPanel.classList.contains('hidden') ? 'false' : 'true'));
+        langPanel.classList.toggle('hidden');
+        globeBtn.setAttribute('aria-expanded', String(!langPanel.classList.contains('hidden')));
       });
       document.addEventListener('click', (e) => {
         if (!globeBtn.contains(e.target) && !langPanel.contains(e.target)) {

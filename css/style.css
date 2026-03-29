@@ -1201,7 +1201,7 @@ body.theme-cartoon .home-bg {
 .theme-scene {
   position: relative;
   width: 100%;
-  min-height: 280px; /* fallback for Android WebView < 88 */
+  min-height: 100px; /* fallback for Android WebView < 88 */
   aspect-ratio: 4 / 3;
   height: auto;
   max-height: 160px;
@@ -2151,6 +2151,7 @@ body.theme-cartoon .home-bg {
   margin-bottom: 10px;
 }
 .player-name-chip {
+  touch-action: manipulation;
   background: rgba(0,0,0,0.04);
   border: 2px solid rgba(0,0,0,0.09);
   border-radius: 10px;
@@ -2178,6 +2179,7 @@ body.theme-cartoon .home-bg {
   margin-top: 8px;
 }
 .char-btn {
+  touch-action: manipulation;
   width: 100%; aspect-ratio: unset; min-width: 44px; min-height: 56px; border-radius: 14px;
   border: 2.5px solid transparent;
   background: rgba(0,0,0,0.04); font-size: 1.6rem;
@@ -2255,6 +2257,7 @@ body.theme-cartoon .home-bg {
 }
 .swiz-count-card[data-count="1"] { grid-column: 1 / -1; }
 .swiz-count-card {
+  touch-action: manipulation;
   background: rgba(255,255,255,0.13); backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 2px solid rgba(255,255,255,0.22);
@@ -2878,7 +2881,7 @@ body.theme-cartoon .home-bg {
 .event-card {
   position: relative; z-index: 1;
   background: var(--surface);
-  border-radius: 36px; padding: 44px 52px;
+  border-radius: 36px; padding: 28px 32px;
   text-align: center;
   box-shadow: 0 32px 100px rgba(0,0,0,0.5);
   max-width: 380px;
@@ -3139,6 +3142,7 @@ body.theme-cartoon .home-bg {
   animation: fadein 0.4s 1.3s both;
 }
 .winner-buttons .btn { width: 100%; }
+.winner-buttons .btn-lg { min-height: 54px; padding: 0 20px; font-size: 0.95rem; }
 
 /* White-on-dark secondary button for winner screen */
 .btn-winner-secondary {
