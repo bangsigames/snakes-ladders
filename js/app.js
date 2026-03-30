@@ -616,6 +616,16 @@ const App = (() => {
     else showBoardSelect();
   }
 
+  function _randomBotName(takenNames) {
+    const names = getWizardNameSet();
+    const available = names.filter(n => !takenNames.includes(n));
+    const pick = available.length > 0
+      ? available[Math.floor(Math.random() * available.length)]
+      : names[Math.floor(Math.random() * names.length)];
+    takenNames.push(pick);
+    return pick + ' (bot)';
+  }
+
   function _advanceFromCombinedCount(count, slotIsBot) {
     playerCount = count;
     const themeChars = getThemeCharacters();
@@ -623,13 +633,14 @@ const App = (() => {
     // Shuffle a copy of chars for random bot assignment
     const shuffled = themeChars.slice().sort(() => Math.random() - 0.5);
     const takenEmojis = [];
+    const takenBotNames = [];
     playerSetups = Array.from({ length: count }, (_, i) => {
       const isBot = i === 0 ? false : slotIsBot[i];
       const pool = isBot ? shuffled : themeChars;
       const defaultChar = pool.find(c => !takenEmojis.includes(c.emoji)) || pool[i % pool.length];
       takenEmojis.push(defaultChar.emoji);
       if (isBot) {
-        return { name: t('misc.bot_name', { n: i }), character: defaultChar.emoji, color: PLAYER_COLORS[i], sound: defaultChar.sound, isBot: true };
+        return { name: _randomBotName(takenBotNames), character: defaultChar.emoji, color: PLAYER_COLORS[i], sound: defaultChar.sound, isBot: true };
       }
       const existing = playerSetups[i];
       if (existing && !existing.isBot) {
@@ -792,7 +803,7 @@ const App = (() => {
     playerSetups[idx].isBot = isBot;
     const nameSet = getWizardNameSet();
     playerSetups[idx].name = isBot
-      ? t('misc.bot_name', { n: idx + 1 })
+      ? _randomBotName([])
       : (nameSet[idx % nameSet.length] || nameSet[0]);
     renderSetupWizard();
   }
@@ -1747,7 +1758,6 @@ function updateLadderList() {
   const continueBtn = document.getElementById('btn-step4-next');
   const continueHint = document.getElementById('step4-continue-hint');
   const autoBtn     = document.getElementById('btn-auto-ladders');
-  const warningEl   = document.getElementById('ladder-space-warning');
   const config  = Board.designer.getBoardConfig();
   const ladders = config.ladders;
   const n       = ladders.length;
@@ -1770,9 +1780,7 @@ function updateLadderList() {
   if (continueHint) continueHint.classList.toggle('hidden', met);
 
   const freeCells = (config.total - 2) - (n + (config.snakes ? config.snakes.length : 0)) * 2;
-  const crowded   = freeCells < 6;
-  if (warningEl) warningEl.classList.toggle('hidden', !crowded);
-  if (autoBtn)   autoBtn.disabled = crowded;
+  if (autoBtn)   autoBtn.disabled = freeCells < 2;
 
   updateLadderSelection(Board.designer.selectedLadderIndex);
 }

@@ -422,7 +422,6 @@
         <div class="snake-counter">
           <span class="snake-counter-text" id="ladder-counter-text">Ladders: 0/3 — add at least 3</span>
         </div>
-        <div class="snake-space-warning hidden" id="ladder-space-warning" data-i18n="designer.crowded_warning">Getting crowded! Leave room for snakes 🐍</div>
         <div class="snake-actions-row">
           <button class="btn btn-compact btn-ghost-lt" id="btn-undo-ladder" data-i18n="designer.btn_undo">↩ Undo</button>
           <button class="btn btn-compact btn-ghost-lt" id="btn-clear-ladders" data-i18n="designer.btn_clear_pieces">🗑 Clear</button>
@@ -560,14 +559,6 @@
   <div id="screen-winner" class="screen">
     <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
     <div class="winner-content">
-      <div class="winner-crown">
-        <svg viewBox="0 0 64 40" width="80" height="50" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 36 L12 8 L24 22 L32 4 L40 22 L52 8 L60 36 Z" fill="#FFBE0B" stroke="#D4A200" stroke-width="2" stroke-linejoin="round"/>
-          <circle cx="12" cy="8" r="4" fill="#FFBE0B" stroke="#fff" stroke-width="1.5"/>
-          <circle cx="32" cy="4" r="4" fill="#FFBE0B" stroke="#fff" stroke-width="1.5"/>
-          <circle cx="52" cy="8" r="4" fill="#FFBE0B" stroke="#fff" stroke-width="1.5"/>
-        </svg>
-      </div>
       <div class="winner-avatar" id="winner-avatar"></div>
       <h1 class="winner-name" id="winner-name"></h1>
       <p class="winner-subtitle" id="winner-subtitle">WINS THE GAME!</p>
