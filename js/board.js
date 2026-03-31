@@ -1856,8 +1856,9 @@ const Board = (() => {
     const oc = document.createElement('canvas');
     oc.width = size; oc.height = size;
     const ctx = oc.getContext('2d');
-    // Draw into inner padded area so decorative overflow is absorbed by canvas bounds
-    const pad = Math.round(size * 0.12);
+    // Head sprite is 1.3× cell-width; for a 1-col grid cell-width = inner,
+    // so we need pad ≥ ~28% of canvas size to prevent top clipping.
+    const pad = Math.round(size * 0.28);
     const inner = size - pad * 2;
     ctx.save();
     ctx.translate(pad, pad);

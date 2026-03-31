@@ -1749,7 +1749,7 @@ const TRANSLATIONS = {
       tap_hint: 'Toque para continuar',
     },
     winner: {
-      wins: 'Ganhou o jogo! 🥇',
+      wins: 'Ganha o jogo! 🥇',
       second: 'Ficou em 2.º lugar! 🥈',
       third: 'Ficou em 3.º lugar! 🥉',
       fourth: 'Ficou em 4.º lugar!',

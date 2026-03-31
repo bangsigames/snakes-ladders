@@ -680,8 +680,8 @@ const App = (() => {
     if (!p) return '';
     const themeChars = getThemeCharacters();
     const nameSet = getWizardNameSet();
-    // Only other human players block a character; bots get leftover chars at game start
-    const takenEmojis = playerSetups.filter((p2, j) => j !== idx && !p2.isBot).map(o => o.character).filter(Boolean);
+    // Only players who already completed setup (index < idx) block a character; future players & bots get leftover chars at game start
+    const takenEmojis = playerSetups.filter((p2, j) => j < idx && !p2.isBot).map(o => o.character).filter(Boolean);
 
     // Progress: count only human players
     const humanIndices = playerSetups.slice(0, playerCount).map((pl, i) => (!pl.isBot ? i : -1)).filter(i => i >= 0);
@@ -909,8 +909,8 @@ const App = (() => {
     const theme = currentBoard ? (currentBoard.theme || 'cartoon') : 'cartoon';
     if (sound) Sounds.playThemedSound(theme, sound);
     // Update char picker in place without full re-render
-    // Only other human players block a character; bots get leftover chars at game start
-    const takenEmojis = playerSetups.filter((p, j) => j !== playerIndex && !p.isBot).map(p => p.character).filter(Boolean);
+    // Only players who already completed setup (index < playerIndex) block a character; future players & bots get leftover chars at game start
+    const takenEmojis = playerSetups.filter((p, j) => j < playerIndex && !p.isBot).map(p => p.character).filter(Boolean);
     const picker = document.querySelector('#swiz-player-body .char-picker');
     if (picker) picker.outerHTML = Components.AvatarSelector(themeChars, emoji, playerIndex, takenEmojis);
   }
