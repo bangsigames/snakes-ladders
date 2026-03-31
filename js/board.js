@@ -1316,17 +1316,18 @@ const Board = (() => {
           Sounds.button();
           return;
         }
-        // Tapping empty cell clears selection
+        // Tapping empty cell clears selection without starting new placement
         if (this.selectedSnakeIndex !== -1) {
           this.selectedSnakeIndex = -1;
           this.draw();
           updateSnakeSelection(-1);
+          return;
         }
-        if (this.cellOccupied(cell)) { Sounds.errorBuzz(); showToast('Square taken! Try another ↩'); return; }
+        if (this.cellOccupied(cell)) { Sounds.errorBuzz(); showToast(t('misc.square_taken')); return; }
         this.pending = cell;
         this.mode = 'snake-tail';
         this.draw();
-        updatePlacementHint('Now tap the end square');
+        updatePlacementHint(t('designer.now_tap_end'));
         if (typeof confirmPlacementCell === 'function') confirmPlacementCell('snake-head', cell);
         Sounds.button();
       } else if (this.mode === 'snake-tail') {
@@ -1339,7 +1340,7 @@ const Board = (() => {
             updateDesignerUI();
             Sounds.landLadder();
           } else {
-            Sounds.errorBuzz(); showToast('Square taken! Try another ↩');
+            Sounds.errorBuzz(); showToast(t('misc.square_taken'));
           }
         } else if (cell === this.pending) {
           // Cancel placement by tapping the head again
@@ -1348,7 +1349,7 @@ const Board = (() => {
           this.draw();
           updatePlacementHint('');
         } else {
-          Sounds.errorBuzz(); showToast('End must be lower!');
+          Sounds.errorBuzz(); showToast(t('misc.snake_end_lower'));
         }
       } else if (this.mode === 'ladder-bottom') {
         // Tap existing ladder to select it (tap again or X button to delete)
@@ -1360,17 +1361,18 @@ const Board = (() => {
           Sounds.button();
           return;
         }
-        // Tapping empty cell clears selection
+        // Tapping empty cell clears selection without starting new placement
         if (this.selectedLadderIndex !== -1) {
           this.selectedLadderIndex = -1;
           this.draw();
           updateLadderSelection(-1);
+          return;
         }
-        if (this.cellOccupied(cell)) { Sounds.errorBuzz(); showToast('Square taken! Try another ↩'); return; }
+        if (this.cellOccupied(cell)) { Sounds.errorBuzz(); showToast(t('misc.square_taken')); return; }
         this.pending = cell;
         this.mode = 'ladder-top';
         this.draw();
-        updatePlacementHint('Now tap the top square');
+        updatePlacementHint(t('designer.now_tap_top'));
         if (typeof confirmPlacementCell === 'function') confirmPlacementCell('ladder-bottom', cell);
         Sounds.button();
       } else if (this.mode === 'ladder-top') {
@@ -1383,7 +1385,7 @@ const Board = (() => {
             updateDesignerUI();
             Sounds.landLadder();
           } else {
-            Sounds.errorBuzz(); showToast('Square taken! Try another ↩');
+            Sounds.errorBuzz(); showToast(t('misc.square_taken'));
           }
         } else if (cell === this.pending) {
           // Cancel placement by tapping the bottom again
@@ -1392,7 +1394,7 @@ const Board = (() => {
           this.draw();
           updatePlacementHint('');
         } else {
-          Sounds.errorBuzz(); showToast('Top must be higher!');
+          Sounds.errorBuzz(); showToast(t('misc.ladder_top_higher'));
         }
       }
     },
@@ -1837,7 +1839,13 @@ const Board = (() => {
     const oc = document.createElement('canvas');
     oc.width = size; oc.height = size;
     const ctx = oc.getContext('2d');
-    drawLadder(ctx, 1, 8, 1, 8, size, size, T, theme);
+    // Draw into inner padded area so decorative overflow is absorbed by canvas bounds
+    const pad = Math.round(size * 0.12);
+    const inner = size - pad * 2;
+    ctx.save();
+    ctx.translate(pad, pad);
+    drawLadder(ctx, 1, 8, 1, 8, inner, inner, T, theme);
+    ctx.restore();
     return oc;
   }
 
@@ -1848,7 +1856,13 @@ const Board = (() => {
     const oc = document.createElement('canvas');
     oc.width = size; oc.height = size;
     const ctx = oc.getContext('2d');
-    drawSnake(ctx, 8, 1, 1, 8, size, size, T, theme);
+    // Draw into inner padded area so decorative overflow is absorbed by canvas bounds
+    const pad = Math.round(size * 0.12);
+    const inner = size - pad * 2;
+    ctx.save();
+    ctx.translate(pad, pad);
+    drawSnake(ctx, 8, 1, 1, 8, inner, inner, T, theme);
+    ctx.restore();
     return oc;
   }
 

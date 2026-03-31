@@ -158,13 +158,23 @@ const App = (() => {
               <div class="card-name">${name}</div>
               <div class="card-details">
                 <span class="card-size">${cols}×${rows}</span>
-                <span class="card-count">🐍 ${b.snakes.length}</span>
-                <span class="card-count">🪜 ${b.ladders.length}</span>
+                <span class="card-count" data-preview="snake" data-theme="${theme}"> ${b.snakes.length}</span>
+                <span class="card-count" data-preview="ladder" data-theme="${theme}"> ${b.ladders.length}</span>
               </div>
             </div>
             ${cornerEl}
           </div>`;
       }).join('');
+
+      // Inject themed canvas snake/ladder icons (can't do this via innerHTML)
+      list.querySelectorAll('.card-count[data-preview]').forEach(el => {
+        const canvas = el.dataset.preview === 'snake'
+          ? Board.snakePreviewCanvas(el.dataset.theme, 40)
+          : Board.ladderPreviewCanvas(el.dataset.theme, 40);
+        canvas.style.cssText = 'width:20px;height:20px;vertical-align:middle;margin-right:2px;';
+        el.prepend(canvas);
+      });
+
       list.onclick = (e) => {
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
@@ -494,6 +504,7 @@ const App = (() => {
       root.innerHTML = buildPlayerStepHTML(setupCurrentPlayer);
       wirePlayerStep(setupCurrentPlayer);
     } else {
+      assignBotCharacters();
       root.innerHTML = buildSummaryStepHTML();
       wireSummaryStep();
     }
@@ -527,7 +538,7 @@ const App = (() => {
         <button class="btn btn-sm btn-ghost-dk" id="btn-swiz-count-back">${t('setup.btn_back')}</button>
       </div>
       <div class="swiz-count-body">
-        <h1 class="swiz-count-title">${t('setup.title')}</h1>
+        <h1 class="swiz-count-title">${t('setup.count_title')}</h1>
         <div class="swiz-num-tabs">
           <button class="swiz-num-tab${count === 2 ? ' active' : ''}" data-count="2">2</button>
           <button class="swiz-num-tab${count === 3 ? ' active' : ''}" data-count="3">3</button>
@@ -561,12 +572,16 @@ const App = (() => {
       let humans = 1; // Player 1 always human
       for (let i = 1; i < currentCount; i++) if (!slotIsBot[i]) humans++;
       const bots = currentCount - humans;
-      const hWord = humans === 1 ? 'human' : 'humans';
-      const bWord = bots === 1 ? 'bot' : 'bots';
       const el = document.getElementById('swiz-count-summary');
-      if (el) el.textContent = bots === 0
-        ? `${humans} humans — no bots`
-        : `${humans} ${hWord} + ${bots} ${bWord}`;
+      if (el) {
+        const pWord = t(humans === 1 ? 'setup.player_singular' : 'setup.player_plural');
+        if (bots === 0) {
+          el.textContent = `${humans} ${pWord}`;
+        } else {
+          const bWord = t(bots === 1 ? 'setup.bot_singular' : 'setup.bot_plural');
+          el.textContent = `${humans} ${pWord} + ${bots} ${bWord}`;
+        }
+      }
     }
     updateSummary();
 
@@ -618,7 +633,9 @@ const App = (() => {
 
   function _randomBotName(takenNames) {
     const names = getWizardNameSet();
-    const available = names.filter(n => !takenNames.includes(n));
+    // Strip " (bot)" suffix before comparing so bot names don't duplicate human names
+    const takenBase = takenNames.map(n => n.endsWith(' (bot)') ? n.slice(0, -6) : n);
+    const available = names.filter(n => !takenBase.includes(n));
     const pick = available.length > 0
       ? available[Math.floor(Math.random() * available.length)]
       : names[Math.floor(Math.random() * names.length)];
@@ -630,18 +647,22 @@ const App = (() => {
     playerCount = count;
     const themeChars = getThemeCharacters();
     const nameSet = getWizardNameSet();
-    // Shuffle a copy of chars for random bot assignment
-    const shuffled = themeChars.slice().sort(() => Math.random() - 0.5);
+    // Only human players claim characters upfront; bots get the leftovers at game start
     const takenEmojis = [];
-    const takenBotNames = [];
+    // Seed bot name pool with human player names to prevent duplicates
+    const humanNames = Array.from({ length: count }, (_, i) => {
+      if (i === 0 ? false : slotIsBot[i]) return null;
+      const existing = playerSetups[i];
+      return (existing && !existing.isBot) ? existing.name : nameSet[i % nameSet.length];
+    }).filter(Boolean);
+    const takenBotNames = [...humanNames];
     playerSetups = Array.from({ length: count }, (_, i) => {
       const isBot = i === 0 ? false : slotIsBot[i];
-      const pool = isBot ? shuffled : themeChars;
-      const defaultChar = pool.find(c => !takenEmojis.includes(c.emoji)) || pool[i % pool.length];
-      takenEmojis.push(defaultChar.emoji);
       if (isBot) {
-        return { name: _randomBotName(takenBotNames), character: defaultChar.emoji, color: PLAYER_COLORS[i], sound: defaultChar.sound, isBot: true };
+        return { name: _randomBotName(takenBotNames), character: null, color: PLAYER_COLORS[i], sound: null, isBot: true };
       }
+      const defaultChar = themeChars.find(c => !takenEmojis.includes(c.emoji)) || themeChars[i % themeChars.length];
+      takenEmojis.push(defaultChar.emoji);
       const existing = playerSetups[i];
       if (existing && !existing.isBot) {
         return { ...existing, isBot: false, sound: existing.sound || defaultChar.sound };
@@ -659,8 +680,8 @@ const App = (() => {
     if (!p) return '';
     const themeChars = getThemeCharacters();
     const nameSet = getWizardNameSet();
-    // Only other *human* players block a character; bots can be bumped
-    const takenEmojis = playerSetups.filter((p2, j) => j !== idx && !p2.isBot).map(o => o.character);
+    // Only other human players block a character; bots get leftover chars at game start
+    const takenEmojis = playerSetups.filter((p2, j) => j !== idx && !p2.isBot).map(o => o.character).filter(Boolean);
 
     // Progress: count only human players
     const humanIndices = playerSetups.slice(0, playerCount).map((pl, i) => (!pl.isBot ? i : -1)).filter(i => i >= 0);
@@ -802,8 +823,10 @@ const App = (() => {
     Sounds.button();
     playerSetups[idx].isBot = isBot;
     const nameSet = getWizardNameSet();
+    // Collect all other players' names to prevent duplicates
+    const otherNames = playerSetups.filter((_, j) => j !== idx).map(p => p.name || '');
     playerSetups[idx].name = isBot
-      ? _randomBotName([])
+      ? _randomBotName(otherNames)
       : (nameSet[idx % nameSet.length] || nameSet[0]);
     renderSetupWizard();
   }
@@ -881,19 +904,13 @@ const App = (() => {
   function selectChar(playerIndex, emoji, sound) {
     if (!playerSetups[playerIndex]) return;
     const themeChars = getThemeCharacters();
-    // If another bot already holds this emoji, bump it to a free char
-    playerSetups.forEach((p, j) => {
-      if (j !== playerIndex && p.isBot && p.character === emoji) {
-        const free = themeChars.find(c => !playerSetups.some((o, k) => k !== j && o.character === c.emoji));
-        if (free) { p.character = free.emoji; p.sound = free.sound; }
-      }
-    });
     playerSetups[playerIndex].character = emoji;
     if (sound) playerSetups[playerIndex].sound = sound;
     const theme = currentBoard ? (currentBoard.theme || 'cartoon') : 'cartoon';
     if (sound) Sounds.playThemedSound(theme, sound);
     // Update char picker in place without full re-render
-    const takenEmojis = playerSetups.filter((_, j) => j !== playerIndex).map(o => o.character);
+    // Only other human players block a character; bots get leftover chars at game start
+    const takenEmojis = playerSetups.filter((p, j) => j !== playerIndex && !p.isBot).map(p => p.character).filter(Boolean);
     const picker = document.querySelector('#swiz-player-body .char-picker');
     if (picker) picker.outerHTML = Components.AvatarSelector(themeChars, emoji, playerIndex, takenEmojis);
   }
@@ -908,6 +925,22 @@ const App = (() => {
   function toggleBot(idx) { if (playerSetups[idx]) setWizardPlayerType(idx, !playerSetups[idx].isBot); }
   function selectPlayerName(idx, name) { selectWizardName(idx, name); }
   function handleNameInput(idx, val) { handleWizardNameInput(idx, val); }
+
+  function assignBotCharacters() {
+    const themeChars = getThemeCharacters();
+    const takenEmojis = playerSetups.filter(p => !p.isBot && p.character).map(p => p.character);
+    const available = themeChars.filter(c => !takenEmojis.includes(c.emoji));
+    const shuffled = available.slice().sort(() => Math.random() - 0.5);
+    let pick = 0;
+    playerSetups.forEach(p => {
+      if (p.isBot) {
+        const char = shuffled[pick % shuffled.length] || themeChars[pick % themeChars.length];
+        p.character = char.emoji;
+        p.sound = char.sound;
+        pick++;
+      }
+    });
+  }
 
   function startGame() {
     if (!currentBoard) {
@@ -925,6 +958,9 @@ const App = (() => {
     }
 
     Sounds.button();
+
+    // Assign bot characters from whatever humans didn't take
+    assignBotCharacters();
 
     // Collect player data
     const players = playerSetups.slice(0, playerCount).map((p, i) => ({
@@ -1010,8 +1046,55 @@ const App = (() => {
       return b.position - a.position;
     });
 
-    document.getElementById('winner-avatar').textContent = winner.character;
-    document.getElementById('winner-name').textContent = winner.name;
+    const isMultiPlayer = players.length > 2;
+    const avatarEl   = document.getElementById('winner-avatar');
+    const nameEl     = document.getElementById('winner-name');
+    const subtitleEl = document.getElementById('winner-subtitle');
+    const podiumEl   = document.getElementById('winner-podium');
+
+    if (isMultiPlayer) {
+      // 3+ players: show podium, hide classic single-winner elements
+      if (avatarEl)   avatarEl.classList.add('hidden');
+      if (nameEl)     nameEl.classList.add('hidden');
+      if (subtitleEl) subtitleEl.classList.add('hidden');
+      if (podiumEl)   podiumEl.classList.remove('hidden');
+
+      // Determine which players fill each podium spot
+      // canContinue=true: only definitively ranked (in rankings[]) are shown; others empty
+      // canContinue=false: game over, use sorted[] for all spots
+      const podiumPlayers = [null, null, null];
+      if (canContinue) {
+        for (let i = 0; i < Math.min(3, gameState.rankings.length); i++) {
+          podiumPlayers[i] = gameState.rankings[i];
+        }
+      } else {
+        for (let i = 0; i < Math.min(3, sorted.length); i++) {
+          podiumPlayers[i] = sorted[i];
+        }
+      }
+
+      const placeLabels = [t('winner.wins'), t('winner.place_2nd'), t('winner.place_3rd')];
+      [1, 2, 3].forEach(spot => {
+        const p = podiumPlayers[spot - 1];
+        const avatarSpot = document.getElementById(`podium-avatar-${spot}`);
+        const labelSpot  = document.getElementById(`podium-label-${spot}`);
+        if (avatarSpot) avatarSpot.textContent = p ? p.character : '';
+        if (labelSpot) {
+          labelSpot.innerHTML = p
+            ? `<span class="podium-name">${escHtml(p.name)}${p.isBot ? ' 🤖' : ''}</span><span class="podium-place-text">${placeLabels[spot - 1]}</span>`
+            : '';
+        }
+      });
+    } else {
+      // 2 players: classic display
+      if (avatarEl)   avatarEl.classList.remove('hidden');
+      if (nameEl)     nameEl.classList.remove('hidden');
+      if (subtitleEl) subtitleEl.classList.remove('hidden');
+      if (podiumEl)   podiumEl.classList.add('hidden');
+
+      if (avatarEl) avatarEl.textContent = winner.character;
+      if (nameEl)   nameEl.textContent   = winner.name;
+    }
 
     document.getElementById('winner-stats').innerHTML = `
       <div class="stat-box">
@@ -1040,11 +1123,11 @@ const App = (() => {
       </div>`;
     }).join('');
 
-    // Subtitle and continue button
+    // Subtitle (2-player only) and continue button
     const place = gameState.rankings.length;
     const subtitle = document.getElementById('winner-subtitle');
     const subtitleKeys = { 1: 'winner.wins', 2: 'winner.second', 3: 'winner.third', 4: 'winner.fourth' };
-    if (subtitle) subtitle.textContent = t(subtitleKeys[place] || 'winner.wins');
+    if (subtitle && !isMultiPlayer) subtitle.textContent = t(subtitleKeys[place] || 'winner.wins');
 
     const continueBtn = document.getElementById('btn-continue-place');
     if (continueBtn) {
@@ -1070,7 +1153,7 @@ const App = (() => {
 
   function showScores() {
     Sounds.button();
-    const scores = Storage.loadScores();
+    const scores = Storage.loadScores().slice().sort((a, b) => a.turns - b.turns || a.date - b.date);
     const list = document.getElementById('scores-list');
     const medals = ['🥇','🥈','🥉'];
 

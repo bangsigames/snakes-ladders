@@ -716,11 +716,17 @@ body.theme-cartoon .home-bg {
   color: #fff;
   text-shadow: 0 1px 6px rgba(0,0,0,0.25);
 }
-.screen-header .btn-ghost-dk {
-  color: rgba(255,255,255,0.90) !important;
-  background: rgba(255,255,255,0.13) !important;
+.screen-header .btn-ghost-dk,
+.swiz-back-row .btn-ghost-dk,
+.swiz-player-header .btn-ghost-dk,
+.swiz-summary-header .btn-ghost-dk {
+  color: rgba(255,255,255,0.92) !important;
+  background: rgba(255,255,255,0.16) !important;
 }
-.screen-header .btn-ghost-dk:active { background: rgba(255,255,255,0.22) !important; }
+.screen-header .btn-ghost-dk:active,
+.swiz-back-row .btn-ghost-dk:active,
+.swiz-player-header .btn-ghost-dk:active,
+.swiz-summary-header .btn-ghost-dk:active { background: rgba(255,255,255,0.24) !important; }
 
 /* .btn-back — replaced by .btn.btn-sm.btn-ghost-dk */
 .btn-back { flex-shrink: 0; }
@@ -2723,6 +2729,7 @@ body.theme-cartoon .home-bg {
 .players-status {
   display: flex; gap: 6px; flex: 1; min-width: 0;
   overflow: hidden; justify-content: flex-start; align-items: center;
+  padding: 4px 0; /* prevent border/glow clipping at top and bottom */
 }
 
 .player-chip {
@@ -2789,6 +2796,13 @@ body.theme-cartoon .home-bg {
   pointer-events: none;
 }
 .dice.rolling { animation: diceRoll 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+/* Ensure roll animation is always visible even during bot turn */
+.dice.dice-disabled.rolling,
+.dice.bot-thinking.rolling {
+  animation: diceRoll 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  opacity: 1;
+  pointer-events: none;
+}
 /* Bot thinking — slow pulse + desaturate, clearly locked */
 .dice.bot-thinking {
   animation: botThinkBounce 0.7s ease-in-out infinite;
@@ -3002,7 +3016,7 @@ body.theme-cartoon .home-bg {
 .event-tap-hint {
   margin-top: 20px;
   font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
-  color: rgba(0,0,0,0.60);
+  color: var(--text-light);
   animation: tapHintPulse 1.4s cubic-bezier(0.45,0,0.55,1) infinite;
 }
 @keyframes tapHintPulse {
@@ -3140,6 +3154,64 @@ body.theme-cartoon .home-bg {
   text-shadow: 0 2px 12px rgba(0,0,0,0.3);
   animation: fadein 0.4s 0.8s both;
 }
+
+/* Podium — 3+ player games */
+.winner-podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 340px;
+  animation: fadein 0.4s 0.3s both;
+}
+.winner-podium.hidden { display: none; }
+
+.podium-place {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.podium-avatar {
+  font-size: 2.2rem;
+  line-height: 1;
+  min-height: 2.6rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.podium-avatar-1st {
+  font-size: 2.8rem;
+  animation: winnerPop 0.6s 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+.podium-block {
+  width: 100%;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+.podium-block-1st { background: linear-gradient(to bottom, #FFD700, #E6A800); height: 72px; }
+.podium-block-2nd { background: linear-gradient(to bottom, #D0D0D0, #A0A0A0); height: 52px; }
+.podium-block-3rd { background: linear-gradient(to bottom, #CD8C5A, #A0612A); height: 38px; }
+
+.podium-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.85);
+  text-align: center;
+  padding: 4px 2px 0;
+  line-height: 1.35;
+  min-height: 2.4em;
+}
+.podium-label .podium-name { color: white; font-size: 0.82rem; display: block; }
+.podium-label .podium-place-text { color: rgba(255,255,255,0.65); font-size: 0.68rem; display: block; }
 
 .winner-stats {
   display: flex; gap: 16px;

@@ -256,7 +256,7 @@
     <div class="designer-step hidden guided-step" id="designer-step-3">
       <div class="guided-top">
         <div class="guided-step-header">
-          <svg viewBox="0 0 28 28" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 -3 28 31" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
             <path d="M6 24 Q4 16 10 13 Q16 10 15 5 Q14 2 18 2" fill="none" stroke="#1e6b2a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M6 24 Q4 16 10 13 Q16 10 15 5 Q14 2 18 2" fill="none" stroke="#4CD964" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
             <circle cx="19.5" cy="2.5" r="4" fill="#1e6b2a"/>
@@ -301,7 +301,7 @@
             <span class="sh-label" data-i18n="designer.tap_tail">Tap where it slides DOWN ⬇️</span>
           </div>
         </div>
-        <div class="snake-hint-sub"><span class="remove-tap-icon">👆</span><span data-i18n="designer.remove_snake_hint">Tap a snake to remove it</span></div>
+        <div class="snake-hint-sub"><span class="remove-tap-icon">✕</span><span data-i18n="designer.remove_snake_hint">Tap a snake to remove it</span></div>
         <!-- hidden for backward-compat with board.js calls -->
         <div id="placement-hint" style="display:none">Tap a square to start</div>
       </div>
@@ -397,7 +397,7 @@
             <span class="sh-label" data-i18n="designer.tap_top">Tap the top ⬆️</span>
           </div>
         </div>
-        <div class="snake-hint-sub"><span class="remove-tap-icon">👆</span><span data-i18n="designer.remove_ladder_hint">Tap a ladder to remove it</span></div>
+        <div class="snake-hint-sub"><span class="remove-tap-icon">✕</span><span data-i18n="designer.remove_ladder_hint">Tap a ladder to remove it</span></div>
         <div id="ladder-hint" style="display:none">Tap a square to start</div>
       </div>
       <div class="guided-board-wrap" id="guided-board-wrap-4">
@@ -559,9 +559,28 @@
   <div id="screen-winner" class="screen">
     <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
     <div class="winner-content">
+      <!-- 2-player: classic single winner display -->
       <div class="winner-avatar" id="winner-avatar"></div>
       <h1 class="winner-name" id="winner-name"></h1>
       <p class="winner-subtitle" id="winner-subtitle">WINS THE GAME!</p>
+      <!-- 3+ player: podium (hidden for 2-player) -->
+      <div class="winner-podium hidden" id="winner-podium">
+        <div class="podium-place podium-2nd">
+          <div class="podium-avatar" id="podium-avatar-2"></div>
+          <div class="podium-block podium-block-2nd">🥈</div>
+          <div class="podium-label" id="podium-label-2"></div>
+        </div>
+        <div class="podium-place podium-1st">
+          <div class="podium-avatar podium-avatar-1st" id="podium-avatar-1"></div>
+          <div class="podium-block podium-block-1st">🥇</div>
+          <div class="podium-label" id="podium-label-1"></div>
+        </div>
+        <div class="podium-place podium-3rd">
+          <div class="podium-avatar" id="podium-avatar-3"></div>
+          <div class="podium-block podium-block-3rd">🥉</div>
+          <div class="podium-label" id="podium-label-3"></div>
+        </div>
+      </div>
       <div class="winner-stats" id="winner-stats"></div>
       <div class="final-scoreboard" id="final-scoreboard"></div>
     </div>
@@ -721,7 +740,7 @@
     <div class="privacy-scroll">
       <div class="privacy-body">
         <p class="privacy-app">My Snakes &amp; Ladders</p>
-        <p class="privacy-updated" data-i18n="privacy.updated">Last updated: March 2026</p>
+        <p class="privacy-updated" data-i18n="privacy.updated">Last updated: April 2026</p>
 
         <h3 data-i18n="privacy.h1">No data collected</h3>
         <p data-i18n="privacy.p1">This app does not collect, store, transmit, or share any personal information. There are no accounts, no analytics, no advertising, and no internet connection required.</p>
