@@ -64,6 +64,9 @@ jobs:
       - name: Decode keystore
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/snakesladders-release.jks
 
+      - name: Set targetSdkVersion to 35
+        run: sed -i 's/targetSdkVersion .*/targetSdkVersion 35/' android/app/build.gradle
+
       - name: Configure Gradle signing
         run: |
           cat >> android/app/build.gradle << 'EOF'
