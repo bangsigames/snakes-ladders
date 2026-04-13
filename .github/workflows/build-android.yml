@@ -67,6 +67,14 @@ jobs:
       - name: Set targetSdkVersion to 35
         run: sed -i 's/targetSdkVersion .*/targetSdkVersion 35/' android/app/build.gradle
 
+      - name: Set versionCode and versionName from tag
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          VERSION_CODE=$(echo "$VERSION" | tr -d '.' | sed 's/^0*//')
+          sed -i "s/versionCode .*/versionCode ${VERSION_CODE}/" android/app/build.gradle
+          sed -i "s/versionName .*/versionName \"${VERSION}\"/" android/app/build.gradle
+
       - name: Configure Gradle signing
         run: |
           cat >> android/app/build.gradle << 'EOF'
