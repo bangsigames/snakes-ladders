@@ -77,15 +77,15 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x android/gradlew
 
-      - name: Build signed release APK
-        run: cd android && ./gradlew assembleRelease --no-daemon
+      - name: Build signed release AAB
+        run: cd android && ./gradlew bundleRelease --no-daemon
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload signed APK
+      - name: Upload signed AAB
         uses: actions/upload-artifact@v4
         with:
           name: snakesladders-release
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30

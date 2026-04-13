@@ -88,25 +88,24 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build signed release APK
-        run: cd android && ./gradlew assembleRelease --no-daemon
+      - name: Build signed release AAB
+        run: cd android && ./gradlew bundleRelease --no-daemon
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload APK artifact
+      - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
           name: snakes-ladders-${{ github.ref_name }}
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: android/app/build/outputs/bundle/release/app-release.aab
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: android/app/build/outputs/apk/release/app-release.apk
+          files: android/app/build/outputs/bundle/release/app-release.aab
           name: My Snakes & Ladders ${{ github.ref_name }}
           body: |
             ## My Snakes & Ladders ${{ github.ref_name }}
-            Download and install the APK on your Android device.
-            Enable "Install from unknown sources" if prompted.
+            Upload the AAB to Google Play Console (Internal Testing or Production).
